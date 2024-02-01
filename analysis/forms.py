@@ -1,0 +1,72 @@
+from django import forms
+from analysis.models import Analysis, Genes, Projects
+from django.core.validators import MaxValueValidator, MinValueValidator
+from dal import autocomplete
+
+class AnalysisForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+       super().__init__(*args, **kwargs)
+       self.label_suffix = ""  # Removes : as label suffix
+
+    class Meta:
+       model = Analysis
+       fields = ['project', 'gene_selected_1', 'composite_analysis_type', 'do_correlation_analysis', 
+                 'do_de_analysis', 'percentile', 'rna_species']
+
+    project = forms.ModelChoiceField(queryset=Projects.objects.all(),
+                                         required=True,
+                                         widget=autocomplete.ModelSelect2(url='projects-autocomplete',
+                                                             attrs={'data-placeholder': 'Projects ...',
+                                                                    'data-minimum-input-length': 1.,
+                                                                    "id": "project_choice",
+                                                                    }))
+
+    gene_selected_1 = forms.ModelChoiceField(queryset=Genes.objects.all(),
+                                         required=True,
+                                         widget=autocomplete.ModelSelect2(url='genes-autocomplete',
+                                                             attrs={'data-placeholder': 'Genes ...',
+                                                                    'data-minimum-input-length': 3,
+                                                                    'id': 'goi_1',
+                                                                    'class': 'goi_select_form'
+                                                                    }))
+
+    composite_analysis_type = forms.ChoiceField(choices=[('', ' -- select an option -- '), 
+                                                               ("Single", "Single"), 
+                                                               ("Multi", "Multi"),
+                                                               ("Ratio", "Ratio")],
+                                                        widget=forms.Select(
+                                                               attrs={'id': 'composite_analysis_choice', 
+                                                                      'class': "custom-select mt-3", 
+                                                                      'empty_label': " -- select an option -- ",
+                                                                      'data-toggle': "popover",
+                                                                      'data-placement': "top", 
+                                                                      'data-trigger': "hover",
+                                                                      'data-content': "Choose if you want to do a single-analysis on a gene " + \
+                                                                                      "or a mutli/ratio analysis on a group of genes. Note that " + \
+                                                                                      "you cannot do a correlation analysis if you select either Ratio or Multi."
+                                                                      }))
+
+    do_correlation_analysis = forms.BooleanField(required=False,
+                                                 label="Correlation Analysis",
+                                                 widget=forms.CheckboxInput(attrs={'id': 'correlation_checkbox', 'class': "validate-checkbox"}))
+    
+    do_de_analysis = forms.BooleanField(required=False,
+                                          label="Differential Expression Analysis",
+                                          widget=forms.CheckboxInput(attrs={'id': 'de_checkbox', 'class': "validate-checkbox"}))
+
+    percentile = forms.IntegerField(required=False,
+                                   label="This program will compare the expressions of " + \
+                                         "samples with a gene expression less than the percentile with the expression " + \
+                                         "of samples greater than 100 - percentile.",
+                                   widget=forms.NumberInput(attrs={"id": "percentile_value", 
+                                                                   'placeholder': "Type Percentile Here ...",
+                                                                   'class': "form-control col-md-2",
+                                                                   'min': 2, 'max': 25}))
+
+    rna_species = forms.ChoiceField(required=False,
+                                   choices=[('', ' -- select an option -- '), 
+                                             ("mRNA", "mRNA"), 
+                                             ("miRNA", "miRNA")], 
+                                    widget=forms.Select(attrs={'id': 'rna_species_choices', 
+                                                               'class': "custom-select", 
+                                                               'empty_label': " -- select an option -- "}))

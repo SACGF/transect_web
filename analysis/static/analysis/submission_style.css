@@ -1,0 +1,24 @@
+.goi_alert {
+    display: none;
+}
+
+.submission_alert {
+    display: none;
+}
+
+.form-control {
+    width: 200px;
+}
+
+.de_option {
+    display: none;
+}
+
+#submit_req {
+    width: 200px;
+    height: 50px;
+}
+
+#add_goi {
+    display: none;
+}

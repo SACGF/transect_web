@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {% load static %}  
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>My Website</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="{% static 'analysis/submission_style.css' %}">
+    <script src="{% static 'js/jquery-3.7.1.min.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    {{ analysis_form.media }}
+  </head>
+  <body>
+    <main>
+        <div class="container">
+            <h1>Title</h1>
+            <div id="input_args">
+                <form id="input_form" method="POST">
+                    {% csrf_token %}
+                    <div id="select_project" class="card mt-3">
+                        <div class="card-header">Project</div>
+                        <div class="card-body">
+                            {{ analysis_form.project }}
+                        </div>
+                    </div>
+                    <div id="goi_settings" class="card mt-3">
+                        <div class="card-header">Genes of Interest</div>
+                            <div class="card-body">
+                                {{ analysis_form.composite_analysis_type }}
+                                <div class="goi_list mt-3">
+                                    <div class="goi_option ml-3" id="goi_div_1">
+                                        <div class="form-group row">
+                                            {{ analysis_form.gene_selected_1 }}
+                                            <button type="button" id="delete_goi_1" style="display: none;" class="btn btn-danger ml-2 delete_goi">Delete Gene</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button type="button" id="add_goi" class="btn btn-secondary">Add More Genes</button>
+                            </div>
+                        </div>
+                    </div>
+                    <span id="analysis_type_span">
+                        <div id="analysis_type" class="card mt-3">
+                            <div class="card-header">Analysis Type</div>
+                                <div class="card-body">
+                                    {{ analysis_form.do_correlation_analysis }} {{ analysis_form.do_correlation_analysis.label_tag }}
+                                    {{ analysis_form.do_de_analysis }} {{ analysis_form.do_de_analysis.label_tag }}
+                                    <div class="text-danger mt-3 submission_alert" id="analysis_type_alert">
+                                        <strong class="mx-2">Error!</strong> Please select an analysis type.
+                                    </div>
+                                </div>
+                        </div>
+                    </span>
+                    <div id="percentile_div" class="card mt-3 de_option">
+                        <div class="card-header">Percentile</div>
+                            <div class="card-body">
+                                {{ analysis_form.percentile.label_tag }}
+                                <div class="form-group row ml-1">{{ analysis_form.percentile }}</div>
+                            </div>
+                    </div>
+                    <div id="rna_species" class="card mt-3 mb-3 de_option">
+                        <div class="card-header">RNA Species to Analyse</div>
+                            <div class="card-body">
+                                {{ analysis_form.rna_species }}
+                            </div>
+                        </div>
+                    </div>
+                    <div id="submission_and_loading_container" class="mt-3 row ml-3 justify-content-md-center">
+                        <input type="submit" id="submit_req" class="btn btn-primary">
+                    </div>
+                </form>
+            </div>
+        </div>  
+    </main>
+	<script>
+        $("[data-toggle=popover]").popover();
+
+        // goi and composite analysis choice
+        const goi_div_1 = document.getElementById("goi_div_1")
+        const goi_text_1 = document.getElementById("goi_1")
+
+        const add_genes_button = document.getElementById("add_goi")
+        add_genes_button.addEventListener('click', add_goi_option)
+
+        // analysis type choice
+        const correlation_checkbox = document.getElementById("correlation_checkbox")
+
+        // rna species choice
+        const rna_species_choices = document.getElementById("rna_species_choices")
+
+        function trigger_de_checkbox() {
+            show_de_options();
+            document.getElementById("analysis_type_alert").style.display = "none";
+        }
+
+        const de_checkbox = document.getElementById("de_checkbox")
+        de_checkbox.addEventListener("change", () => {trigger_de_checkbox()})
+
+        // Disable the "Select an option" option in the rna_species dropdown
+        $("#rna_species_choices").change(function() {
+            $("option[value='']").prop("disabled", true);
+        });
+
+        const composite_analysis_choice = document.getElementById("composite_analysis_choice")
+        composite_analysis_choice.addEventListener("change", change_goi_analysis)
+
+        $("#composite_analysis_choice").change(function() {
+            $("option[value='']").prop("disabled", true);
+        });
+
+        function enable_analysis_form() {
+            const analysis_type = document.getElementById('analysis_type')
+            analysis_type.style.pointerEvents = 'auto';
+            analysis_type.style.filter = "brightness(1)";
+            document.getElementById('analysis_type_span').style.cursor = "default";
+        }
+
+        function disable_analysis_form() {
+            const analysis_type = document.getElementById('analysis_type')
+            analysis_type.style.pointerEvents = 'none';
+            analysis_type.style.filter = "brightness(0.7)";
+            document.getElementById('analysis_type_span').style.cursor = "not-allowed";
+        }
+
+        // we should also make it such that choosing "multi" or "ratio" analysis forcibly selects
+        // DE analysis and removes the "Analysis Type" section.
+        function change_goi_analysis() {
+
+            add_genes_button.style.cursor = "pointer"
+
+            if (composite_analysis_choice.value === "Single") {
+                add_genes_button.style.display = "none"
+                // delete everything except goi 1
+                while (document.getElementsByClassName("goi_option").length > 1) {
+                    document.getElementsByClassName("goi_option")[1].remove()
+                }
+
+                // same as the bottom when forcing the DE analysis, except we are reversing it here
+                de_checkbox.checked = false
+                trigger_de_checkbox()
+
+                // re-enabling changing analysis type form
+                enable_analysis_form()
+            } else {
+
+                if (composite_analysis_choice.value === "Multi") {
+                    add_genes_button.style.display = "block"
+                } else {
+                    // removing excess boxes
+                    while (document.getElementsByClassName("goi_option").length > 2) {
+                        document.getElementsByClassName("goi_option")[2].remove()
+                    }
+                    add_genes_button.style.display = "none"
+                }
+                
+                // create a new box
+                if (document.getElementsByClassName("goi_option").length === 1) {
+                    create_new_goi_div(2)
+                }
+
+                // forcibly select DE analysis and unchecking correlation and prevent modifications to the Analysis section
+                
+                correlation_checkbox.checked = false
+                de_checkbox.checked = true
+                trigger_de_checkbox()
+
+                // disabling changing analysis type form
+                disable_analysis_form()
+            }
+        }
+
+        function create_new_goi_div(id) {
+
+            
+            const originalElement = document.getElementById("goi_div_1");
+            const new_goi_input = originalElement.cloneNode(true);
+
+            console.log(originalElement)
+            console.log(new_goi_input)
+
+            // Update the cloned element's ID or make other modifications if needed
+            // no need to add 1 to num_genes
+
+            new_goi_input.id = "goi_div_".concat(String(id));
+            new_goi_input.getElementsByClassName("goi_select_form")[0].id = "goi_".concat(String(id));
+            new_goi_input.getElementsByClassName("goi_select_form")[0].name = "gene_selected_".concat(String(id));
+            // new_goi_input.getElementsByClassName("goi_select_form")[0].value = ""
+            
+            if (id > 2) {
+                new_goi_input.getElementsByClassName("delete_goi")[0].id = "delete_goi_".concat(String(id));
+                new_goi_input.getElementsByClassName("delete_goi")[0].style.display = "block"
+                new_goi_input.getElementsByClassName("delete_goi")[0].addEventListener("click", () => {
+                    new_goi_input.remove()
+                    add_genes_button.style.cursor = "pointer"
+                })
+            }
+            
+            document.getElementsByClassName("goi_list")[0].appendChild(new_goi_input);
+
+        }
+
+        // only for multi_analysis
+        function add_goi_option() {
+
+            // check how many
+            const num_genes = document.getElementsByClassName("goi_option").length
+            if (num_genes === 5) {
+                return
+            }
+
+            create_new_goi_div(num_genes + 1)
+
+            if ((num_genes + 1) === 5) {
+                add_genes_button.style.cursor = "not-allowed"
+            }
+        }
+
+        const percentile_textbox = document.getElementById("percentile_value")
+        //percentile_textbox.addEventListener("keyup", check_if_suitable_percentile)
+
+        function show_de_options() {
+            const myElements = document.querySelectorAll(".de_option");
+            if (de_checkbox.checked) {
+                percentile_value.required = true;
+                rna_species_choices.required = true;
+                for (let i = 0; i < myElements.length; i++) {
+                    myElements[i].style.display = "block";
+                }
+            } else {
+                // bringing back default values
+                percentile_value.required = false;
+                rna_species_choices.required = false;
+
+                percentile_textbox.value = ""
+                rna_species_choices.selectedIndex = 0
+
+                for (let i = 0; i < myElements.length; i++) {
+                    myElements[i].style.display = "none"
+                }
+            }
+        }
+
+        $('#input_form').submit(function(e) {
+        if ($('.validate-checkbox:checked').length === 0) {
+            document.getElementById("analysis_type_alert").style.display = "block";
+            e.preventDefault();
+        } else {
+            document.getElementById("analysis_type_alert").style.display = "none";
+        }
+    });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,8 @@
+.env
+sRT_backend/secrets.py
+db.sqlite3
+productionfiles/*
+analysis/migrations*
+analysis/.forms.py.swp
+__pycache__/
+get_genes.py
