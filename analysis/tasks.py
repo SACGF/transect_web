@@ -12,6 +12,7 @@ from celery import shared_task
 @shared_task
 def submit_command(project, gene, composite_analysis_type, percentile, rna_species, sha_hash, outdir, analysis_script_path):
     command = analysis_script_path + " -p " + project + " -g "
+    # INSPECT! Change gene.split(",") to just gene
     all_gois = gene.split(",")
     
     # adding different settings based on whether de or correlation, 
@@ -52,9 +53,3 @@ def submit_command(project, gene, composite_analysis_type, percentile, rna_speci
         analysis_obj.fully_downloaded = True
         analysis_obj.save()
         shutil.make_archive(out_path, 'zip', out_path) # finally zip the command
-
-@shared_task
-def add(x, y):
-    print(x + y)
-    time.sleep(10)
-    return x + y

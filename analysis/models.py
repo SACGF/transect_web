@@ -16,6 +16,7 @@ class Analysis(models.Model): # change name to analysis
     sha_hash = models.TextField(primary_key=True)
     project = models.ForeignKey(Projects, on_delete=models.CASCADE)
     gene = models.ForeignKey(Genes, on_delete=models.CASCADE)
+    # genes_of_interest = models.ManyToManyField(Genes, on_delete=models.CASCADE)
     composite_analysis_type = models.CharField(max_length=100)
     percentile = models.PositiveIntegerField()
     rna_species = models.CharField(max_length=100)
