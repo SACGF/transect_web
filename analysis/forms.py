@@ -10,8 +10,22 @@ class AnalysisForm(forms.Form):
 
     class Meta:
        model = Analysis
-       fields = ['project', 'gene_selected_1', 'composite_analysis_type', 'do_correlation_analysis', 
+       fields = ['script', 'project', 'gene_selected_1', 'composite_analysis_type', 'do_correlation_analysis', 
                  'do_de_analysis', 'percentile', 'rna_species']
+
+    script_type = forms.ChoiceField(choices=[('', ' -- select an option -- '), 
+                                                           ("GDC", "GDC"), 
+                                                           ("GTEx", "GTEx"),
+                                                           ("RECOUNT3", "RECOUNT3")],
+                                                    widget=forms.Select(
+                                                           attrs={'id': 'script_choice', 
+                                                                  'class': "custom-select mt-3", 
+                                                                  'empty_label': " -- select an option -- ",
+                                                                  'data-toggle': "popover",
+                                                                  'data-placement': "top", 
+                                                                  'data-trigger': "hover",
+                                                                  'data-content': "Choose the analysis script" 
+                                                                  }))
 
     project = forms.ModelChoiceField(queryset=Projects.objects.all(),
                                          required=True,

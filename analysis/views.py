@@ -8,21 +8,16 @@ from wsgiref.util import FileWrapper
 from dal import autocomplete
 from analysis.models import Analysis, Genes, Projects
 from analysis.forms import AnalysisForm
-from analysis.tasks import add, submit_command
+from analysis.tasks import submit_command
 import time
 import hashlib
 import os
 import subprocess
+from sRT_backend.settings import env
 
 # as an extension to this, it might be good to create a directory for all 3 types of scripts, GDC, etc, containing 
 
-OUTPUT_DIR = "/home/yasir/Desktop/newProj4/outs"
-ANALYSIS_SCRIPT_PATH = "/home/yasir/Desktop/newProj4/sRT_new/sRT/bin/GDC_scripts/GDC_TCGA_analyse_GOI.sh"
-WEBSERVER_PORT = "http://localhost:8000"
-
 def download(request):
-    global OUTPUT_DIR
-    global WEBSERVER_PORT
 
     query = request.GET.dict()
     if Analysis.objects.filter(sha_hash=str(query["analysis_id"])).exists() is False:
@@ -39,12 +34,12 @@ def download(request):
     except:
         return JsonResponse({'error': f'{analysis_type} Analysis Failed'}, status=500)
 
-    if os.path.exists(OUTPUT_DIR + "/" + str(query["analysis_id"]) + ".zip") is False:
+    if os.path.exists(env('OUTPUT_DIR') + "/" + str(query["analysis_id"]) + ".zip") is False:
         raise Http404("Analysis Not Found")
 
     # should check database as well as if the file exists
 
-    analysisOutDir = OUTPUT_DIR + "/" + str(query["analysis_id"]) + ".zip"
+    analysisOutDir = env('OUTPUT_DIR') + "/" + str(query["analysis_id"]) + ".zip"
     if os.path.exists(analysisOutDir) is False:
         return JsonResponse({'error': f'{analysis_type} Analysis Not Found'}, status=404)
 
@@ -60,7 +55,7 @@ def download(request):
     try:
         response = StreamingHttpResponse(generate_file_chunks(analysisOutDir), content_type='application/zip')
         response['Content-Disposition'] = f'attachment; filename={download_filename}'
-        response["Access-Control-Allow-Origin"] = WEBSERVER_PORT
+        response["Access-Control-Allow-Origin"] = env('WEBSERVER_PORT')
         return response
     except:
         return JsonResponse({'error': f'{analysis_type} Analysis Download Failed'}, status=500)
@@ -84,13 +79,21 @@ class ProjectsAutocomplete(autocomplete.Select2QuerySetView):
         return qs
 
 def display_settings_page(request):
+    print("Rain")
     if request.method == 'POST':
+        print("Enter")
         analysis_form = AnalysisForm(request.POST)
+        print(analysis_form.errors.as_data())
 
         # if not doing single gene analysis, automatically becomes de_analysis
         # and cannot do single analysis
         if analysis_form.is_valid():
+            script_chosen = analysis_form.cleaned_data.get('script_type')
+            analysis_script_path = env('GDC_SCRIPT') if script_chosen == "GDC" else \
+                                  (env('GTEX_SCRIPT') if script_chosen == "GTEx" else env('RECOUNT_SCRIPT'))
+
             curr_proj_text = analysis_form.cleaned_data.get('project')
+            print("Hellii")
             
             try:
                 project_obj = Projects.objects.filter(pk=curr_proj_text).first()
@@ -169,7 +172,7 @@ def display_settings_page(request):
                     # cannot pass an object e.g. Project, Genes to the celery app
 
                     # INSPECT! CHANGE str(curr_gois) to just curr_gois
-                    submit_command.apply_async((str(project_obj), str(curr_gois), curr_goi_composite_analysis_type, curr_percentile, curr_rna_species, sha_hash, OUTPUT_DIR, ANALYSIS_SCRIPT_PATH), queue="script_queue")
+                    submit_command.apply_async((str(project_obj), str(curr_gois), curr_goi_composite_analysis_type, curr_percentile, curr_rna_species, sha_hash, env('OUTPUT_DIR'), analysis_script_path), queue="script_queue")
                 
                 if analysis_query == "":
                     analysis_query = "?analysis=" + str(sha_hash)
@@ -177,10 +180,11 @@ def display_settings_page(request):
                     analysis_query += "&analysis=" + str(sha_hash)
             
             return redirect(reverse('analysis-fetch') + analysis_query)
-
     else:
+        print("Fails")
         analysis_form = AnalysisForm()
-        return render(request, 'analysis/submission_page.html', {"analysis_form": analysis_form})
+    print("Here")
+    return render(request, 'analysis/submission_page.html', {"analysis_form": analysis_form})
 
 def fetch(request):
     query = request.GET.dict()

@@ -13,11 +13,13 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 import os
 from pathlib import Path
 from kombu import Exchange, Queue
-from secrets import *
+import environ
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+env = environ.Env()
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
@@ -28,7 +30,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 DEBUG = True
 
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
-
 
 # Application definition
 
@@ -43,7 +44,8 @@ INSTALLED_APPS = [
     "analysis.apps.AnalysisConfig",
     "dal",
     "dal_select2",
-    "compressor"
+    "compressor",
+    "environ"
 ]
 
 MIDDLEWARE = [
@@ -154,7 +156,7 @@ CELERY_BROKER_URL = "pyamqp://guest@localhost//"
 CELERY_WORKER_CONCURRENCY = 8
 CELERY_RESULT_BACKEND = 'django-db'
 
-# CELERY_TASK_QUEUES = ()
+CELERY_TASK_QUEUES = (Queue("script_queue"),)
 
 CELERY_RESULT_BACKEND = 'django-db'
 
@@ -167,4 +169,25 @@ CACHES = {
         'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
         'LOCATION': 'my_cache_table',
     }
+}
+
+SECRET_KEY = env("SECRET_KEY")
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': 'debug.log',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
 }

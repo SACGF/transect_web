@@ -20,6 +20,12 @@
             <div id="input_args">
                 <form id="input_form" method="POST">
                     {% csrf_token %}
+                    <div id="select_script" class="card mt-3">
+                        <div class="card-header">Script</div>
+                        <div class="card-body">
+                            {{ analysis_form.script_type }}
+                        </div>
+                    </div>
                     <div id="select_project" class="card mt-3">
                         <div class="card-header">Project</div>
                         <div class="card-body">
