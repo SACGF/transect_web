@@ -1,4 +1,5 @@
 from django.db import models
+import datetime
 
 class Genes(models.Model):
     name = models.TextField(primary_key=True)
@@ -23,8 +24,8 @@ class Analysis(models.Model): # change name to analysis
 
     fully_downloaded = models.BooleanField(default=False)
     times_accessed = models.PositiveIntegerField(default=0) # may be useful
-    # last_accessed
     date_posted = models.DateTimeField(auto_now_add=True)  # auto_now_add automatically sets when the record was created
+    last_accessed = models.DateTimeField(auto_now=True) 
 
     # read this: https://docs.djangoproject.com/en/5.0/ref/models/options/
     # also provides details on options, including unique_together
