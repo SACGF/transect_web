@@ -16,3 +16,10 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 
 # Load task modules from all registered Django apps.
 app.autodiscover_tasks()
+
+app.conf.beat_schedule = {
+    'clean_database_and_analysis': {
+        'task': 'analysis.tasks.clean_database_and_analysis',
+        'schedule': crontab(minute=0, hour=0),  # Example: Run at midnight every day
+    },
+}

@@ -88,6 +88,7 @@ def submit_command(project, gene, composite_analysis_type, percentile, rna_speci
 # should I add a case that takes into account whether a Analysis object is currently being used
 # I plan on executing this everyday at 3am, where it would reasonably be assumed that no one is
 # accessing the website (perhaps I can add a render when someone navigates to home, to inform them that this is the case)
+# I should also block this function from occurring if there are still active jobs
 @shared_task
 def clean_database_and_analysis():
     # removes items that were last accessed more than 24 hours ago
