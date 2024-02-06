@@ -172,7 +172,7 @@ def display_settings_page(request):
                     # cannot pass an object e.g. Project, Genes to the celery app
 
                     # INSPECT! CHANGE str(curr_gois) to just curr_gois
-                    submit_command.apply_async((str(project_obj), str(curr_gois), curr_goi_composite_analysis_type, curr_percentile, curr_rna_species, sha_hash, env('OUTPUT_DIR'), analysis_script_path), queue="script_queue")
+                    submit_command.apply_async((str(project_obj), str(curr_gois), curr_goi_composite_analysis_type, curr_percentile, curr_rna_species, sha_hash, analysis_script_path), queue="script_queue")
                 
                 if analysis_query == "":
                     analysis_query = "?analysis=" + str(sha_hash)
