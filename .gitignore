@@ -6,3 +6,4 @@ analysis/migrations*
 analysis/.forms.py.swp
 __pycache__/
 get_genes.py
+celerybeat*

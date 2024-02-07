@@ -89,13 +89,17 @@ def submit_command(project, gene, composite_analysis_type, percentile, rna_speci
 # I plan on executing this everyday at 3am, where it would reasonably be assumed that no one is
 # accessing the website (perhaps I can add a render when someone navigates to home, to inform them that this is the case)
 # I should also block this function from occurring if there are still active jobs
-@shared_task
+@shared_task(queue='script_queue')
 def clean_database_and_analysis():
+    print("\n\n")
+    print("PERFORMING DATABASE CLEANUP")
+    print("\n\n")
     # removes items that were last accessed more than 24 hours ago
     for analysis in Analysis.objects.all():
         #analysis.last_accessed timezone.localtime()
         difference = timezone.localtime() - analysis.last_accessed.astimezone(timezone.get_current_timezone())
-        if difference.days == 1: # dates are more than 24 hours apart from each other, can use difference.minutes, etc
+        if difference.days > 1: # dates are more than 24 hours apart from each other, can use difference.minutes, etc
+        #if difference.seconds > 600:
             out_path = os.path.join(env('OUTPUT_DIR'), analysis.sha_hash)
             analysis.delete()
             delete_folder(out_path)
@@ -124,7 +128,8 @@ def clean_database_and_analysis():
         if Analysis.objects.filter(sha_hash=sha_hash).exists() is False \
            or os.path.exists(zip_path) is False \
            or os.path.exists(unzipped_path) is False:
-            Analysis.objects.filter(sha_hash=sha_hash).first().delete()
+            if Analysis.objects.filter(sha_hash=sha_hash).exists():
+                Analysis.objects.filter(sha_hash=sha_hash).first().delete()
             delete_folder(unzipped_path)
             delete_file(zip_path)
 
