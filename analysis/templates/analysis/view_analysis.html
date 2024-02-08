@@ -6,14 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>My Website</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-    <link rel="stylesheet" href="{% static 'analysis/submission_style.css' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" href="{% static 'analysis/results_style.css' %}">
     <script src="{% static 'js/jquery-3.7.1.min.js' %}"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
   </head>
   <body>
-        <div class="container">
+        <div class="container" id="output_container">
             <div class="ml-3 mt-3 row justify-content-md-center" id="submission_loader">
                 <div class="spinner-border" role="status">
                     <span class="sr-only">Loading...</span>
@@ -23,10 +23,56 @@
                 </div>
             </div>
         </div>
+        {% include 'analysis/correlation_analysis_view.html' %}
+        <button data-bs-toggle="modal" data-bs-target="#image_modal">Hello</button>
+        <div id="image_modal" class="modal fade" tabindex="-1" aria-labelledby="modal-title" aria-hidden="true">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="modal-title">Stiuff</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <p>Template</p>
+              </div>
+            </div>
+          </div>
+        </div>
   </body>
   <script>
-    async function download_single_analysis(hash) {
-      const url = 'http://localhost:8000/analysis/download?analysis_id='.concat(hash)
+    function display_correlation_analysis_results(analysis) {
+      const url = "{% url 'analysis-download' analysis_id=analysis %}";
+      document.getElementById("correlation_view_container").style.display = "block"
+      document.getElementById("download_correlation").addEventListener('click', () => {
+        try {
+          download_single_analysis(url)
+        } catch (exception) {
+          final_message = exception
+          error = true
+        }
+      })
+    }
+
+    // this function should also do something to verify nothing went wrong
+    async function display_analysis(analysis) {
+      const url = "{% url 'analysis-check-type' analysis_id=analysis %}";
+      try {
+        const response = await fetch(url)
+        if (response.status !== 200) {
+            throw new Error(` ${response.status} - ${response.statusText}`)
+        } 
+        const json_response = await response.json()
+        if (json_response.analysis_type === "Correlation") {
+          display_correlation_analysis_results(analysis)
+        } else if (json_response.analysis_type === "DE") {
+          console.log("NOT IMPLEMENTED YET")
+        }
+      } catch (exception) {
+        throw new Error(exception)
+      }
+    }
+
+    async function download_single_analysis(url) {
       try {
         const response = await fetch(url)
         if (response.status !== 200) {
@@ -38,32 +84,37 @@
       }
     }
 
-    async function download_all_analysis() {
+    async function fetch_all_analysis() {
       let error = false
       let final_message = ""
 
+      // need to find a way to differentiate between DE and Correlation
       try {
-        await download_single_analysis('{{ analysis }}')
+        display_analysis('{{ analysis }}')
       } catch (exception) {
         final_message = exception
         error = true
       }
 
-      if ('{{ analysis_2 }}' !== "") {
+      {% if analysis2 %}
         try {
-          await download_single_analysis('{{ analysis_2 }}')
+          display_analysis('{{ analysis2 }}')
         } catch (exception) {
           final_message = exception
           error = true
         }
-      }
+      {% endif %}
 
       if (error === false) final_message = "Finished"
 
       document.getElementsByClassName("spinner-border")[0].style.display = "none"
       document.getElementById("request_status").innerHTML = final_message
+
+      if (error === true) return;
+
+      document.getElementById("submission_loader").style.display = "none"
     }
 
-    download_all_analysis()
+    fetch_all_analysis()
   </script>
 </html>

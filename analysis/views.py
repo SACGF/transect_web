@@ -15,31 +15,37 @@ import os
 import subprocess
 from sRT_backend.settings import env
 
-# as an extension to this, it might be good to create a directory for all 3 types of scripts, GDC, etc, containing 
-
-def download(request):
-
-    query = request.GET.dict()
-    if Analysis.objects.filter(sha_hash=str(query["analysis_id"])).exists() is False:
+def check_analysis_type(request, analysis_id):
+    if Analysis.objects.filter(sha_hash=str(analysis_id)).exists() is False:
         raise Http404("Analysis Not Found")
 
-    analysis = Analysis.objects.filter(sha_hash=str(query["analysis_id"])).first()
+    analysis = Analysis.objects.filter(sha_hash=str(analysis_id)).first()
+    analysis_type = "Correlation" if analysis.percentile == 0 else "DE"
+    return JsonResponse({"analysis_type": analysis_type})
+
+# as an extension to this, it might be good to create a directory for all 3 types of scripts, GDC, etc, containing 
+
+def download(request, analysis_id):
+    if Analysis.objects.filter(sha_hash=str(analysis_id)).exists() is False:
+        raise Http404("Analysis Not Found")
+
+    analysis = Analysis.objects.filter(sha_hash=str(analysis_id)).first()
     analysis_type = "Correlation" if analysis.percentile == 0 else "Differential Expression"
     download_filename = "correlation_analysis.zip" if analysis_type == "Correlation" else "differential_expression_analysis.zip"
 
     try:
         while analysis.fully_downloaded is False:
-            analysis = Analysis.objects.filter(sha_hash=str(query["analysis_id"])).first()
+            analysis = Analysis.objects.filter(sha_hash=str(analysis_id)).first()
             time.sleep(5)
     except:
         return JsonResponse({'error': f'{analysis_type} Analysis Failed'}, status=500)
 
-    if os.path.exists(env('OUTPUT_DIR') + "/" + str(query["analysis_id"]) + ".zip") is False:
+    if os.path.exists(env('OUTPUT_DIR') + "/" + str(analysis_id) + ".zip") is False:
         raise Http404("Analysis Not Found")
 
     # should check database as well as if the file exists
 
-    analysisOutDir = env('OUTPUT_DIR') + "/" + str(query["analysis_id"]) + ".zip"
+    analysisOutDir = env('OUTPUT_DIR') + "/" + str(analysis_id) + ".zip"
     if os.path.exists(analysisOutDir) is False:
         return JsonResponse({'error': f'{analysis_type} Analysis Not Found'}, status=404)
 
@@ -149,7 +155,7 @@ def display_settings_page(request):
                            'composite_analysis_type': curr_goi_composite_analysis_type,
                            'percentile': curr_percentile, 'rna_species': curr_rna_species})
 
-            analysis_query = ""
+            analysis_query = {}
 
             for command_settings in commands_to_process:
                 settings = str(command_settings.values())
@@ -174,21 +180,26 @@ def display_settings_page(request):
                     # INSPECT! CHANGE str(curr_gois) to just curr_gois
                     submit_command.apply_async((str(project_obj), str(curr_gois), curr_goi_composite_analysis_type, curr_percentile, curr_rna_species, sha_hash, analysis_script_path), queue="script_queue")
                 
-                if analysis_query == "":
-                    analysis_query = "?analysis=" + str(sha_hash)
+                if len(analysis_query.keys()) == 0:
+                    analysis_query["analysis"] = str(sha_hash)
+                    analysis_url = reverse('analysis-fetch', kwargs={key: value for (key, value) in analysis_query.items()})
                 else:
-                    analysis_query += "&analysis=" + str(sha_hash)
+                    analysis_query["analysis2"] = str(sha_hash)
+                    analysis_url = reverse('analysis-fetch2', kwargs={key: value for (key, value) in analysis_query.items()})
             
-            return redirect(reverse('analysis-fetch') + analysis_query)
+            return redirect(analysis_url)
     else:
         print("Fails")
         analysis_form = AnalysisForm()
     print("Here")
     return render(request, 'analysis/submission_page.html', {"analysis_form": analysis_form})
 
-def fetch(request):
-    query = request.GET.dict()
-    analysis_ids = {'analysis': query["analysis"]}
-    if "analysis2" in query.keys():
-        analysis_ids['analysis2'] = query["analysis2"]
+def fetch(request, analysis, analysis2=None):
+    analysis_ids = {'analysis': analysis}
+    if analysis2 is not None:
+        analysis_ids['analysis2'] = analysis2
+    print(analysis_ids)
     return render(request, 'analysis/view_analysis.html', analysis_ids)
+
+def fetch2(request, analysis, analysis2):
+    return fetch(request, analysis, analysis2)
