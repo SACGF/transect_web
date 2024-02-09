@@ -17,12 +17,16 @@
   <body>
         <div class="container" id="output_container">
             <div class="ml-3 mt-3 row justify-content-md-center" id="submission_loader">
+              <div class="col-auto">
                 <div class="spinner-border" role="status">
-                    <span class="sr-only">Loading...</span>
+                    <span class="sr-only"></span>
                 </div>
-                <div id="request_status" class="ml-2 pt-1">
-                    Processing your request
-                </div>
+              </div>
+              <div class="col-auto">
+                  <div id="request_status" class="ml-2 pt-1">
+                      Processing your request
+                  </div>
+              </div>
             </div>
         </div>
         {% include 'analysis/correlation_analysis_view.html' %}
