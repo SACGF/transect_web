@@ -34,12 +34,3 @@ class Analysis(models.Model): # change name to analysis
         # You could thus use get_or_create to retrieve exisitng/create new, and there will be guaranteed no dupes
         unique_together = ('project', 'gene', 'composite_analysis_type', 'percentile', 'rna_species')
 
-#class CorrelationAnalysisComparisons(models.Model):
-#    gene1_id = models.ForeignKey(Genes, on_delete=models.CASCADE)
-#    gene2_id = models.ForeignKey(Genes, on_delete=models.CASCADE)
-#    logExp_Cor = models.FloatField()
-#    logExp_Pvalue = models.FloatField()
-#    logExp_Bonferroni = models.FloatField()
-#    logExp_FDR = models.FloatField()
-
-
