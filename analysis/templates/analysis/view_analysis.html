@@ -91,11 +91,18 @@
 
       for (let i = 0; i < correlation_comparisons.length; i++) {
         const newRecord = document.createElement("tr");
+        // last item is the respective plot media path
         for (let j = 0; j < correlation_comparisons[i].length; j++) {
           const newField = document.createElement("td");
           newField.innerHTML = correlation_comparisons[i][j]
           newRecord.appendChild(newField)
         }
+        newRecord.className = "inspectable_item"
+        newRecord.addEventListener('click', () => {
+          image_modal.getElementsByClassName("modal-title")[0].innerHTML = gois.concat("_corr_volcano.png")
+          image_modal.getElementsByClassName("modal-image")[0].src = volcano_url
+          $("#image_modal").modal('show');
+        })
         correlation_comparison_table_body.appendChild(newRecord)
       }
 

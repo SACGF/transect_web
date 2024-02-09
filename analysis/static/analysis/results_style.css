@@ -11,6 +11,6 @@
     height: 80%;
 }
 
-.inspectable_image:hover {
+.inspectable_item:hover {
     cursor: pointer;
 }
