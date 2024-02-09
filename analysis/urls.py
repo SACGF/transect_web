@@ -2,6 +2,7 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
+    path('fetch_gois/<analysis_id>', views.fetch_gois, name='fetch-gois'),
     path('check_analysis_type/<analysis_id>', views.check_analysis_type, name='analysis-check-type'),
     path('download/<analysis_id>', views.download, name='analysis-download'),
     path('home', views.display_settings_page, name='analysis-home'),

@@ -5,6 +5,12 @@
 }
 
 .modal-content {
-    width: 900px;
+    top: 100px;
+    width: 100%;
+    max-width: 800px;
     height: 80%;
+}
+
+.inspectable_image:hover {
+    cursor: pointer;
 }

@@ -25,27 +25,50 @@
         </div>
         {% include 'analysis/correlation_analysis_view.html' %}
         <button data-bs-toggle="modal" data-bs-target="#image_modal">Hello</button>
-        <div id="image_modal" class="modal fade" tabindex="-1" aria-labelledby="modal-title" aria-hidden="true">
+        <div id="image_modal" class="modal fade" tabindex="-1" aria-labelledby="modal_title" aria-hidden="true">
           <div class="modal-dialog modal-lg">
             <div class="modal-content">
               <div class="modal-header">
-                <h5 class="modal-title" id="modal-title">Stiuff</h5>
+                <h5 class="modal-title" id="modal_title">Stiuff</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
               <div class="modal-body">
-                <p>Template</p>
+                <img class="modal-image" id="modal_image" src="" height="100%" width="100%">
               </div>
             </div>
           </div>
         </div>
   </body>
   <script>
-    function display_correlation_analysis_results(analysis) {
-      const url = "{% url 'analysis-download' analysis_id=analysis %}";
+    const image_modal = document.getElementById("image_modal")
+
+    async function display_correlation_analysis_results(analysis) {
+      const download_url = "{% url 'analysis-download' analysis_id=analysis %}";
+      const goi_url = "{% url 'fetch-gois' analysis_id=analysis %}";
+      let gois;
+      try {
+        const json_response = await fetch_response(goi_url)
+        gois = json_response.gois
+      } catch (exception) {
+        throw new Error(exception)
+      }
+
       document.getElementById("correlation_view_container").style.display = "block"
+      const correlation_volcano_image = document.getElementById("correlation_volcano_image")
+      const volcano_url = "{{ MEDIA_URL }}/media/".concat(analysis).concat("/Corr_Analysis/").concat(gois).concat("_corr_volcano.png")
+      correlation_volcano_image.src = volcano_url // will change this in the future to use media/
+      alert(correlation_volcano_image)
+      correlation_volcano_image.addEventListener('click', () => {
+        image_modal.getElementsByClassName("modal-title")[0].innerHTML = gois.concat("_corr_volcano.png")
+        image_modal.getElementsByClassName("modal-image")[0].src = volcano_url
+        //image_modal.getElementById("modal_image").src = volcano_url
+        $("#image_modal").modal('show');
+        //data-bs-toggle="modal" data-bs-target="#image_modal"
+      })
+
       document.getElementById("download_correlation").addEventListener('click', () => {
         try {
-          download_single_analysis(url)
+          download_single_analysis(download_url)
         } catch (exception) {
           final_message = exception
           error = true
@@ -53,15 +76,24 @@
       })
     }
 
-    // this function should also do something to verify nothing went wrong
-    async function display_analysis(analysis) {
-      const url = "{% url 'analysis-check-type' analysis_id=analysis %}";
+    async function fetch_response(url) {
       try {
         const response = await fetch(url)
         if (response.status !== 200) {
             throw new Error(` ${response.status} - ${response.statusText}`)
         } 
         const json_response = await response.json()
+        return json_response
+      } catch (exception) {
+        throw new Error(exception)
+      }
+    }
+
+    // this function should also do something to verify nothing went wrong
+    async function display_analysis(analysis) {
+      const url = "{% url 'analysis-check-type' analysis_id=analysis %}";
+      try {
+        const json_response = await fetch_response(url)
         if (json_response.analysis_type === "Correlation") {
           display_correlation_analysis_results(analysis)
         } else if (json_response.analysis_type === "DE") {

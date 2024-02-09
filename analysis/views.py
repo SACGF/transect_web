@@ -15,6 +15,13 @@ import os
 import subprocess
 from sRT_backend.settings import env
 
+def fetch_gois(request, analysis_id):
+    if Analysis.objects.filter(sha_hash=str(analysis_id)).exists() is False:
+        raise Http404("Analysis Not Found")
+
+    analysis = Analysis.objects.filter(sha_hash=str(analysis_id)).first()
+    return JsonResponse({"gois": str(analysis.gene)})
+
 def check_analysis_type(request, analysis_id):
     if Analysis.objects.filter(sha_hash=str(analysis_id)).exists() is False:
         raise Http404("Analysis Not Found")

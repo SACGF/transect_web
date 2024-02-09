@@ -18,10 +18,12 @@ from django.contrib import admin
 from django.urls import path, include
 #from django.urls.base import reverse
 from django.views.generic.base import RedirectView
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path('analysis/', include('analysis.urls')),
     path('', RedirectView.as_view(url='analysis/home', permanent=True))
     # path('', RedirectView.as_view(url='/jack/', permanent=True))
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) # TEMPORARY SOLUTION

@@ -192,3 +192,7 @@ LOGGING = {
         },
     },
 }
+
+# TEMPORARY SOLUTION
+MEDIA_ROOT = env("OUTPUT_DIR")
+MEDIA_URL = "/media/"
