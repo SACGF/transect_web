@@ -65,7 +65,7 @@
 
       document.getElementById("download_correlation").addEventListener('click', () => {
         try {
-          download_single_analysis(analysis, true)
+          download_single_analysis(analysis)
         } catch (exception) {
           final_message = exception
           error = true
@@ -126,15 +126,27 @@
       }
     }
 
-    async function download_single_analysis(analysis, download=false) {
-      url = "{% url 'provide-correlation-comparisons' analysis_id=analysis %}"
+    async function download_single_analysis(analysis) {
+      const url = "{% url 'analysis-download' analysis_id=analysis %}"
       alert(analysis)
       try {
         const response = await fetch(url)
         if (response.status !== 200) {
             throw new Error(` ${response.status} - ${response.statusText}`)
         }
-        if (download) window.location.href = url;
+        window.location.href = url;
+      } catch (exception) {
+        throw new Error(exception)
+      }
+    }
+
+    async function wait_for_analysis(analysis) {
+      const url = "{% url 'check-fully-downloaded' analysis_id=analysis %}"
+      try {
+        const response = await fetch(url)
+        if (response.status !== 200) {
+            throw new Error(` ${response.status} - ${response.statusText}`)
+        }
       } catch (exception) {
         throw new Error(exception)
       }
@@ -146,7 +158,7 @@
 
       // need to find a way to differentiate between DE and Correlation
       try {
-        await download_single_analysis('{{ analysis }}') // first instance to check if analysis finished
+        await wait_for_analysis('{{ analysis }}') // first instance to check if analysis finished
         display_analysis('{{ analysis }}')
       } catch (exception) {
         final_message = exception

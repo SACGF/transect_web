@@ -30,24 +30,62 @@ def check_analysis_type(request, analysis_id):
     analysis_type = "Correlation" if analysis.percentile == 0 else "DE"
     return JsonResponse({"analysis_type": analysis_type})
 
+# needs to be changed to support better pagination
+# current method will be too memory intensive as it loads everything
+def provide_correlation_comparisons(requests, analysis_id):
+    analysis =  Analysis.objects.filter(sha_hash=str(analysis_id))
+    if analysis.exists() is False:
+        raise Http404("Analysis Not Found")
+    if analysis.first().percentile != 0:
+        return JsonResponse({'error': f'{analysis_id} is not a correlation analysis'}, status=500)
+
+    table_items = []
+    i = 0
+    print(os.path.join(env('OUTPUT_DIR'), str(analysis_id), "Corr_Analysis", str(analysis.first().gene) + "_corr.tsv"))
+    with open(os.path.join(env('OUTPUT_DIR'), str(analysis_id), "Corr_Analysis", str(analysis.first().gene) + "_corr.tsv"), "r") as f:
+        next(f)
+        for line in f:
+            print(line.strip())
+            record = line.replace("\"", "").strip().split("\t")
+            print(record)
+            table_items.append(record)
+            i += 1
+            if i == 1000:
+                break
+    
+    return JsonResponse({'table_items': table_items})
+    
+def check_fully_downloaded(request, analysis_id):
+    analysis = Analysis.objects.filter(sha_hash=str(analysis_id)).first()
+    try:
+        while analysis.fully_downloaded is False:
+            analysis = Analysis.objects.filter(sha_hash=str(analysis_id)).first()
+            time.sleep(5)
+    except:
+        return JsonResponse({'success': False, 'error': f'{analysis_type} Analysis Failed'}, status=500)
+    
+    if os.path.exists(env('OUTPUT_DIR') + "/" + str(analysis_id) + ".zip") is False:
+        raise Http404("Analysis Not Found")
+    
+    return JsonResponse({'success': True})
+
 # as an extension to this, it might be good to create a directory for all 3 types of scripts, GDC, etc, containing 
 
 def download(request, analysis_id):
+    print("Plant")
     if Analysis.objects.filter(sha_hash=str(analysis_id)).exists() is False:
         raise Http404("Analysis Not Found")
+
+    print("Hi")
 
     analysis = Analysis.objects.filter(sha_hash=str(analysis_id)).first()
     analysis_type = "Correlation" if analysis.percentile == 0 else "Differential Expression"
     download_filename = "correlation_analysis.zip" if analysis_type == "Correlation" else "differential_expression_analysis.zip"
 
     try:
-        while analysis.fully_downloaded is False:
-            analysis = Analysis.objects.filter(sha_hash=str(analysis_id)).first()
-            time.sleep(5)
+        response = check_fully_downloaded(request, analysis_id)
+        print(response)
     except:
-        return JsonResponse({'error': f'{analysis_type} Analysis Failed'}, status=500)
-
-    if os.path.exists(env('OUTPUT_DIR') + "/" + str(analysis_id) + ".zip") is False:
         raise Http404("Analysis Not Found")
 
     # should check database as well as if the file exists
