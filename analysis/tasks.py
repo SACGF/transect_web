@@ -25,6 +25,7 @@ def delete_file(file_to_delete):
 # if composite_analysis_type == "Single" and curr_percentile is not 0, this trigger de_analysis
 @shared_task
 def submit_command(project, gene, composite_analysis_type, percentile, rna_species, sha_hash, analysis_script_path):
+    print("Hello submit command")
     try:
         command = analysis_script_path + " -p " + project + " -g "
         # INSPECT! Change gene.split(",") to just gene
@@ -43,7 +44,9 @@ def submit_command(project, gene, composite_analysis_type, percentile, rna_speci
                 to_add = "%".join(all_gois)
             
             command += to_add
-            command += " -t " + percentile
+            print(command)
+            command += " -t " + str(percentile)
+            print("Hello tasks")
             command += " -s " + rna_species
             command += " -d "
         else:
@@ -76,6 +79,7 @@ def submit_command(project, gene, composite_analysis_type, percentile, rna_speci
             analysis_obj.save()
             shutil.make_archive(out_path, 'zip', out_path) # finally zip the command
     except Exception as e:
+        print("There has been a failutre")
         # good catch for the above, if anything happens, we will delete the folders and database entry
         print(e)
         out_path = os.path.join(env('OUTPUT_DIR'), sha_hash)

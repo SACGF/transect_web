@@ -62,7 +62,7 @@ def check_fully_downloaded(request, analysis_id):
             analysis = Analysis.objects.filter(sha_hash=str(analysis_id)).first()
             time.sleep(5)
     except:
-        return JsonResponse({'success': False, 'error': f'{analysis_type} Analysis Failed'}, status=500)
+        return JsonResponse({'success': False, 'error': f'{analysis_id} Analysis Failed'}, status=500)
     
     if os.path.exists(env('OUTPUT_DIR') + "/" + str(analysis_id) + ".zip") is False:
         raise Http404("Analysis Not Found")
