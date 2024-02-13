@@ -15,6 +15,7 @@ class Projects(models.Model):
 
 class Analysis(models.Model): # change name to analysis
     sha_hash = models.TextField(primary_key=True)
+    script = models.CharField(max_length=100, default="GDC")
     project = models.ForeignKey(Projects, on_delete=models.CASCADE)
     gene = models.ForeignKey(Genes, on_delete=models.CASCADE)
     # genes_of_interest = models.ManyToManyField(Genes, on_delete=models.CASCADE)
@@ -32,5 +33,5 @@ class Analysis(models.Model): # change name to analysis
     class Meta:
         # This ensures that there can only be 1 record that has the same values below
         # You could thus use get_or_create to retrieve exisitng/create new, and there will be guaranteed no dupes
-        unique_together = ('project', 'gene', 'composite_analysis_type', 'percentile', 'rna_species')
+        unique_together = ('script', 'project', 'gene', 'composite_analysis_type', 'percentile', 'rna_species')
 

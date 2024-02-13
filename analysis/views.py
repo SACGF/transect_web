@@ -186,7 +186,7 @@ def display_settings_page(request):
                 curr_percentile = analysis_form.cleaned_data.get('percentile')
                 curr_rna_species = analysis_form.cleaned_data.get('rna_species')
 
-                commands_to_process.append({'project': project_obj, 'gene': curr_gois, 
+                commands_to_process.append({'script': script_chosen, 'project': project_obj, 'gene': curr_gois, 
                                            'composite_analysis_type': curr_goi_composite_analysis_type,
                                            'percentile': curr_percentile, 'rna_species': curr_rna_species})
 
@@ -196,7 +196,7 @@ def display_settings_page(request):
                 curr_goi_composite_analysis_type = "Single"
                 curr_percentile = 0
                 curr_rna_species = ""
-                commands_to_process.append({'project': project_obj, 'gene': curr_gois, 
+                commands_to_process.append({'script': script_chosen, 'project': project_obj, 'gene': curr_gois, 
                            'composite_analysis_type': curr_goi_composite_analysis_type,
                            'percentile': curr_percentile, 'rna_species': curr_rna_species})
 
