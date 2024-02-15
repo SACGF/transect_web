@@ -30,7 +30,7 @@ environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+ALLOWED_HOSTS = [env("HOST"), '127.0.0.1', 'localhost']
 
 # Application definition
 
@@ -83,10 +83,21 @@ WSGI_APPLICATION = "sRT_backend.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.sqlite3",
+#         "NAME": BASE_DIR / "db.sqlite3",
+#     }
+# }
+
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'sRT_database',
+        'USER': env("PROJECT_DATABASE_USER"),
+        'PASSWORD': env('PROJECT_DATABASE_USER_PASSWORD'),
+        'HOST': 'localhost', # in other words db is located on the same computer
+        'PORT': '', # empty to default (5432 for tcp)
     }
 }
 
@@ -151,7 +162,7 @@ STATICFILES_FINDERS = (
 STATICFILES_STORAGE = "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
 
 # Celery Configuration Options
-CELERY_TIMEZONE = "Australia/Tasmania"
+CELERY_TIMEZONE = "Australia/Adelaide"
 CELERY_TASK_TRACK_STARTED = True
 CELERY_TASK_TIME_LIMIT = 30 * 60
 CELERY_BROKER_URL = "pyamqp://guest@localhost//"
