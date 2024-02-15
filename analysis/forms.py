@@ -19,7 +19,7 @@ class AnalysisForm(forms.Form):
                                                            ("RECOUNT3", "RECOUNT3")],
                                                     widget=forms.Select(
                                                            attrs={'id': 'script_choice', 
-                                                                  'class': "custom-select mt-3", 
+                                                                  'class': "form-select mt-3", 
                                                                   'empty_label': " -- select an option -- ",
                                                                   'data-toggle': "popover",
                                                                   'data-placement': "top", 
@@ -50,7 +50,7 @@ class AnalysisForm(forms.Form):
                                                                ("Ratio", "Ratio")],
                                                         widget=forms.Select(
                                                                attrs={'id': 'composite_analysis_choice', 
-                                                                      'class': "custom-select mt-3", 
+                                                                      'class': "form-select mt-3", 
                                                                       'empty_label': " -- select an option -- ",
                                                                       'data-toggle': "popover",
                                                                       'data-placement': "top", 
@@ -82,5 +82,5 @@ class AnalysisForm(forms.Form):
                                              ("mRNA", "mRNA"), 
                                              ("miRNA", "miRNA")], 
                                     widget=forms.Select(attrs={'id': 'rna_species_choices', 
-                                                               'class': "custom-select", 
+                                                               'class': "form-select", 
                                                                'empty_label': " -- select an option -- "}))

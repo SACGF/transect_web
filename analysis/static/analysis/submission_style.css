@@ -10,6 +10,10 @@
     width: 200px;
 }
 
+.form-group { 
+    margin-bottom: 1rem; 
+}
+
 .de_option {
     display: none;
 }
