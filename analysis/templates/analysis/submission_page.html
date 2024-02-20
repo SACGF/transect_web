@@ -36,19 +36,10 @@
                         <div class="card-header">Genes of Interest</div>
                             <div class="card-body">
                                 {{ analysis_form.composite_analysis_type }}
-                                <div class="goi_list mt-3">
-                                    <div class="goi_option mt-2" id="goi_div_1">
-                                        <div class="row">
-                                            <div class="col">
-                                                {{ analysis_form.gene_selected_1 }}
-                                            </div>
-                                            <div class="col">
-                                                <button type="button" id="delete_goi_1" style="display: none;" class="btn btn-danger delete_goi">Delete Gene</button>
-                                            </div>
-                                        </div>
-                                    </div>
+                                {{ analysis_form.gene_selected }}
+                                <div class="text-danger mt-3 submission_alert" id="goi_alert">
+                                    <strong class="mx-2">Error!</strong> Please enter at least 2 Genes.
                                 </div>
-                                <button type="button" id="add_goi" class="btn btn-secondary">Add More Genes</button>
                             </div>
                         </div>
                     </div>
@@ -90,13 +81,6 @@
             $("[data-toggle=popover]").popover();
         });
 
-        // goi and composite analysis choice
-        const goi_div_1 = document.getElementById("goi_div_1")
-        const goi_text_1 = document.getElementById("goi_1")
-
-        const add_genes_button = document.getElementById("add_goi")
-        add_genes_button.addEventListener('click', add_goi_option)
-
         // analysis type choice
         const correlation_checkbox = document.getElementById("correlation_checkbox")
 
@@ -119,6 +103,17 @@
         const composite_analysis_choice = document.getElementById("composite_analysis_choice")
         composite_analysis_choice.addEventListener("change", change_goi_analysis)
 
+        $('#goi_selection_box').on('select2:opening', function (e) {
+            if (($('#goi_selection_box').val().length === 1 && composite_analysis_choice.value === "Single") ||
+            ($('#goi_selection_box').val().length === 2 && composite_analysis_choice.value === "Ratio") ||
+            ($('#goi_selection_box').val().length === 5 && composite_analysis_choice.value === "Multi")) {
+                e.preventDefault();
+                // how do I fetch the cursor?
+                // e.target.style.cursor // does not work
+            }
+        })
+        $('#goi_selection_box').on('change', function (e) {goi_alert.style.display = 'none'})
+
         $("#composite_analysis_choice").change(function() {
             $("option[value='']").prop("disabled", true);
         });
@@ -140,15 +135,10 @@
         // we should also make it such that choosing "multi" or "ratio" analysis forcibly selects
         // DE analysis and removes the "Analysis Type" section.
         function change_goi_analysis() {
-
-            add_genes_button.style.cursor = "pointer"
-
+            goi_alert.style.display = 'none'
             if (composite_analysis_choice.value === "Single") {
-                add_genes_button.style.display = "none"
-                // delete everything except goi 1
-                while (document.getElementsByClassName("goi_option").length > 1) {
-                    document.getElementsByClassName("goi_option")[1].remove()
-                }
+                // DELETE EVERY GOI EXCEPT FIRST 1
+                while ($('#goi_selection_box').val().length > 1) $('#goi_selection_box option:eq(2)').remove();
 
                 // same as the bottom when forcing the DE analysis, except we are reversing it here
                 de_checkbox.checked = false
@@ -157,20 +147,9 @@
                 // re-enabling changing analysis type form
                 enable_analysis_form()
             } else {
-
-                if (composite_analysis_choice.value === "Multi") {
-                    add_genes_button.style.display = "block"
-                } else {
-                    // removing excess boxes
-                    while (document.getElementsByClassName("goi_option").length > 2) {
-                        document.getElementsByClassName("goi_option")[2].remove()
-                    }
-                    add_genes_button.style.display = "none"
-                }
-                
-                // create a new box
-                if (document.getElementsByClassName("goi_option").length === 1) {
-                    create_new_goi_div(2)
+                if (composite_analysis_choice.value === "Ratio") {
+                    // REMOVING EXCESS GOIS, KEEPING FIRST 2
+                    while ($('#goi_selection_box').val().length > 2) $('#goi_selection_box option:eq(3)').remove();
                 }
 
                 // forcibly select DE analysis and unchecking correlation and prevent modifications to the Analysis section
@@ -184,54 +163,7 @@
             }
         }
 
-        function create_new_goi_div(id) {
-
-            
-            const originalElement = document.getElementById("goi_div_1");
-            const new_goi_input = originalElement.cloneNode(true);
-
-            console.log(originalElement)
-            console.log(new_goi_input)
-
-            // Update the cloned element's ID or make other modifications if needed
-            // no need to add 1 to num_genes
-
-            new_goi_input.id = "goi_div_".concat(String(id));
-            new_goi_input.getElementsByClassName("goi_select_form")[0].id = "goi_".concat(String(id));
-            new_goi_input.getElementsByClassName("goi_select_form")[0].name = "gene_selected_".concat(String(id));
-            // new_goi_input.getElementsByClassName("goi_select_form")[0].value = ""
-            
-            if (id > 2) {
-                new_goi_input.getElementsByClassName("delete_goi")[0].id = "delete_goi_".concat(String(id));
-                new_goi_input.getElementsByClassName("delete_goi")[0].style.display = "block"
-                new_goi_input.getElementsByClassName("delete_goi")[0].addEventListener("click", () => {
-                    new_goi_input.remove()
-                    add_genes_button.style.cursor = "pointer"
-                })
-            }
-            
-            document.getElementsByClassName("goi_list")[0].appendChild(new_goi_input);
-
-        }
-
-        // only for multi_analysis
-        function add_goi_option() {
-
-            // check how many
-            const num_genes = document.getElementsByClassName("goi_option").length
-            if (num_genes === 5) {
-                return
-            }
-
-            create_new_goi_div(num_genes + 1)
-
-            if ((num_genes + 1) === 5) {
-                add_genes_button.style.cursor = "not-allowed"
-            }
-        }
-
         const percentile_textbox = document.getElementById("percentile_value")
-        //percentile_textbox.addEventListener("keyup", check_if_suitable_percentile)
 
         function show_de_options() {
             const myElements = document.querySelectorAll(".de_option");
@@ -261,6 +193,17 @@
             e.preventDefault();
         } else {
             document.getElementById("analysis_type_alert").style.display = "none";
+        }
+
+        const goi_alert = document.getElementById('goi_alert')
+        if ($('#goi_selection_box').val().length === 1 && (composite_analysis_choice.value === "Multi")) {
+            goi_alert.innerHTML = '<strong class="mx-2">Error!</strong> Please enter at least 2 Genes.'
+            goi_alert.style.display = 'block'
+            e.preventDefault();
+        } else if ($('#goi_selection_box').val().length === 1 && (composite_analysis_choice.value === "Ratio")) {
+            goi_alert.innerHTML = '<strong class="mx-2">Error!</strong> Please enter 2 Genes.'
+            goi_alert.style.display = 'block'
+            e.preventDefault();
         }
     });
     </script>
