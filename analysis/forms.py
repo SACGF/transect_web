@@ -35,23 +35,23 @@ class AnalysisForm(forms.Form):
                                                                     "id": "project_choice",
                                                                     }))
 
-    gene_selected_1 = forms.ModelChoiceField(queryset=Genes.objects.all(),
+    gene_selected = forms.ModelChoiceField(queryset=Genes.objects.all(),
                                          required=True,
-                                         widget=autocomplete.ModelSelect2(url='genes-autocomplete',
+                                         widget=autocomplete.ModelSelect2Multiple(url='genes-autocomplete',
                                                              attrs={'data-placeholder': 'Genes ...',
                                                                     'data-minimum-input-length': 3,
-                                                                    'id': 'goi_1',
-                                                                    'class': 'goi_select_form'
+                                                                    'id': 'goi_selection_box', 
+                                                                    'class': 'mt-3'
                                                                     }))
 
-    composite_analysis_type = forms.ChoiceField(choices=[('', ' -- select an option -- '), 
-                                                               ("Single", "Single"), 
-                                                               ("Multi", "Multi"),
-                                                               ("Ratio", "Ratio")],
+    composite_analysis_type = forms.ChoiceField(choices=[("Single", "Single"),
+                                                         ("Multi", "Multi"),
+                                                         ("Ratio", "Ratio")],
+                                                        initial= "Single",
                                                         widget=forms.Select(
                                                                attrs={'id': 'composite_analysis_choice', 
                                                                       'class': "form-select mt-3", 
-                                                                      'empty_label': " -- select an option -- ",
+                                                                      # 'empty_label': " -- select an option -- ",
                                                                       'data-toggle': "popover",
                                                                       'data-placement': "top", 
                                                                       'data-trigger': "hover",
