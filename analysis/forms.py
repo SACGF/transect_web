@@ -35,12 +35,12 @@ class AnalysisForm(forms.Form):
                                                                     "id": "project_choice",
                                                                     }))
 
-    gene_selected = forms.ModelChoiceField(queryset=Genes.objects.all(),
+    gene_selected = forms.ModelMultipleChoiceField(queryset=Genes.objects.all(),
                                          required=True,
                                          widget=autocomplete.ModelSelect2Multiple(url='genes-autocomplete',
                                                              attrs={'data-placeholder': 'Genes ...',
                                                                     'data-minimum-input-length': 3,
-                                                                    'id': 'goi_selection_box', 
+                                                                    'id': 'gene_selected', 
                                                                     'class': 'mt-3'
                                                                     }))
 

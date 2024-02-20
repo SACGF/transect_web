@@ -17,8 +17,8 @@ class Analysis(models.Model): # change name to analysis
     sha_hash = models.TextField(primary_key=True)
     script = models.CharField(max_length=100, default="GDC")
     project = models.ForeignKey(Projects, on_delete=models.CASCADE)
-    gene = models.ForeignKey(Genes, on_delete=models.CASCADE)
-    # genes_of_interest = models.ManyToManyField(Genes, on_delete=models.CASCADE)
+    #gene = models.ForeignKey(Genes, on_delete=models.CASCADE)
+    genes_of_interest = models.ManyToManyField(Genes)
     composite_analysis_type = models.CharField(max_length=100)
     percentile = models.PositiveIntegerField()
     rna_species = models.CharField(max_length=100)
@@ -30,8 +30,8 @@ class Analysis(models.Model): # change name to analysis
 
     # read this: https://docs.djangoproject.com/en/5.0/ref/models/options/
     # also provides details on options, including unique_together
-    class Meta:
-        # This ensures that there can only be 1 record that has the same values below
-        # You could thus use get_or_create to retrieve exisitng/create new, and there will be guaranteed no dupes
-        unique_together = ('script', 'project', 'gene', 'composite_analysis_type', 'percentile', 'rna_species')
+    #class Meta:
+    #    # This ensures that there can only be 1 record that has the same values below
+    #    # You could thus use get_or_create to retrieve exisitng/create new, and there will be guaranteed no dupes
+    #    unique_together = ('script', 'project', 'genes_of_interest', 'composite_analysis_type', 'percentile', 'rna_species')
 

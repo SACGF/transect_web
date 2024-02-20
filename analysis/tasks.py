@@ -24,12 +24,11 @@ def delete_file(file_to_delete):
 
 # if composite_analysis_type == "Single" and curr_percentile is not 0, this trigger de_analysis
 @shared_task
-def submit_command(project, gene, composite_analysis_type, percentile, rna_species, sha_hash, analysis_script_path):
+def submit_command(project, all_gois, composite_analysis_type, percentile, rna_species, sha_hash, analysis_script_path):
     print("Hello submit command")
     try:
         command = analysis_script_path + " -p " + project + " -g "
         # INSPECT! Change gene.split(",") to just gene
-        all_gois = gene.split(",")
         
         # adding different settings based on whether de or correlation, 
         # if correlation, set percentile input and rna_species_to_analyse

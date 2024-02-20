@@ -135,6 +135,7 @@ def display_settings_page(request):
         print("Enter")
         analysis_form = AnalysisForm(request.POST)
         print(analysis_form.errors.as_data())
+        print("Goodbtye")
 
         # if not doing single gene analysis, automatically becomes de_analysis
         # and cannot do single analysis
@@ -151,33 +152,10 @@ def display_settings_page(request):
             except:
                 raise Http404("Project " + curr_proj_text + " does not exist")
 
-            # INSPECT!
-            #inc = 1
-            #genes_of_interest_list = []
-            #curr_gois = []
-            #while True:
-            #    try:
-            #        gene_selected_text = analysis_form.cleaned_data.get('gene_selected_') + str(inc)
-            #    except:
-            #        break
-            #
-            #    try:
-            #        curr_goi = Genes.objects.filter(pk=gene_selected_text).first()
-            #        genes_of_interest_list.append(curr_goi)
-            #        curr_gois.append(str(genes_of_interest_list))
-            #    except:
-            #        raise Http404("Gene " + gene_selected_text + " does not exist")
-            #        break
-            #    
-            #    inc += 1
-
-            # INSPECT!
-            # DELETE THIS WHEN YOU CAN GET THE ABOVE WORKING
-            gene_selected_text = analysis_form.cleaned_data.get('gene_selected_1')
-            try:
-                curr_gois = Genes.objects.filter(pk=gene_selected_text).first()
-            except:
-                raise Http404("Gene " + gene_selected_text + " does not exist")
+            all_gois = analysis_form.cleaned_data.get('gene_selected')
+            goi_name_list = []
+            for i in range(0, len(all_gois)):
+                goi_name_list.append(all_gois[i].name)
 
             curr_goi_composite_analysis_type = analysis_form.cleaned_data.get('composite_analysis_type')
             commands_to_process = [] # list of dicts
@@ -186,7 +164,7 @@ def display_settings_page(request):
                 curr_percentile = analysis_form.cleaned_data.get('percentile')
                 curr_rna_species = analysis_form.cleaned_data.get('rna_species')
 
-                commands_to_process.append({'script': script_chosen, 'project': project_obj, 'gene': curr_gois, 
+                commands_to_process.append({'script': script_chosen, 'project': project_obj, 'all_gois': goi_name_list, 
                                            'composite_analysis_type': curr_goi_composite_analysis_type,
                                            'percentile': curr_percentile, 'rna_species': curr_rna_species})
 
@@ -196,7 +174,7 @@ def display_settings_page(request):
                 curr_goi_composite_analysis_type = "Single"
                 curr_percentile = 0
                 curr_rna_species = ""
-                commands_to_process.append({'script': script_chosen, 'project': project_obj, 'gene': curr_gois, 
+                commands_to_process.append({'script': script_chosen, 'project': project_obj, 'all_gois': goi_name_list, 
                            'composite_analysis_type': curr_goi_composite_analysis_type,
                            'percentile': curr_percentile, 'rna_species': curr_rna_species})
 
@@ -212,18 +190,14 @@ def display_settings_page(request):
                     analysis.times_accessed += 1
                     analysis.save()
                 else:
-                    # changing 
-                    # INSPECT! DELETE GENE FROM DICT
-                    # del command_settings['gene']
+                    # cannot pass an object e.g. Project, Genes to the celery app
+                    del command_settings['all_gois']
                     newAnalysis = Analysis(**command_settings, sha_hash=sha_hash)
                     newAnalysis.save()
-                    # INSPECT! UNCOMMENT BELOW
-                    # newAnalysis.genes_of_interest.set(genes_of_interest_list)
-                    # newAnalysis.save()
-                    # cannot pass an object e.g. Project, Genes to the celery app
+                    newAnalysis.genes_of_interest.set(all_gois)
+                    newAnalysis.save()
 
-                    # INSPECT! CHANGE str(curr_gois) to just curr_gois
-                    submit_command.apply_async((str(project_obj), str(curr_gois), curr_goi_composite_analysis_type, curr_percentile, curr_rna_species, sha_hash, analysis_script_path), queue="script_queue")
+                    submit_command.apply_async((str(project_obj), goi_name_list, curr_goi_composite_analysis_type, curr_percentile, curr_rna_species, sha_hash, analysis_script_path), queue="script_queue")
                 
                 if len(analysis_query.keys()) == 0:
                     analysis_query["analysis"] = str(sha_hash)
