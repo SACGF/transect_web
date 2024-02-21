@@ -20,7 +20,10 @@ def fetch_gois(request, analysis_id):
         raise Http404("Analysis Not Found")
 
     analysis = Analysis.objects.filter(sha_hash=str(analysis_id)).first()
-    return JsonResponse({"gois": str(analysis.gene)})
+    gois = []
+    for goi in analysis.genes_of_interest.all():
+        gois.append(goi.name)
+    return JsonResponse({"gois": gois})
 
 def check_analysis_type(request, analysis_id):
     if Analysis.objects.filter(sha_hash=str(analysis_id)).exists() is False:
@@ -39,21 +42,31 @@ def provide_correlation_comparisons(requests, analysis_id):
     if analysis.first().percentile != 0:
         return JsonResponse({'error': f'{analysis_id} is not a correlation analysis'}, status=500)
 
+    # its better to put items that exist at the front of the table and then return an index indicating
+    # the last item that has a plot
+    # to enable this solution, we will prepend items that have a plot to the start of the table_items list
+    # returning a list of genes with plots can potentially result in a searchtime of O(n^2)
     table_items = []
+    last_plot_index = -1
     i = 0
-    print(os.path.join(env('OUTPUT_DIR'), str(analysis_id), "Corr_Analysis", str(analysis.first().gene) + "_corr.tsv"))
-    with open(os.path.join(env('OUTPUT_DIR'), str(analysis_id), "Corr_Analysis", str(analysis.first().gene) + "_corr.tsv"), "r") as f:
+    print(os.path.join(env('OUTPUT_DIR'), str(analysis_id), "Corr_Analysis", analysis.first().genes_of_interest.all()[0].name + "_corr.tsv"))
+    with open(os.path.join(env('OUTPUT_DIR'), str(analysis_id), "Corr_Analysis", analysis.first().genes_of_interest.all()[0].name + "_corr.tsv"), "r") as f:
         next(f)
         for line in f:
             print(line.strip())
             record = line.replace("\"", "").strip().split("\t")
             print(record)
-            table_items.append(record)
+            if os.path.exists(os.path.join(env('OUTPUT_DIR'), str(analysis_id), "Corr_Analysis", "plots", record[0] + "_" + record[1] + ".png")) is True:
+                last_plot_index += 1
+                table_items = [record[1:]] + table_items
+            else:
+                table_items.append(record[1:])
+
             i += 1
             if i == 1000:
                 break
-    
-    return JsonResponse({'table_items': table_items})
+
+    return JsonResponse({'table_items': table_items, "last_plot_index": last_plot_index})
     
 def check_fully_downloaded(request, analysis_id):
     analysis = Analysis.objects.filter(sha_hash=str(analysis_id)).first()

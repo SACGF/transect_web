@@ -49,20 +49,20 @@
 
     async function display_correlation_analysis_results(analysis) {
       const goi_url = "{% url 'fetch-gois' analysis_id=analysis %}";
-      let gois;
+      let goi;
       try {
         const json_response = await fetch_response(goi_url)
-        gois = json_response.gois
+        goi = json_response.gois[0]
       } catch (exception) {
         throw new Error(exception)
       }
 
       document.getElementById("correlation_view_container").style.display = "block"
       const correlation_volcano_image = document.getElementById("correlation_volcano_image")
-      const volcano_url = "{{ MEDIA_URL }}/media/".concat(analysis).concat("/Corr_Analysis/").concat(gois).concat("_corr_volcano.png")
+      const volcano_url = "{{ MEDIA_URL }}/media/".concat(analysis).concat("/Corr_Analysis/").concat(goi).concat("_corr_volcano.png")
       correlation_volcano_image.src = volcano_url // will change this in the future to use media/
       correlation_volcano_image.addEventListener('click', () => {
-        image_modal.getElementsByClassName("modal-title")[0].innerHTML = gois.concat("_corr_volcano.png")
+        image_modal.getElementsByClassName("modal-title")[0].innerHTML = goi.concat("_corr_volcano.png")
         image_modal.getElementsByClassName("modal-image")[0].src = volcano_url
         $("#image_modal").modal('show');
       })
@@ -78,38 +78,48 @@
 
       correlation_comparison_table_body = document.getElementById("correlation_comparison_table").getElementsByTagName("tbody")[0]
 
-      console.log(correlation_comparison_table_body)
-
       // finally fetching the tsv
       let correlation_comparisons;
+      let last_plot_index;
       try {
         const json_response = await fetch_response("{% url 'provide-correlation-comparisons' analysis_id=analysis %}")
         correlation_comparisons = json_response.table_items
+        last_plot_index = json_response.last_plot_index
       } catch (exception) {
         throw new Error(exception)
       }
 
+      // I think its best to put the "clickable" items at the top
       for (let i = 0; i < correlation_comparisons.length; i++) {
         const newRecord = document.createElement("tr");
         // last item is the respective plot media path
-        let gene1 = correlation_comparisons[i][0];
-        let gene2 = correlation_comparisons[i][1];
+        let gene_of_comparison = correlation_comparisons[i][0];
         for (let j = 0; j < correlation_comparisons[i].length; j++) {
           const newField = document.createElement("td");
           newField.innerHTML = correlation_comparisons[i][j]
           newRecord.appendChild(newField)
         }
-        newRecord.className = "inspectable_item"
-        newRecord.addEventListener('click', () => {
-          const img_url = "{{ MEDIA_URL }}/media/".concat(analysis).concat("/Corr_Analysis/plots/").concat(gene1).concat("_").concat(gene2).concat(".png")
-          image_modal.getElementsByClassName("modal-title")[0].innerHTML = gois.concat("_corr_volcano.png")
-          image_modal.getElementsByClassName("modal-image")[0].src = img_url
-          $("#image_modal").modal('show');
-        })
+
+        // check if a plot here exists, and add the code below
+        if (last_plot_index !== -1 && i <= last_plot_index) {
+          newRecord.className = "inspectable_item"
+          newRecord.addEventListener('click', () => {
+            const img_url = "{{ MEDIA_URL }}/media/".concat(analysis).concat("/Corr_Analysis/plots/").concat(goi).concat("_").concat(gene_of_comparison).concat(".png")
+            image_modal.getElementsByClassName("modal-title")[0].innerHTML = goi.concat(" vs ").concat(gene_of_comparison)
+            image_modal.getElementsByClassName("modal-image")[0].src = img_url
+            $("#image_modal").modal('show');
+          })
+          const graph_icon = new Image()
+          graph_icon.src = "{% static 'icons/file-bar-graph.svg' %}"
+          newRecord.getElementsByTagName("td")[0].className = "d-flex justify-content-between"
+          newRecord.getElementsByTagName("td")[0].appendChild(graph_icon)
+        }
+
         correlation_comparison_table_body.appendChild(newRecord)
       }
 
-      $('#correlation_comparison_table').DataTable();
+      // overriding default sorting order by the first column, allowing items with plots to be shown first
+      $('#correlation_comparison_table').DataTable({"order": []}); 
     }
 
     async function fetch_response(url) {
