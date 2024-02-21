@@ -30,6 +30,7 @@
             </div>
         </div>
         {% include 'analysis/correlation_analysis_view.html' %}
+        {% include 'analysis/de_analysis_view.html' %}
         <div id="image_modal" class="modal fade" tabindex="-1" aria-labelledby="modal_title" aria-hidden="true">
           <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -46,6 +47,47 @@
   </body>
   <script>
     const image_modal = document.getElementById("image_modal")
+
+    async function display_de_analysis_results(analysis) {
+      const goi_url = "{% url 'fetch-gois' analysis_id=analysis %}";
+      let gois;
+      try {
+        const json_response = await fetch_response(goi_url)
+        gois = json_response.gois
+      } catch (exception) {
+        throw new Error(exception)
+      }
+
+      document.getElementById("de_view_container").style.display = "block"
+      const de_url_base = "{{ MEDIA_URL }}/media/".concat(analysis).concat("/DE_Analysis/glimma-plots/").concat(gois.join("-"))
+      const de_url_volcano = de_url_base.concat("-High_Vs_Low-Volcano.html")
+      const de_url_mds_plot = de_url_base.concat("-MDS-Plot.html")
+
+      document.getElementById("download_de").addEventListener('click', () => {
+        try {
+          download_single_analysis(analysis)
+        } catch (exception) {
+          final_message = exception
+          error = true
+        }
+      })
+      alert(de_url_volcano)
+      document.getElementById("de_volcano").src = de_url_volcano
+      document.getElementById("de_mds").src = de_url_mds_plot
+
+      const toggle_de_volcano = document.getElementById("toggle_de_volcano")
+      toggle_de_volcano.addEventListener('click', () => {
+        document.getElementById("de_volcano_div").style.display = "block";
+        document.getElementById("de_mds_div").style.display = "none";
+      })
+
+      const toggle_mds_volcano = document.getElementById("toggle_de_mds")
+      toggle_mds_volcano.addEventListener('click', () => {
+        document.getElementById("de_volcano_div").style.display = "none";
+        document.getElementById("de_mds_div").style.display = "block";
+      })
+
+    }
 
     async function display_correlation_analysis_results(analysis) {
       const goi_url = "{% url 'fetch-gois' analysis_id=analysis %}";
@@ -143,7 +185,7 @@
         if (json_response.analysis_type === "Correlation") {
           display_correlation_analysis_results(analysis)
         } else if (json_response.analysis_type === "DE") {
-          console.log("NOT IMPLEMENTED YET")
+          display_de_analysis_results(analysis)
         }
       } catch (exception) {
         throw new Error(exception)
