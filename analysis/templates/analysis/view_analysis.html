@@ -71,7 +71,6 @@
           error = true
         }
       })
-      alert(de_url_volcano)
       document.getElementById("de_volcano").src = de_url_volcano
       document.getElementById("de_mds").src = de_url_mds_plot
 
@@ -194,7 +193,6 @@
 
     async function download_single_analysis(analysis) {
       const url = "{% url 'analysis-download' analysis_id=analysis %}"
-      alert(analysis)
       try {
         const response = await fetch(url)
         if (response.status !== 200) {
