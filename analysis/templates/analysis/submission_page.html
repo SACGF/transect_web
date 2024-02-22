@@ -66,6 +66,9 @@
                         <div class="card-header">RNA Species to Analyse</div>
                             <div class="card-body">
                                 {{ analysis_form.rna_species }}
+                                <div class="text-danger mt-3 submission_alert" id="rna_species_alert">
+                                    <strong class="mx-2">Error!</strong>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -87,6 +90,10 @@
         // rna species choice
         const rna_species_choices = document.getElementById("rna_species_choices")
 
+        const script_choice = document.getElementById("script_choice")
+
+        script_choice.addEventListener("change", () => {rna_species_alert.style.display = 'none'})
+
         function trigger_de_checkbox() {
             show_de_options();
             document.getElementById("analysis_type_alert").style.display = "none";
@@ -98,21 +105,22 @@
         // Disable the "Select an option" option in the rna_species dropdown
         $("#rna_species_choices").change(function() {
             $("option[value='']").prop("disabled", true);
+            rna_species_alert.style.display = 'none'
         });
 
         const composite_analysis_choice = document.getElementById("composite_analysis_choice")
         composite_analysis_choice.addEventListener("change", change_goi_analysis)
 
-        $('#goi_selection_box').on('select2:opening', function (e) {
-            if (($('#goi_selection_box').val().length === 1 && composite_analysis_choice.value === "Single") ||
-            ($('#goi_selection_box').val().length === 2 && composite_analysis_choice.value === "Ratio") ||
-            ($('#goi_selection_box').val().length === 5 && composite_analysis_choice.value === "Multi")) {
+        $('#gene_selected').on('select2:opening', function (e) {
+            if (($('#gene_selected').val().length === 1 && composite_analysis_choice.value === "Single") ||
+            ($('#gene_selected').val().length === 2 && composite_analysis_choice.value === "Ratio") ||
+            ($('#gene_selected').val().length === 5 && composite_analysis_choice.value === "Multi")) {
                 e.preventDefault();
                 // how do I fetch the cursor?
                 // e.target.style.cursor // does not work
             }
         })
-        $('#goi_selection_box').on('change', function (e) {goi_alert.style.display = 'none'})
+        $('#gene_selected').on('change', function (e) {goi_alert.style.display = 'none'})
 
         $("#composite_analysis_choice").change(function() {
             $("option[value='']").prop("disabled", true);
@@ -138,7 +146,7 @@
             goi_alert.style.display = 'none'
             if (composite_analysis_choice.value === "Single") {
                 // DELETE EVERY GOI EXCEPT FIRST 1
-                while ($('#goi_selection_box').val().length > 1) $('#goi_selection_box option:eq(2)').remove();
+                while ($('#gene_selected').val().length > 1) $('#gene_selected option:eq(2)').remove();
 
                 // same as the bottom when forcing the DE analysis, except we are reversing it here
                 de_checkbox.checked = false
@@ -149,7 +157,7 @@
             } else {
                 if (composite_analysis_choice.value === "Ratio") {
                     // REMOVING EXCESS GOIS, KEEPING FIRST 2
-                    while ($('#goi_selection_box').val().length > 2) $('#goi_selection_box option:eq(3)').remove();
+                    while ($('#gene_selected').val().length > 2) $('#gene_selected option:eq(3)').remove();
                 }
 
                 // forcibly select DE analysis and unchecking correlation and prevent modifications to the Analysis section
@@ -177,6 +185,7 @@
                 // bringing back default values
                 percentile_value.required = false;
                 rna_species_choices.required = false;
+                rna_species_alert.style.display = 'none'
 
                 percentile_textbox.value = ""
                 rna_species_choices.selectedIndex = 0
@@ -188,24 +197,31 @@
         }
 
         $('#input_form').submit(function(e) {
-        if ($('.validate-checkbox:checked').length === 0) {
-            document.getElementById("analysis_type_alert").style.display = "block";
-            e.preventDefault();
-        } else {
-            document.getElementById("analysis_type_alert").style.display = "none";
-        }
+            if ($('.validate-checkbox:checked').length === 0) {
+                document.getElementById("analysis_type_alert").style.display = "block";
+                e.preventDefault();
+            } else {
+                document.getElementById("analysis_type_alert").style.display = "none";
+            }
 
-        const goi_alert = document.getElementById('goi_alert')
-        if ($('#goi_selection_box').val().length === 1 && (composite_analysis_choice.value === "Multi")) {
-            goi_alert.innerHTML = '<strong class="mx-2">Error!</strong> Please enter at least 2 Genes.'
-            goi_alert.style.display = 'block'
-            e.preventDefault();
-        } else if ($('#goi_selection_box').val().length === 1 && (composite_analysis_choice.value === "Ratio")) {
-            goi_alert.innerHTML = '<strong class="mx-2">Error!</strong> Please enter 2 Genes.'
-            goi_alert.style.display = 'block'
-            e.preventDefault();
-        }
-    });
+            const goi_alert = document.getElementById('goi_alert')
+            if ($('#gene_selected').val().length === 1 && (composite_analysis_choice.value === "Multi")) {
+                goi_alert.innerHTML = '<strong class="mx-2">Error!</strong> Please enter at least 2 Genes.'
+                goi_alert.style.display = 'block'
+                e.preventDefault();
+            } else if ($('#gene_selected').val().length === 1 && (composite_analysis_choice.value === "Ratio")) {
+                goi_alert.innerHTML = '<strong class="mx-2">Error!</strong> Please enter 2 Genes.'
+                goi_alert.style.display = 'block'
+                e.preventDefault();
+            }
+
+            const rna_species_alert = document.getElementById('rna_species_alert')
+            if (de_checkbox.checked = true && ((script_choice.value === "GTEx" || script_choice.value === "RECOUNT3") && rna_species_choices.value !== "mRNA")) {
+                rna_species_alert.innerHTML = '<strong class="mx-2">Error!</strong>'.concat(script_choice.value).concat(" script does not support anything other than mRNA.")
+                rna_species_alert.style.display = 'block'
+                e.preventDefault();
+            }
+        });
     </script>
   </body>
 </html>
