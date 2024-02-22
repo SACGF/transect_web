@@ -173,7 +173,10 @@ def display_settings_page(request):
             curr_goi_composite_analysis_type = analysis_form.cleaned_data.get('composite_analysis_type')
             commands_to_process = [] # list of dicts
 
+            print(analysis_form.cleaned_data)
+
             if analysis_form.cleaned_data.get('do_de_analysis') == True:
+                print("WE ARE HERE")
                 curr_percentile = analysis_form.cleaned_data.get('percentile')
                 curr_rna_species = analysis_form.cleaned_data.get('rna_species')
 
@@ -192,6 +195,9 @@ def display_settings_page(request):
                            'percentile': curr_percentile, 'rna_species': curr_rna_species})
 
             analysis_query = {}
+
+            print("Clapper")
+            print(commands_to_process)
 
             for command_settings in commands_to_process:
                 settings = str(command_settings.values())

@@ -146,7 +146,9 @@
             goi_alert.style.display = 'none'
             if (composite_analysis_choice.value === "Single") {
                 // DELETE EVERY GOI EXCEPT FIRST 1
-                while ($('#gene_selected').val().length > 1) $('#gene_selected option:eq(2)').remove();
+                while ($('#gene_selected').val().length > 1) {
+                    $('#gene_selected option:eq(1)').remove();
+                }
 
                 // same as the bottom when forcing the DE analysis, except we are reversing it here
                 de_checkbox.checked = false
@@ -157,7 +159,9 @@
             } else {
                 if (composite_analysis_choice.value === "Ratio") {
                     // REMOVING EXCESS GOIS, KEEPING FIRST 2
-                    while ($('#gene_selected').val().length > 2) $('#gene_selected option:eq(3)').remove();
+                    while ($('#gene_selected').val().length > 2) {
+                        $('#gene_selected option:eq(2)').remove();
+                    }
                 }
 
                 // forcibly select DE analysis and unchecking correlation and prevent modifications to the Analysis section
@@ -216,7 +220,7 @@
             }
 
             const rna_species_alert = document.getElementById('rna_species_alert')
-            if (de_checkbox.checked = true && ((script_choice.value === "GTEx" || script_choice.value === "RECOUNT3") && rna_species_choices.value !== "mRNA")) {
+            if (de_checkbox.checked === true && ((script_choice.value === "GTEx" || script_choice.value === "RECOUNT3") && rna_species_choices.value !== "mRNA")) {
                 rna_species_alert.innerHTML = '<strong class="mx-2">Error!</strong>'.concat(script_choice.value).concat(" script does not support anything other than mRNA.")
                 rna_species_alert.style.display = 'block'
                 e.preventDefault();
