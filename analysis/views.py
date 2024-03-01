@@ -4,7 +4,9 @@ from django.views.decorators.cache import cache_page
 from django.conf import settings
 from django.forms.models import model_to_dict
 from django.urls.base import reverse
+from django.core.exceptions import ValidationError
 from wsgiref.util import FileWrapper
+from celery.result import AsyncResult
 from dal import autocomplete
 from analysis.models import Analysis, Genes, Projects
 from analysis.forms import AnalysisForm
@@ -67,20 +69,37 @@ def provide_correlation_comparisons(requests, analysis_id):
                 break
 
     return JsonResponse({'table_items': table_items, "last_plot_index": last_plot_index})
-    
+
 def check_fully_downloaded(request, analysis_id):
+    print("Hello")
     analysis = Analysis.objects.filter(sha_hash=str(analysis_id)).first()
-    try:
-        while analysis.fully_downloaded is False:
-            analysis = Analysis.objects.filter(sha_hash=str(analysis_id)).first()
-            time.sleep(5)
-    except:
-        return JsonResponse({'success': False, 'error': f'{analysis_id} Analysis Failed'}, status=500)
-    
+
+    if analysis is None:
+        raise Http404("Analysis Not Found")
+
+    print("not null")
+
+    while analysis.fully_downloaded is False and analysis.reason_for_failure == "":
+        time.sleep(5)
+        analysis = Analysis.objects.filter(sha_hash=str(analysis_id)).first()
+        print(analysis.fully_downloaded)
+        print(analysis.fully_downloaded is False)
+
+    print("checkpoint 1")
+
+    if analysis.reason_for_failure != "":
+        print("THE MAWSSIVE ANALYSIS HAS FAILED")
+        print(f'{analysis_id} Analysis Failed. ' + analysis.reason_for_failure)
+        return JsonResponse({'error': 'Analysis Failed. ' + analysis.reason_for_failure}, status=500)
+
+    print("checkpoint 2")
+
     if os.path.exists(env('OUTPUT_DIR') + "/" + str(analysis_id) + ".zip") is False:
         raise Http404("Analysis Not Found")
-    
-    return JsonResponse({'success': True})
+
+    print("crinnge")
+
+    return JsonResponse({'error': ""}, status=200)
 
 # as an extension to this, it might be good to create a directory for all 3 types of scripts, GDC, etc, containing 
 
@@ -105,7 +124,7 @@ def download(request, analysis_id):
 
     analysisOutDir = env('OUTPUT_DIR') + "/" + str(analysis_id) + ".zip"
     if os.path.exists(analysisOutDir) is False:
-        return JsonResponse({'error': f'{analysis_type} Analysis Not Found'}, status=404)
+        return Http404({f'{analysis_type} Analysis Not Found'})
 
     # files could be very large, best to serve it in chunks
     def generate_file_chunks(file_path, chunk_size=8192):
@@ -204,20 +223,25 @@ def display_settings_page(request):
                 sha_hash = hashlib.sha1(settings.encode("utf-8")).hexdigest()
                 filter_obj = Analysis.objects.filter(sha_hash=sha_hash)
                 
-                if filter_obj.exists() is True:
+                if filter_obj.exists() is True and filter_obj.first().fully_downloaded == True:
                     analysis = filter_obj.first()
                     analysis.times_accessed += 1
                     analysis.save()
                 else:
                     # cannot pass an object e.g. Project, Genes to the celery app
-                    del command_settings['all_gois']
-                    newAnalysis = Analysis(**command_settings, sha_hash=sha_hash)
-                    newAnalysis.save()
-                    newAnalysis.genes_of_interest.set(all_gois)
-                    newAnalysis.save()
+                    if filter_obj.exists() is False:
+                        del command_settings['all_gois']
+                        newAnalysis = Analysis(**command_settings, sha_hash=sha_hash)
+                        newAnalysis.save()
+                        newAnalysis.genes_of_interest.set(all_gois)
+                        newAnalysis.save()
+                    else:
+                        analysis_form.add_error(None, filter_obj.first().reason_for_failure) # first attribute is field
+                        return render(request, 'analysis/submission_page.html', {"analysis_form": analysis_form})
 
-                    submit_command.apply_async((str(project_obj), goi_name_list, curr_goi_composite_analysis_type, curr_percentile, curr_rna_species, sha_hash, analysis_script_path), queue="script_queue")
-                
+                    # setting the task ID below to be equal to the sha_hash
+                    submit_command.apply_async((str(project_obj), goi_name_list, curr_goi_composite_analysis_type, curr_percentile, curr_rna_species, sha_hash, analysis_script_path), queue="script_queue", task_id=sha_hash)
+
                 if len(analysis_query.keys()) == 0:
                     analysis_query["analysis"] = str(sha_hash)
                     analysis_url = reverse('analysis-fetch', kwargs={key: value for (key, value) in analysis_query.items()})

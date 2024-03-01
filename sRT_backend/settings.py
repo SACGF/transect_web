@@ -170,6 +170,7 @@ CELERY_TASK_TIME_LIMIT = 30 * 60
 CELERY_BROKER_URL = "pyamqp://guest@localhost//"
 CELERY_WORKER_CONCURRENCY = 8
 CELERY_RESULT_BACKEND = 'django-db'
+CELERY_REDIRECT_STDOUTS = True
 
 CELERY_TASK_QUEUES = (Queue("script_queue"),)
 
@@ -209,4 +210,7 @@ LOGGING = {
 
 # TEMPORARY SOLUTION
 MEDIA_ROOT = env("OUTPUT_DIR")
-MEDIA_URL = "/media/"
+MEDIA_URL = "media/"
+
+
+

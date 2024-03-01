@@ -167,7 +167,7 @@
       try {
         const response = await fetch(url)
         if (response.status !== 200) {
-            throw new Error(` ${response.status} - ${response.statusText}`)
+            throw new Error(` ${response.status}`)
         } 
         const json_response = await response.json()
         return json_response
@@ -194,9 +194,9 @@
     async function download_single_analysis(analysis) {
       const url = "{% url 'analysis-download' analysis_id=analysis %}"
       try {
-        const response = await fetch(url)
+        const response = await fetch_response(url)
         if (response.status !== 200) {
-            throw new Error(` ${response.status} - ${response.statusText}`)
+            throw new Error(` ${response.status} - ${response.error}`)
         }
         window.location.href = url;
       } catch (exception) {
@@ -208,8 +208,13 @@
       const url = "{% url 'check-fully-downloaded' analysis_id=analysis %}"
       try {
         const response = await fetch(url)
+        console.log(response)
+        if (response.status === 404) {
+            throw new Error(` ${response.status} - Analysis not found`)
+        }
+        const json_response = await response.json()
         if (response.status !== 200) {
-            throw new Error(` ${response.status} - ${response.statusText}`)
+            throw new Error(` ${response.status} - ${json_response.error}`)
         }
       } catch (exception) {
         throw new Error(exception)

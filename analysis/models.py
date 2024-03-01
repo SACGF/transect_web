@@ -13,17 +13,18 @@ class Projects(models.Model):
     def __str__(self):
         return self.name
 
+# TimestampedModel <- automatically adds created and modified
 class Analysis(models.Model): # change name to analysis
     sha_hash = models.TextField(primary_key=True)
-    script = models.CharField(max_length=100, default="GDC")
+    script = models.TextField(default="GDC")
     project = models.ForeignKey(Projects, on_delete=models.CASCADE)
-    #gene = models.ForeignKey(Genes, on_delete=models.CASCADE)
     genes_of_interest = models.ManyToManyField(Genes)
-    composite_analysis_type = models.CharField(max_length=100)
+    composite_analysis_type = models.TextField()
     percentile = models.PositiveIntegerField()
-    rna_species = models.CharField(max_length=100)
+    rna_species = models.TextField()
 
-    fully_downloaded = models.BooleanField(default=False)
+    reason_for_failure = models.TextField(default="")
+    fully_downloaded = models.BooleanField(default=False) # if this becomes None, then the download has failed
     times_accessed = models.PositiveIntegerField(default=0) # may be useful
     date_posted = models.DateTimeField(auto_now_add=True)  # auto_now_add automatically sets when the record was created
     last_accessed = models.DateTimeField(auto_now=True) 
@@ -34,4 +35,3 @@ class Analysis(models.Model): # change name to analysis
     #    # This ensures that there can only be 1 record that has the same values below
     #    # You could thus use get_or_create to retrieve exisitng/create new, and there will be guaranteed no dupes
     #    unique_together = ('script', 'project', 'genes_of_interest', 'composite_analysis_type', 'percentile', 'rna_species')
-
