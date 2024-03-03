@@ -149,8 +149,8 @@ def task_failure_handler(sender=None, headers=None, body=None, **kwargs):
         print("Command Failed: ", kwargs.get("args"))
         sha_hash = str(kwargs.get("args")[5])
         analysis = Analysis.objects.filter(sha_hash=sha_hash).first()
-        analysis.fully_downloaded = None
         analysis.reason_for_failure = "Unknown Error"
         out_path = os.path.join(env('OUTPUT_DIR'), sha_hash)
+        analysis.save()
         delete_folder(out_path)
         delete_file(out_path + ".zip")
