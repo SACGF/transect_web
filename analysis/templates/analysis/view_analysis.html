@@ -234,15 +234,6 @@
         error = true
       }
 
-      {% if analysis2 %}
-        try {
-          display_analysis('{{ analysis2 }}')
-        } catch (exception) {
-          final_message = exception
-          error = true
-        }
-      {% endif %}
-
       if (error === false) final_message = "Finished"
 
       document.getElementsByClassName("spinner-border")[0].style.display = "none"

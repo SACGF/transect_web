@@ -1,7 +1,7 @@
 from django import forms
 from analysis.models import Analysis, Genes, Projects
 from django.core.validators import MaxValueValidator, MinValueValidator
-from dal import autocomplete
+from dal import autocomplete, forward
 
 class AnalysisForm(forms.Form):
     def __init__(self, *args, **kwargs):
@@ -10,13 +10,13 @@ class AnalysisForm(forms.Form):
 
     class Meta:
        model = Analysis
-       fields = ['script', 'project', 'gene_selected_1', 'composite_analysis_type', 'do_correlation_analysis', 
-                 'do_de_analysis', 'percentile', 'rna_species']
+       fields = ['script', 'project', 'genes_of_interest', 'composite_analysis_type', 'percentile', 'rna_species']
 
     script_type = forms.ChoiceField(choices=[('', ' -- select an option -- '), 
                                                            ("GDC", "GDC"), 
                                                            ("GTEx", "GTEx"),
                                                            ("RECOUNT3", "RECOUNT3")],
+                                                    required=True,
                                                     widget=forms.Select(
                                                            attrs={'id': 'script_choice', 
                                                                   'class': "form-select mt-3", 
@@ -30,10 +30,14 @@ class AnalysisForm(forms.Form):
     project = forms.ModelChoiceField(queryset=Projects.objects.all(),
                                          required=True,
                                          widget=autocomplete.ModelSelect2(url='projects-autocomplete',
-                                                             attrs={'data-placeholder': 'Projects ...',
-                                                                    'data-minimum-input-length': 1.,
-                                                                    "id": "project_choice",
-                                                                    }))
+                                                                          forward=(forward.Const("GDC", 'script_typez'), ),  
+                                                                          # accessing script field as well, allowing us to filter based on that as well
+                                                                          attrs={'data-placeholder': 'Projects ...',
+                                                                                 'data-minimum-input-length': 1.,
+                                                                                 "id": "project_choice",
+                                                                                 },
+                                                                         )
+                                   )
 
     gene_selected = forms.ModelMultipleChoiceField(queryset=Genes.objects.all(),
                                          required=True,

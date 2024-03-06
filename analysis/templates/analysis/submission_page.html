@@ -23,13 +23,14 @@
                     <div id="select_script" class="card mt-3">
                         <div class="card-header">Script</div>
                         <div class="card-body">
-                            {{ analysis_form.script_type }}
+                            <p>{{ analysis_form.script_type }}</p>
                         </div>
                     </div>
                     <div id="select_project" class="card mt-3">
                         <div class="card-header">Project</div>
                         <div class="card-body">
                             {{ analysis_form.project }}
+                            {{ analysis_form.project.media }}
                         </div>
                     </div>
                     <div id="goi_settings" class="card mt-3">

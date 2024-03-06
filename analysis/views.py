@@ -7,7 +7,7 @@ from django.urls.base import reverse
 from django.core.exceptions import ValidationError
 from wsgiref.util import FileWrapper
 from celery.result import AsyncResult
-from dal import autocomplete
+from dal import autocomplete, forward
 from analysis.models import Analysis, Genes, Projects
 from analysis.forms import AnalysisForm
 from analysis.tasks import submit_command
@@ -156,8 +156,20 @@ class ProjectsAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
         qs = Projects.objects.all()
 
+        print(self.forwarded)
+
+        script_type = self.forwarded.get('a')
+        print("SCRIPT CHOICE")
+        print(script_type)
+
+        if script_type is None:
+            qs = Projects.objects.none()
+
         if self.q:
-            qs = qs.filter(name__istartswith=self.q)
+            qs = qs.filter(name__contains=self.q)
+
+            if script_type == "GDC" or script_type == "GTEx":
+                qs = qs.filter(source=script_type)
 
         return qs
 
@@ -190,18 +202,20 @@ def display_settings_page(request):
                 goi_name_list.append(all_gois[i].name)
 
             curr_goi_composite_analysis_type = analysis_form.cleaned_data.get('composite_analysis_type')
-            commands_to_process = [] # list of dicts
 
             print(analysis_form.cleaned_data)
+
+            if analysis_form.cleaned_data.get('do_de_analysis') == True and analysis_form.cleaned_data.get('do_correlation_analysis') == True:
+                 return render(request, 'analysis/submission_page.html', {"analysis_form": analysis_form})
 
             if analysis_form.cleaned_data.get('do_de_analysis') == True:
                 print("WE ARE HERE")
                 curr_percentile = analysis_form.cleaned_data.get('percentile')
                 curr_rna_species = analysis_form.cleaned_data.get('rna_species')
 
-                commands_to_process.append({'script': script_chosen, 'project': project_obj, 'all_gois': goi_name_list, 
+                command_settings = {'script': script_chosen, 'project': project_obj, 'all_gois': goi_name_list, 
                                            'composite_analysis_type': curr_goi_composite_analysis_type,
-                                           'percentile': curr_percentile, 'rna_species': curr_rna_species})
+                                           'percentile': curr_percentile, 'rna_species': curr_rna_species}
 
             # only single genes can submit both types of analysis potentially
             # submit it in a list of commands to execute
@@ -209,45 +223,36 @@ def display_settings_page(request):
                 curr_goi_composite_analysis_type = "Single"
                 curr_percentile = 0
                 curr_rna_species = ""
-                commands_to_process.append({'script': script_chosen, 'project': project_obj, 'all_gois': goi_name_list, 
+                commands_to_process = {'script': script_chosen, 'project': project_obj, 'all_gois': goi_name_list, 
                            'composite_analysis_type': curr_goi_composite_analysis_type,
-                           'percentile': curr_percentile, 'rna_species': curr_rna_species})
+                           'percentile': curr_percentile, 'rna_species': curr_rna_species}
 
             analysis_query = {}
 
-            print("Clapper")
-            print(commands_to_process)
+            settings = str(command_settings.values())
+            sha_hash = hashlib.sha1(settings.encode("utf-8")).hexdigest()
+            filter_obj = Analysis.objects.filter(sha_hash=sha_hash)
 
-            for command_settings in commands_to_process:
-                settings = str(command_settings.values())
-                sha_hash = hashlib.sha1(settings.encode("utf-8")).hexdigest()
-                filter_obj = Analysis.objects.filter(sha_hash=sha_hash)
-                
-                if filter_obj.exists() is True and filter_obj.first().fully_downloaded == True:
-                    analysis = filter_obj.first()
-                    analysis.times_accessed += 1
-                    analysis.save()
+            if filter_obj.exists() is True and filter_obj.first().fully_downloaded == True:
+                analysis = filter_obj.first()
+                analysis.times_accessed += 1
+                analysis.save()
+            else:
+                # cannot pass an object e.g. Project, Genes to the celery app
+                if filter_obj.exists() is False:
+                    del command_settings['all_gois']
+                    newAnalysis = Analysis(**command_settings, sha_hash=sha_hash)
+                    newAnalysis.save()
+                    newAnalysis.genes_of_interest.set(all_gois)
+                    newAnalysis.save()
                 else:
-                    # cannot pass an object e.g. Project, Genes to the celery app
-                    if filter_obj.exists() is False:
-                        del command_settings['all_gois']
-                        newAnalysis = Analysis(**command_settings, sha_hash=sha_hash)
-                        newAnalysis.save()
-                        newAnalysis.genes_of_interest.set(all_gois)
-                        newAnalysis.save()
-                    else:
-                        analysis_form.add_error(None, filter_obj.first().reason_for_failure) # first attribute is field
-                        return render(request, 'analysis/submission_page.html', {"analysis_form": analysis_form})
+                    analysis_form.add_error(None, filter_obj.first().reason_for_failure) # first attribute is field
+                    return render(request, 'analysis/submission_page.html', {"analysis_form": analysis_form})
 
-                    # setting the task ID below to be equal to the sha_hash
-                    submit_command.apply_async((str(project_obj), goi_name_list, curr_goi_composite_analysis_type, curr_percentile, curr_rna_species, sha_hash, analysis_script_path), queue="script_queue", task_id=sha_hash)
-
-                if len(analysis_query.keys()) == 0:
-                    analysis_query["analysis"] = str(sha_hash)
-                    analysis_url = reverse('analysis-fetch', kwargs={key: value for (key, value) in analysis_query.items()})
-                else:
-                    analysis_query["analysis2"] = str(sha_hash)
-                    analysis_url = reverse('analysis-fetch2', kwargs={key: value for (key, value) in analysis_query.items()})
+                # setting the task ID below to be equal to the sha_hash
+                submit_command.apply_async((str(project_obj), goi_name_list, curr_goi_composite_analysis_type, curr_percentile, curr_rna_species, sha_hash, analysis_script_path), queue="script_queue", task_id=sha_hash)
+                analysis_query["analysis"] = str(sha_hash)
+                analysis_url = reverse('analysis-fetch', kwargs={key: value for (key, value) in analysis_query.items()})
             
             return redirect(analysis_url)
     else:
@@ -256,12 +261,6 @@ def display_settings_page(request):
     print("Here")
     return render(request, 'analysis/submission_page.html', {"analysis_form": analysis_form})
 
-def fetch(request, analysis, analysis2=None):
+def fetch(request, analysis):
     analysis_ids = {'analysis': analysis}
-    if analysis2 is not None:
-        analysis_ids['analysis2'] = analysis2
-    print(analysis_ids)
     return render(request, 'analysis/view_analysis.html', analysis_ids)
-
-def fetch2(request, analysis, analysis2):
-    return fetch(request, analysis, analysis2)

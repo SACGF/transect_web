@@ -9,6 +9,7 @@ class Genes(models.Model):
 
 class Projects(models.Model):
     name = models.TextField(primary_key=True)
+    source = models.TextField() # study source, either TCGA or GTEx
 
     def __str__(self):
         return self.name
