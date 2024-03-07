@@ -39,7 +39,7 @@
             <div class="modal-content">
               <div class="modal-header">
                 <h5 class="modal-title" id="modal_title">Stiuff</h5>
-                <button class="btn btn-secondary ms-3" style="color: black;"><img src="{% static 'icons/download.svg' %}" class="mb-1 me-2">Download</button>
+                <button class="btn btn-secondary ms-3" style="color: black;" id="modal_download"><img src="{% static 'icons/download.svg' %}" class="mb-1 me-2">Download</button>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
               <div class="modal-body">
@@ -51,6 +51,16 @@
   </body>
   <script>
     const image_modal = document.getElementById("image_modal")
+
+    const modal_download = document.getElementById("modal_download")
+    modal_download.addEventListener('click', () => {
+      var dummyElement = document.createElement("a");
+      dummyElement.href = modal_download.href // Replace "path_to_your_file" with the URL or file path you want to download
+      dummyElement.download = dummyElement.href.split("/")[dummyElement.href.split("/").length - 1]; // Replace "filename" with the desired name of the downloaded file
+      document.body.appendChild(dummyElement);
+      dummyElement.click();
+      document.body.removeChild(dummyElement);  
+    })
 
     function get_gois() {
       let goi_list = []
@@ -103,6 +113,7 @@
       correlation_volcano_image.addEventListener('click', () => {
         image_modal.getElementsByClassName("modal-title")[0].innerHTML = goi.concat("_corr_volcano.png")
         image_modal.getElementsByClassName("modal-image")[0].src = volcano_url
+        modal_download.href = volcano_url
         $("#image_modal").modal('show');
       })
 
@@ -146,6 +157,7 @@
             const img_url = "{{ MEDIA_URL }}/media/".concat(analysis).concat("/Corr_Analysis/plots/").concat(goi).concat("_").concat(gene_of_comparison).concat(".png")
             image_modal.getElementsByClassName("modal-title")[0].innerHTML = goi.concat(" vs ").concat(gene_of_comparison)
             image_modal.getElementsByClassName("modal-image")[0].src = img_url
+            modal_download.href = img_url
             $("#image_modal").modal('show');
           })
           const graph_icon = new Image()

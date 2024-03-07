@@ -33,16 +33,16 @@ def provide_correlation_comparisons(requests, analysis_id):
     table_items = []
     last_plot_index = -1
     i = 0
-    print(os.path.join(env('OUTPUT_DIR'), str(analysis_id), "Corr_Analysis", analysis.first().genes_of_interest.all()[0].name + "_corr.tsv"))
+
+    # pushing items with a plot at the front
+    # plot should be sorted by record 2 (logExp_Cor)
     with open(os.path.join(env('OUTPUT_DIR'), str(analysis_id), "Corr_Analysis", analysis.first().genes_of_interest.all()[0].name + "_corr.tsv"), "r") as f:
         next(f)
         for line in f:
-            print(line.strip())
             record = line.replace("\"", "").strip().split("\t")
-            print(record)
             if os.path.exists(os.path.join(env('OUTPUT_DIR'), str(analysis_id), "Corr_Analysis", "plots", record[0] + "_" + record[1] + ".png")) is True:
                 last_plot_index += 1
-                table_items = [record[1:]] + table_items
+                table_items.append(record[1:])
             else:
                 table_items.append(record[1:])
 

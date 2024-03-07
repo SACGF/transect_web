@@ -14,6 +14,7 @@ django-autocomplete-light==3.9.7
 django-celery-results==2.5.1
 django-compressor==4.4
 django-environ==0.11.2
+gunicorn==21.2.0
 idna==3.6
 kombu==5.3.5
 numpy==1.26.3
