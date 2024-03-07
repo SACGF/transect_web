@@ -17,24 +17,6 @@ import os
 import subprocess
 from sRT_backend.settings import env
 
-def fetch_gois(request, analysis_id):
-    if Analysis.objects.filter(sha_hash=str(analysis_id)).exists() is False:
-        raise Http404("Analysis Not Found")
-
-    analysis = Analysis.objects.filter(sha_hash=str(analysis_id)).first()
-    gois = []
-    for goi in analysis.genes_of_interest.all():
-        gois.append(goi.name)
-    return JsonResponse({"gois": gois})
-
-def check_analysis_type(request, analysis_id):
-    if Analysis.objects.filter(sha_hash=str(analysis_id)).exists() is False:
-        raise Http404("Analysis Not Found")
-
-    analysis = Analysis.objects.filter(sha_hash=str(analysis_id)).first()
-    analysis_type = "Correlation" if analysis.percentile == 0 else "DE"
-    return JsonResponse({"analysis_type": analysis_type})
-
 # needs to be changed to support better pagination
 # current method will be too memory intensive as it loads everything
 def provide_correlation_comparisons(requests, analysis_id):
@@ -156,11 +138,7 @@ class ProjectsAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
         qs = Projects.objects.all()
 
-        print(self.forwarded)
-
-        script_type = self.forwarded.get('a')
-        print("SCRIPT CHOICE")
-        print(script_type)
+        script_type = self.forwarded.get('script_type')
 
         if script_type is None:
             qs = Projects.objects.none()
@@ -193,8 +171,12 @@ def display_settings_page(request):
             
             try:
                 project_obj = Projects.objects.filter(pk=curr_proj_text).first()
+                project_str = str(project_obj)
             except:
                 raise Http404("Project " + curr_proj_text + " does not exist")
+
+            if script_chosen == "GDC":
+                project_str = "TCGA-" + project_str
 
             all_gois = analysis_form.cleaned_data.get('gene_selected')
             goi_name_list = []
@@ -205,27 +187,19 @@ def display_settings_page(request):
 
             print(analysis_form.cleaned_data)
 
-            if analysis_form.cleaned_data.get('do_de_analysis') == True and analysis_form.cleaned_data.get('do_correlation_analysis') == True:
-                 return render(request, 'analysis/submission_page.html', {"analysis_form": analysis_form})
-
             if analysis_form.cleaned_data.get('do_de_analysis') == True:
-                print("WE ARE HERE")
                 curr_percentile = analysis_form.cleaned_data.get('percentile')
                 curr_rna_species = analysis_form.cleaned_data.get('rna_species')
-
-                command_settings = {'script': script_chosen, 'project': project_obj, 'all_gois': goi_name_list, 
-                                           'composite_analysis_type': curr_goi_composite_analysis_type,
-                                           'percentile': curr_percentile, 'rna_species': curr_rna_species}
-
-            # only single genes can submit both types of analysis potentially
-            # submit it in a list of commands to execute
-            if analysis_form.cleaned_data.get('do_correlation_analysis') == True:
+            elif analysis_form.cleaned_data.get('do_correlation_analysis') == True:
+                # only single genes can submit both types of analysis potentially
+                # submit it in a list of commands to execute
                 curr_goi_composite_analysis_type = "Single"
                 curr_percentile = 0
                 curr_rna_species = ""
-                commands_to_process = {'script': script_chosen, 'project': project_obj, 'all_gois': goi_name_list, 
-                           'composite_analysis_type': curr_goi_composite_analysis_type,
-                           'percentile': curr_percentile, 'rna_species': curr_rna_species}
+
+            command_settings = {'script': script_chosen, 'project': project_obj, 'all_gois': goi_name_list, 
+                                       'composite_analysis_type': curr_goi_composite_analysis_type,
+                                       'percentile': curr_percentile, 'rna_species': curr_rna_species}
 
             analysis_query = {}
 
@@ -250,7 +224,7 @@ def display_settings_page(request):
                     return render(request, 'analysis/submission_page.html', {"analysis_form": analysis_form})
 
                 # setting the task ID below to be equal to the sha_hash
-                submit_command.apply_async((str(project_obj), goi_name_list, curr_goi_composite_analysis_type, curr_percentile, curr_rna_species, sha_hash, analysis_script_path), queue="script_queue", task_id=sha_hash)
+                submit_command.apply_async((project_str, goi_name_list, curr_goi_composite_analysis_type, curr_percentile, curr_rna_species, sha_hash, analysis_script_path), queue="script_queue", task_id=sha_hash)
                 analysis_query["analysis"] = str(sha_hash)
                 analysis_url = reverse('analysis-fetch', kwargs={key: value for (key, value) in analysis_query.items()})
             
@@ -262,5 +236,9 @@ def display_settings_page(request):
     return render(request, 'analysis/submission_page.html', {"analysis_form": analysis_form})
 
 def fetch(request, analysis):
-    analysis_ids = {'analysis': analysis}
-    return render(request, 'analysis/view_analysis.html', analysis_ids)
+    filter_obj = Analysis.objects.filter(sha_hash=analysis).first()
+    gois = []
+    for goi in filter_obj.genes_of_interest.all():
+        gois.append(goi.name)
+    analysis_info = {'analysis': analysis, 'gois': gois, 'analysis_type': "DE" if filter_obj.percentile > 0 else "Correlation"}
+    return render(request, 'analysis/view_analysis.html', analysis_info)

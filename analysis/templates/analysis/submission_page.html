@@ -76,13 +76,6 @@
                     <div id="submission_and_loading_container" class="mt-3 row ms-3 justify-content-md-center">
                         <input type="submit" id="submit_req" class="btn btn-primary">
                     </div>
-                    {% if analysis_form.errors %}
-                        <div class="text-danger mt-3 submission_alert  row ms-3 justify-content-md-center" id="form_alert" style="display: block;">
-                            {% for error in analysis_form.errors.values %} 
-                                <strong class="mx-2 row  justify-content-md-center">{{ error|striptags }}!</strong>
-                            {% endfor %}
-                        </div>
-                    {% endif %}
                 </form>
             </div>
         </div>  
@@ -212,6 +205,11 @@
 
         $('#input_form').submit(function(e) {
             if ($('.validate-checkbox:checked').length === 0) {
+                document.getElementById("analysis_type_alert").innerHTML = '<strong class="mx-2">Error!</strong> Please select an analysis type.'
+                document.getElementById("analysis_type_alert").style.display = "block";
+                e.preventDefault();
+            } else if  ($('.validate-checkbox:checked').length === 2) {
+                document.getElementById("analysis_type_alert").innerHTML = '<strong class="mx-2">Error!</strong> Cannot select both analysis simultaneously.'
                 document.getElementById("analysis_type_alert").style.display = "block";
                 e.preventDefault();
             } else {

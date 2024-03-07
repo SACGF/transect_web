@@ -8,10 +8,6 @@ class AnalysisForm(forms.Form):
        super().__init__(*args, **kwargs)
        self.label_suffix = ""  # Removes : as label suffix
 
-    class Meta:
-       model = Analysis
-       fields = ['script', 'project', 'genes_of_interest', 'composite_analysis_type', 'percentile', 'rna_species']
-
     script_type = forms.ChoiceField(choices=[('', ' -- select an option -- '), 
                                                            ("GDC", "GDC"), 
                                                            ("GTEx", "GTEx"),
@@ -30,11 +26,10 @@ class AnalysisForm(forms.Form):
     project = forms.ModelChoiceField(queryset=Projects.objects.all(),
                                          required=True,
                                          widget=autocomplete.ModelSelect2(url='projects-autocomplete',
-                                                                          forward=(forward.Const("GDC", 'script_typez'), ),  
+                                                                          forward=("script_type", ),  
                                                                           # accessing script field as well, allowing us to filter based on that as well
                                                                           attrs={'data-placeholder': 'Projects ...',
-                                                                                 'data-minimum-input-length': 1.,
-                                                                                 "id": "project_choice",
+                                                                                 'data-minimum-input-length': 1,
                                                                                  },
                                                                          )
                                    )

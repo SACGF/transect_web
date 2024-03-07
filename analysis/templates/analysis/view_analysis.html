@@ -29,13 +29,17 @@
               </div>
             </div>
         </div>
-        {% include 'analysis/correlation_analysis_view.html' %}
-        {% include 'analysis/de_analysis_view.html' %}
+        {% if analysis_type == "Correlation" %}
+          {% include 'analysis/correlation_analysis_view.html' %}
+        {% else %}
+          {% include 'analysis/de_analysis_view.html' %}
+        {% endif %}
         <div id="image_modal" class="modal fade" tabindex="-1" aria-labelledby="modal_title" aria-hidden="true">
           <div class="modal-dialog modal-lg">
             <div class="modal-content">
               <div class="modal-header">
                 <h5 class="modal-title" id="modal_title">Stiuff</h5>
+                <button class="btn btn-secondary ms-3" style="color: black;"><img src="{% static 'icons/download.svg' %}" class="mb-1 me-2">Download</button>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
               <div class="modal-body">
@@ -48,15 +52,16 @@
   <script>
     const image_modal = document.getElementById("image_modal")
 
+    function get_gois() {
+      let goi_list = []
+      {% for goi in gois %}
+        goi_list.push('{{goi}}')
+      {% endfor %}
+      return goi_list
+    }
+
     async function display_de_analysis_results(analysis) {
-      const goi_url = "{% url 'fetch-gois' analysis_id=analysis %}";
-      let gois;
-      try {
-        const json_response = await fetch_response(goi_url)
-        gois = json_response.gois
-      } catch (exception) {
-        throw new Error(exception)
-      }
+      const gois = get_gois();
 
       document.getElementById("de_view_container").style.display = "block"
       const de_url_base = "{{ MEDIA_URL }}/media/".concat(analysis).concat("/DE_Analysis/glimma-plots/").concat(gois.join("-"))
@@ -85,18 +90,11 @@
         document.getElementById("de_volcano_div").style.display = "none";
         document.getElementById("de_mds_div").style.display = "block";
       })
-
     }
 
     async function display_correlation_analysis_results(analysis) {
-      const goi_url = "{% url 'fetch-gois' analysis_id=analysis %}";
-      let goi;
-      try {
-        const json_response = await fetch_response(goi_url)
-        goi = json_response.gois[0]
-      } catch (exception) {
-        throw new Error(exception)
-      }
+      const gois = get_gois()
+      const goi = gois[0]
 
       document.getElementById("correlation_view_container").style.display = "block"
       const correlation_volcano_image = document.getElementById("correlation_volcano_image")
@@ -176,21 +174,6 @@
       }
     }
 
-    // this function should also do something to verify nothing went wrong
-    async function display_analysis(analysis) {
-      const url = "{% url 'analysis-check-type' analysis_id=analysis %}";
-      try {
-        const json_response = await fetch_response(url)
-        if (json_response.analysis_type === "Correlation") {
-          display_correlation_analysis_results(analysis)
-        } else if (json_response.analysis_type === "DE") {
-          display_de_analysis_results(analysis)
-        }
-      } catch (exception) {
-        throw new Error(exception)
-      }
-    }
-
     async function download_single_analysis(analysis) {
       const url = "{% url 'analysis-download' analysis_id=analysis %}"
       try {
@@ -208,7 +191,6 @@
       const url = "{% url 'check-fully-downloaded' analysis_id=analysis %}"
       try {
         const response = await fetch(url)
-        console.log(response)
         if (response.status === 404) {
             throw new Error(` ${response.status} - Analysis not found`)
         }
@@ -228,7 +210,11 @@
       // need to find a way to differentiate between DE and Correlation
       try {
         await wait_for_analysis('{{ analysis }}') // first instance to check if analysis finished
-        display_analysis('{{ analysis }}')
+        if ('{{ analysis_type }}' === "Correlation") {
+          display_correlation_analysis_results('{{ analysis }}')
+        } else if ('{{ analysis_type }}' === "DE") {
+          display_de_analysis_results('{{ analysis }}')
+        }
       } catch (exception) {
         final_message = exception
         error = true
