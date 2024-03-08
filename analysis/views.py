@@ -17,6 +17,56 @@ import os
 import subprocess
 from sRT_backend.settings import env
 
+def FetchGseaSummary(requests, analysis_id):
+    print("YES")
+    analysis =  Analysis.objects.filter(sha_hash=str(analysis_id))
+    if analysis.exists() is False:
+        raise Http404("Analysis Not Found")
+
+    analysis = analysis.first()
+
+    print("GSEA 1")
+    print(analysis.percentile)
+    if analysis.percentile == 0:
+        return JsonResponse({'error': f'{analysis_id} is not a DE analysis'}, status=500)
+
+    print("GSEA 2")
+
+    gois = []
+    print(analysis)
+    print(analysis.genes_of_interest.all())
+    for goi in analysis.genes_of_interest.all():
+        print(goi)
+        gois.append(goi.name)
+
+    print("GSEA 3")
+
+    GSEA_path = os.path.join(env('OUTPUT_DIR'), str(analysis_id), "GSEA")
+    print("GSEA 3.5")
+    GSEA_summary = os.path.join(GSEA_path, "-".join(gois) + "_Strat_Vs_Curated.csv")
+    print("GSEA 3.5")
+    print(GSEA_summary)
+    if os.path.exists(GSEA_path) is False or os.path.exists(GSEA_summary) is False:
+        print("BAD")
+        return JsonResponse({'error': f'{analysis_id} does not contain sufficient data '}, status=500)
+
+    print("GSEA 4")
+
+    x = []
+    y = []
+    with open(GSEA_summary, "r") as f:
+        next(f)
+        for line in f:
+            curr = line.strip().split(",")
+            y.append(curr[0])
+            x.append(float(curr[4]))
+    
+    print(x)
+    print(y)
+
+
+    return JsonResponse({'error': "", "x": x, "y": y}, status=200)
+
 # needs to be changed to support better pagination
 # current method will be too memory intensive as it loads everything
 def provide_correlation_comparisons(requests, analysis_id):
@@ -35,20 +85,34 @@ def provide_correlation_comparisons(requests, analysis_id):
     i = 0
 
     # pushing items with a plot at the front
-    # plot should be sorted by record 2 (logExp_Cor)
-    with open(os.path.join(env('OUTPUT_DIR'), str(analysis_id), "Corr_Analysis", analysis.first().genes_of_interest.all()[0].name + "_corr.tsv"), "r") as f:
+    # plot should be sorted by record 5 (logExp_FDR)
+    # either way, add only the items with a plot first
+    # checking if path exists will negate the need for us to check a certain
+    # value which may present design problems in the future
+    tsv_comp_file = os.path.join(env('OUTPUT_DIR'), str(analysis_id), "Corr_Analysis", analysis.first().genes_of_interest.all()[0].name + "_corr.tsv")
+
+    with open(tsv_comp_file, "r") as f:
         next(f)
         for line in f:
+            if i == 1000:
+                break
+
             record = line.replace("\"", "").strip().split("\t")
             if os.path.exists(os.path.join(env('OUTPUT_DIR'), str(analysis_id), "Corr_Analysis", "plots", record[0] + "_" + record[1] + ".png")) is True:
                 last_plot_index += 1
                 table_items.append(record[1:])
-            else:
-                table_items.append(record[1:])
-
-            i += 1
+                i += 1
+    
+    with open(tsv_comp_file, "r") as f:
+        next(f)
+        for line in f:
             if i == 1000:
                 break
+
+            record = line.replace("\"", "").strip().split("\t")
+            if os.path.exists(os.path.join(env('OUTPUT_DIR'), str(analysis_id), "Corr_Analysis", "plots", record[0] + "_" + record[1] + ".png")) is False:
+                table_items.append(record[1:])
+                i += 1
 
     return JsonResponse({'table_items': table_items, "last_plot_index": last_plot_index})
 
@@ -79,7 +143,7 @@ def check_fully_downloaded(request, analysis_id):
     if os.path.exists(env('OUTPUT_DIR') + "/" + str(analysis_id) + ".zip") is False:
         raise Http404("Analysis Not Found")
 
-    print("crinnge")
+    print("checkpoint 2")
 
     return JsonResponse({'error': ""}, status=200)
 
@@ -225,9 +289,9 @@ def display_settings_page(request):
 
                 # setting the task ID below to be equal to the sha_hash
                 submit_command.apply_async((project_str, goi_name_list, curr_goi_composite_analysis_type, curr_percentile, curr_rna_species, sha_hash, analysis_script_path), queue="script_queue", task_id=sha_hash)
-                analysis_query["analysis"] = str(sha_hash)
-                analysis_url = reverse('analysis-fetch', kwargs={key: value for (key, value) in analysis_query.items()})
             
+            analysis_query["analysis"] = str(sha_hash)
+            analysis_url = reverse('analysis-fetch', kwargs={key: value for (key, value) in analysis_query.items()})
             return redirect(analysis_url)
     else:
         print("Fails")

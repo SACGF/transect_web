@@ -13,6 +13,7 @@
     <script src="{% static 'js/bootstrap.min.js' %}"></script>
     <link href="{% static 'css/datatables.min.css' %}" rel="stylesheet">
     <script src="{% static 'js/datatables.min.js' %}"></script> 
+    <script src="{% static 'js/plotly-latest.min.js' %}" charset="UTF-8"></script> 
   </head>
   <body>
         <div class="container" id="output_container">
@@ -50,6 +51,7 @@
         </div>
   </body>
   <script>
+    // if having issues with the negative values in plotly: https://github.com/plotly/plotly.js/issues/5327
     const image_modal = document.getElementById("image_modal")
 
     const modal_download = document.getElementById("modal_download")
@@ -71,12 +73,15 @@
     }
 
     async function display_de_analysis_results(analysis) {
+      console.log("Hi")
       const gois = get_gois();
 
       document.getElementById("de_view_container").style.display = "block"
       const de_url_base = "{{ MEDIA_URL }}/media/".concat(analysis).concat("/DE_Analysis/glimma-plots/").concat(gois.join("-"))
       const de_url_volcano = de_url_base.concat("-High_Vs_Low-Volcano.html")
       const de_url_mds_plot = de_url_base.concat("-MDS-Plot.html")
+
+      const gsea_url_base = "{{ MEDIA_URL }}/media/".concat(analysis).concat("GSEA")
 
       document.getElementById("download_de").addEventListener('click', () => {
         try {
@@ -89,16 +94,44 @@
       document.getElementById("de_volcano").src = de_url_volcano
       document.getElementById("de_mds").src = de_url_mds_plot
 
+      try {
+        const json_response = await fetch_response("{% url 'fetch-gsea-summary' analysis_id=analysis %}")
+        const data = [{
+          type: 'bar',
+          x: json_response.x,
+          y: json_response.y,
+          hovertemplate: '<b>X</b>: %{x}<br><extra></extra>',
+          margin: {l: 40, b: 40, t: 60},
+          //hoverinfo: 'text',
+          //text: [json_response.x],
+          orientation: 'h'
+        }];
+
+        Plotly.newPlot('de_gsea_summary', data);
+
+      } catch (exception) {
+        throw new Error(exception)
+      }
+
       const toggle_de_volcano = document.getElementById("toggle_de_volcano")
       toggle_de_volcano.addEventListener('click', () => {
         document.getElementById("de_volcano_div").style.display = "block";
         document.getElementById("de_mds_div").style.display = "none";
+        document.getElementById("de_gsea_div").style.display = "none";
       })
 
-      const toggle_mds_volcano = document.getElementById("toggle_de_mds")
-      toggle_mds_volcano.addEventListener('click', () => {
+      const toggle_de_mds = document.getElementById("toggle_de_mds")
+      toggle_de_mds.addEventListener('click', () => {
         document.getElementById("de_volcano_div").style.display = "none";
         document.getElementById("de_mds_div").style.display = "block";
+        document.getElementById("de_gsea_div").style.display = "none";
+      })
+
+      const toggle_gsea_summary = document.getElementById("toggle_gsea_summary")
+      toggle_gsea_summary.addEventListener('click', () => {
+        document.getElementById("de_volcano_div").style.display = "none";
+        document.getElementById("de_mds_div").style.display = "none";
+        document.getElementById("de_gsea_div").style.display = "block";
       })
     }
 

@@ -38,13 +38,13 @@ class AnalysisForm(forms.Form):
                                          required=True,
                                          widget=autocomplete.ModelSelect2Multiple(url='genes-autocomplete',
                                                              attrs={'data-placeholder': 'Genes ...',
-                                                                    'data-minimum-input-length': 3,
+                                                                    'data-minimum-input-length': 2,
                                                                     'id': 'gene_selected', 
                                                                     'class': 'mt-3'
                                                                     }))
 
     composite_analysis_type = forms.ChoiceField(choices=[("Single", "Single"),
-                                                         ("Multi", "Multi"),
+                                                         ("Additive", "Additive"),
                                                          ("Ratio", "Ratio")],
                                                         initial= "Single",
                                                         widget=forms.Select(
@@ -56,7 +56,7 @@ class AnalysisForm(forms.Form):
                                                                       'data-trigger': "hover",
                                                                       'data-content': "Choose if you want to do a single-analysis on a gene " + \
                                                                                       "or a mutli/ratio analysis on a group of genes. Note that " + \
-                                                                                      "you cannot do a correlation analysis if you select either Ratio or Multi."
+                                                                                      "you cannot do a correlation analysis if you select either Ratio or Additive."
                                                                       }))
 
     do_correlation_analysis = forms.BooleanField(required=False,

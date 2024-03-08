@@ -38,7 +38,7 @@ def submit_command(project, all_gois, composite_analysis_type, percentile, rna_s
         to_add = ""
         if composite_analysis_type == "Single":
             to_add = all_gois[0]
-        elif composite_analysis_type == "Multi":
+        elif composite_analysis_type == "Additive":
             to_add = "+".join(all_gois)
         elif composite_analysis_type == "Ratio":
             to_add = "%".join(all_gois)
@@ -66,6 +66,7 @@ def submit_command(project, all_gois, composite_analysis_type, percentile, rna_s
     os.mkdir(out_path)
 
     command += " -o " + out_path
+    print(command)
     # run the command
     # if the command failed, delete its folder and associated database entry
 

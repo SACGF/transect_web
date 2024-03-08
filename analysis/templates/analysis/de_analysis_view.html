@@ -6,16 +6,23 @@
 
             <input type="radio" class="btn-check" name="btnradio" id="toggle_de_volcano" autocomplete="off">
             <label class="btn btn-outline-primary" for="toggle_de_volcano">Volcano</label>
+
+            <input type="radio" class="btn-check" name="btnradio" id="toggle_gsea_summary" autocomplete="off">
+            <label class="btn btn-outline-primary" for="toggle_gsea_summary">GSEA</label>
         </div>
     </div>
 
-    <div class="iframe_div" id="de_mds_div" style="width: 100%; height: 100%;">
+    <div class="iframe_div" id="de_mds_div">
         <h1 class="d-flex justify-content-center mt-3">MDS Plot</h1>
         <iframe id="de_mds" class="iframe_div"></iframe>
     </div>
-    <div class="iframe_div" id="de_volcano_div" style="width: 100%; height: 100%;  display: none;">
+    <div class="iframe_div" id="de_volcano_div" style="display: none;">
         <h1 class="d-flex justify-content-center mt-3">Volcano Plot</h1>
         <iframe id="de_volcano" class="iframe_div"></iframe>
+    </div>
+    <div id="de_gsea_div" style="width: 100%; height: 100%; display: none;">
+        <h1 class="d-flex justify-content-center mt-3">GSEA Summary</h1>
+        <div id="de_gsea_summary" class="d-flex justify-content-center style="width: 100%; height: 100%;"></div>
     </div>
 
     <div id="download_de_div" class="d-flex align-items-center justify-content-center mt-3">

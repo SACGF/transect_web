@@ -117,7 +117,7 @@
         $('#gene_selected').on('select2:opening', function (e) {
             if (($('#gene_selected').val().length === 1 && composite_analysis_choice.value === "Single") ||
             ($('#gene_selected').val().length === 2 && composite_analysis_choice.value === "Ratio") ||
-            ($('#gene_selected').val().length === 5 && composite_analysis_choice.value === "Multi")) {
+            ($('#gene_selected').val().length === 5 && composite_analysis_choice.value === "Additive")) {
                 e.preventDefault();
                 // how do I fetch the cursor?
                 // e.target.style.cursor // does not work
@@ -143,7 +143,7 @@
             document.getElementById('analysis_type_span').style.cursor = "not-allowed";
         }
 
-        // we should also make it such that choosing "multi" or "ratio" analysis forcibly selects
+        // we should also make it such that choosing "Additive" or "ratio" analysis forcibly selects
         // DE analysis and removes the "Analysis Type" section.
         function change_goi_analysis() {
             goi_alert.style.display = 'none'
@@ -217,7 +217,7 @@
             }
 
             const goi_alert = document.getElementById('goi_alert')
-            if ($('#gene_selected').val().length === 1 && (composite_analysis_choice.value === "Multi")) {
+            if ($('#gene_selected').val().length === 1 && (composite_analysis_choice.value === "Additive")) {
                 goi_alert.innerHTML = '<strong class="mx-2">Error!</strong> Please enter at least 2 Genes.'
                 goi_alert.style.display = 'block'
                 e.preventDefault();

@@ -9,5 +9,6 @@ urlpatterns = [
     path('fetch/<analysis>', views.fetch, name='analysis-fetch'),
     path('genes_autocomplete', views.GenesAutocomplete.as_view(), name='genes-autocomplete'),
     path('projects_autocomplete', views.ProjectsAutocomplete.as_view(), name='projects-autocomplete'),
+    path('fetch_gsea_summary/<analysis_id>', views.FetchGseaSummary, name='fetch-gsea-summary'),
 ]
 
