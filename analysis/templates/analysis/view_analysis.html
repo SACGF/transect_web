@@ -16,10 +16,10 @@
     <script src="{% static 'js/plotly-latest.min.js' %}" charset="UTF-8"></script> 
   </head>
   <body>
-        <div class="container" id="output_container">
-            <div class="ml-3 mt-3 row justify-content-md-center" id="submission_loader">
+        <div class="container" id="view_loading_container">
+            <div class="ml-3 mt-3 row justify-content-md-center" id="view_loading_div">
               <div class="col-auto">
-                <div class="spinner-border" role="status">
+                <div class="spinner-border" id="view_loading_spinner" role="status">
                     <span class="sr-only"></span>
                 </div>
               </div>
@@ -75,6 +75,12 @@
     async function display_gsea_results(analysis) {
       const gsea_url_base = "{{ MEDIA_URL }}/media/".concat(analysis).concat("GSEA")
 
+      const gsea_loading_div = document.getElementById("gsea_loading_div")
+      gsea_loading_div.style.display = "none"
+
+      const gsea_content = document.getElementById("gsea_content")
+      gsea_content.style.display = "block"
+
       try {
         const json_response = await fetch_response("{% url 'fetch-gsea-summary' analysis_id=analysis %}")
         const data = [{
@@ -90,6 +96,7 @@
         }
         const config = {responsive: true} // size of graph automatically changes when size of view changes
         Plotly.newPlot('de_gsea_summary', data, layout, config);
+        setTimeout(()=> {window.dispatchEvent(new Event('resize'));}, 0.1);
       } catch (exception) {
         throw new Error(exception)
       }
@@ -134,6 +141,9 @@
         document.getElementById("de_volcano_div").style.display = "none";
         document.getElementById("de_mds_div").style.display = "none";
         document.getElementById("de_gsea_div").style.display = "block";
+        // since the plot has a display of none at the start, the initial resize 
+        // will not trigger, need to do it manually
+        setTimeout(()=> {window.dispatchEvent(new Event('resize'));}, 0.1);
       })
     }
 
@@ -274,12 +284,12 @@
 
       if (error === false) final_message = "Finished"
 
-      document.getElementsByClassName("spinner-border")[0].style.display = "none"
+      document.getElementById("view_loading_spinner").style.display = "none"
       document.getElementById("request_status").innerHTML = final_message
 
       if (error === true) return;
 
-      document.getElementById("submission_loader").style.display = "none"
+      document.getElementById("view_loading_div").style.display = "none"
 
       // if DE, still need to wait for gsea
       if ('{{ analysis_type }}' === "DE") {

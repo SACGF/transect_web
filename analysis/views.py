@@ -14,7 +14,6 @@ from analysis.tasks import submit_command
 import time
 import hashlib
 import os
-import subprocess
 from sRT_backend.settings import env
 
 def FetchGseaSummary(request, analysis_id):
