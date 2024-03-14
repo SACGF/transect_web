@@ -78,9 +78,6 @@
       const gsea_loading_div = document.getElementById("gsea_loading_div")
       gsea_loading_div.style.display = "none"
 
-      const gsea_content = document.getElementById("gsea_content")
-      gsea_content.style.display = "block"
-
       try {
         const json_response = await fetch_response("{% url 'fetch-gsea-summary' analysis_id=analysis %}")
         const data = [{
@@ -100,6 +97,9 @@
       } catch (exception) {
         throw new Error(exception)
       }
+
+      const gsea_content = document.getElementById("gsea_content")
+      gsea_content.style.display = "block"
     }
 
     async function display_de_analysis_results(analysis) {
