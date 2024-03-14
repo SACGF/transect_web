@@ -72,16 +72,37 @@
       return goi_list
     }
 
+    async function display_gsea_results(analysis) {
+      const gsea_url_base = "{{ MEDIA_URL }}/media/".concat(analysis).concat("GSEA")
+
+      try {
+        const json_response = await fetch_response("{% url 'fetch-gsea-summary' analysis_id=analysis %}")
+        const data = [{
+          type: 'bar',
+          x: json_response.x,
+          y: json_response.y,
+          hovertemplate: '<b>X</b>: %{x}<br><extra></extra>',
+          orientation: 'h'
+        }];
+        const layout = {
+          margin: {l: 600} ,// use it to adjust space for the margins
+          autosize: true
+        }
+        const config = {responsive: true} // size of graph automatically changes when size of view changes
+        Plotly.newPlot('de_gsea_summary', data, layout, config);
+      } catch (exception) {
+        throw new Error(exception)
+      }
+    }
+
     async function display_de_analysis_results(analysis) {
+      document.getElementById("de_view_container").style.display = "block"
       console.log("Hi")
       const gois = get_gois();
 
-      document.getElementById("de_view_container").style.display = "block"
       const de_url_base = "{{ MEDIA_URL }}/media/".concat(analysis).concat("/DE_Analysis/glimma-plots/").concat(gois.join("-"))
       const de_url_volcano = de_url_base.concat("-High_Vs_Low-Volcano.html")
       const de_url_mds_plot = de_url_base.concat("-MDS-Plot.html")
-
-      const gsea_url_base = "{{ MEDIA_URL }}/media/".concat(analysis).concat("GSEA")
 
       document.getElementById("download_de").addEventListener('click', () => {
         try {
@@ -93,29 +114,6 @@
       })
       document.getElementById("de_volcano").src = de_url_volcano
       document.getElementById("de_mds").src = de_url_mds_plot
-
-      try {
-        const json_response = await fetch_response("{% url 'fetch-gsea-summary' analysis_id=analysis %}")
-        const data = [{
-          type: 'bar',
-          x: json_response.x,
-          y: json_response.y,
-          hovertemplate: '<b>X</b>: %{x}<br><extra></extra>',
-          orientation: 'h'
-        }];
-
-        const layout = {
-          margin: {l: 600} ,// use it to adjust space for the margins
-          autosize: true
-        }
-
-        const config = {responsive: true} // size of graph automatically changes when size of view changes
-
-        Plotly.newPlot('de_gsea_summary', data, layout, config);
-
-      } catch (exception) {
-        throw new Error(exception)
-      }
 
       const toggle_de_volcano = document.getElementById("toggle_de_volcano")
       toggle_de_volcano.addEventListener('click', () => {
@@ -236,8 +234,12 @@
       }
     }
 
-    async function wait_for_analysis(analysis) {
-      const url = "{% url 'check-fully-downloaded' analysis_id=analysis %}"
+    // used by both to check if the analysis is fully complete
+    // de_only is for checking only the de_part
+    async function wait_for_analysis(analysis, de_only) {
+
+      const url =  de_only === false ? "{% url 'check-fully-downloaded' analysis_id=analysis %}" : "{% url 'check-de-finished' analysis_id=analysis %}"
+
       try {
         const response = await fetch(url)
         if (response.status === 404) {
@@ -258,10 +260,11 @@
 
       // need to find a way to differentiate between DE and Correlation
       try {
-        await wait_for_analysis('{{ analysis }}') // first instance to check if analysis finished
         if ('{{ analysis_type }}' === "Correlation") {
+          await wait_for_analysis('{{ analysis }}', false)
           display_correlation_analysis_results('{{ analysis }}')
         } else if ('{{ analysis_type }}' === "DE") {
+          await wait_for_analysis('{{ analysis }}', true)
           display_de_analysis_results('{{ analysis }}')
         }
       } catch (exception) {
@@ -277,6 +280,12 @@
       if (error === true) return;
 
       document.getElementById("submission_loader").style.display = "none"
+
+      // if DE, still need to wait for gsea
+      if ('{{ analysis_type }}' === "DE") {
+        await wait_for_analysis('{{ analysis }}', false)
+        display_gsea_results('{{ analysis }}')
+      }
     }
 
     fetch_all_analysis()

@@ -17,7 +17,7 @@ import os
 import subprocess
 from sRT_backend.settings import env
 
-def FetchGseaSummary(requests, analysis_id):
+def FetchGseaSummary(request, analysis_id):
     print("YES")
     analysis =  Analysis.objects.filter(sha_hash=str(analysis_id))
     if analysis.exists() is False:
@@ -69,7 +69,7 @@ def FetchGseaSummary(requests, analysis_id):
 
 # needs to be changed to support better pagination
 # current method will be too memory intensive as it loads everything
-def provide_correlation_comparisons(requests, analysis_id):
+def provide_correlation_comparisons(request, analysis_id):
     analysis =  Analysis.objects.filter(sha_hash=str(analysis_id))
     if analysis.exists() is False:
         raise Http404("Analysis Not Found")
@@ -116,6 +116,26 @@ def provide_correlation_comparisons(requests, analysis_id):
 
     return JsonResponse({'table_items': table_items, "last_plot_index": last_plot_index})
 
+def check_de_finished(request, analysis_id):
+    analysis = Analysis.objects.filter(sha_hash=str(analysis_id)).first()
+
+    if analysis is None:
+        raise Http404("Analysis Not Found")
+    
+    if analysis.percentile == 0:
+        return JsonResponse({'error': analysis_id + " is not a Differential Expression Analysis."}, status=500)
+
+    # check to see if the GSEA folder exists, if so, then that signals the completion of the DE step
+    while os.path.exists(os.path.join(env('OUTPUT_DIR'), str(analysis_id), "GSEA")) is False:
+        time.sleep(5)
+        if analysis.reason_for_failure != "":
+            return JsonResponse({'error': 'Analysis Failed. ' + analysis.reason_for_failure}, status=500)
+        
+    return JsonResponse({'error': ""}, status=200)
+
+# the logic here is that both the DE and Correlation analysis will use this function
+# however, the DE will use it to check if the entire analysis (GSEA inclucded) is fully finished,
+# instead DE will use another function to check if the DE part has finished.
 def check_fully_downloaded(request, analysis_id):
     print("Hello")
     analysis = Analysis.objects.filter(sha_hash=str(analysis_id)).first()
