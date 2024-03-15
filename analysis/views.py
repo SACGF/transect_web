@@ -177,7 +177,35 @@ def download(request, analysis_id):
 
     analysis = Analysis.objects.filter(sha_hash=str(analysis_id)).first()
     analysis_type = "Correlation" if analysis.percentile == 0 else "Differential Expression"
-    download_filename = "correlation_analysis.zip" if analysis_type == "Correlation" else "differential_expression_analysis.zip"
+    download_filename = "correlation_" if analysis_type == "Correlation" else "de_"
+    # make download filename have a combination of some of the parameters
+    print("slicker")
+    print(analysis.script.lower())
+    print(str(analysis.project).lower())
+    print("_".join([analysis.script.lower(), str(analysis.project).lower()]))
+    download_filename += "_".join([analysis.script.lower(), str(analysis.project).lower()]) + "_"
+    
+    print("TRIPPER")
+    print(analysis.genes_of_interest.all())
+
+    gois = []
+    for gene in analysis.genes_of_interest.all():
+        print(gene)
+        gois.append(str(gene))
+
+    print("Stopper")
+    
+    if analysis.composite_analysis_type == "Single":
+        download_filename += gois[0]
+    elif analysis.composite_analysis_type == "Additive":
+        download_filename += "+".join(gois)
+    else:
+        download_filename += "/".join(gois)
+
+    download_filename += "_" + str(analysis.percentile) + "%_" + analysis.rna_species if analysis_type == "Differential Expression" else ""
+    download_filename += ".zip"
+
+    print(download_filename)
 
     try:
         response = check_fully_downloaded(request, analysis_id)
@@ -191,6 +219,8 @@ def download(request, analysis_id):
     if os.path.exists(analysisOutDir) is False:
         return Http404({f'{analysis_type} Analysis Not Found'})
 
+    print("TRAP")
+
     # files could be very large, best to serve it in chunks
     def generate_file_chunks(file_path, chunk_size=8192):
         with open(file_path, 'rb') as file:
@@ -203,7 +233,10 @@ def download(request, analysis_id):
     try:
         response = StreamingHttpResponse(generate_file_chunks(analysisOutDir), content_type='application/zip')
         response['Content-Disposition'] = f'attachment; filename={download_filename}'
+        print("ALMOST")
         response["Access-Control-Allow-Origin"] = env('WEBSERVER_PORT')
+        print("CLIPPER")
+        print(response)
         return response
     except:
         return JsonResponse({'error': f'{analysis_type} Analysis Download Failed'}, status=500)

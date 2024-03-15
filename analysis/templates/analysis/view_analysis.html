@@ -234,12 +234,14 @@
     async function download_single_analysis(analysis) {
       const url = "{% url 'analysis-download' analysis_id=analysis %}"
       try {
-        const response = await fetch_response(url)
+        const response = await fetch(url)
+        console.log(response)
         if (response.status !== 200) {
             throw new Error(` ${response.status} - ${response.error}`)
         }
         window.location.href = url;
       } catch (exception) {
+        alert(exception)
         throw new Error(exception)
       }
     }
