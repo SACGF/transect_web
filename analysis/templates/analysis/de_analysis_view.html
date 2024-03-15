@@ -12,20 +12,20 @@
         </div>
     </div>
 
-    <div class="iframe_div" id="de_mds_div">
+    <div id="de_mds_div" style="width: 100%; height: 100%;">
         <h1 class="d-flex justify-content-center mt-3">MDS Plot</h1>
         <iframe id="de_mds" class="iframe_div"></iframe>
     </div>
-    <div class="iframe_div" id="de_volcano_div" style="display: none;">
+    <div id="de_volcano_div" style="width: 100%; height: 100%; display: none;">
         <h1 class="d-flex justify-content-center mt-3">Volcano Plot</h1>
         <iframe id="de_volcano" class="iframe_div"></iframe>
     </div>
     <div id="de_gsea_div" style="width: 100%; height: 100%; display: none;">
         <div class="ml-3 mt-3 row justify-content-md-center" style="width: 100%; height: 100%;" id="gsea_loading_div">
             <div class="col-auto">
-              <div class="spinner-border" id="gsea_loading_spinner" role="status">
-                  <span class="sr-only"></span>
-              </div>
+            <div class="spinner-border" id="gsea_loading_spinner" role="status">
+                <span class="sr-only"></span>
+            </div>
             </div>
             <div class="col-auto">
                 <div id="gsea_status" class="ml-2 pt-1">
@@ -36,8 +36,10 @@
         <div id="gsea_content" class="ml-3 mt-3 row justify-content-md-center" style="width: 100%; height: 100%; display: none;">
             <h1 class="d-flex justify-content-center mt-3">GSEA Summary</h1>
             <div id="de_gsea_summary" class="d-flex justify-content-center" style="width: 100%; height: 100%;"></div>
-        <div>
+        </div>
     </div>
+
+
 
     <div id="download_de_div" class="d-flex align-items-center justify-content-center mt-3">
         <button id="download_de" class="btn btn-primary">Download</button>
