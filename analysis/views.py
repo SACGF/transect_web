@@ -246,7 +246,7 @@ class GenesAutocomplete(autocomplete.Select2QuerySetView):
         qs = Genes.objects.all()
 
         if self.q:
-            qs = qs.filter(name__istartswith=self.q)
+            qs = qs.filter(name__icontains=self.q) # i at the start of contains indicates case insensitivity
 
         return qs
 
@@ -255,12 +255,12 @@ class ProjectsAutocomplete(autocomplete.Select2QuerySetView):
         qs = Projects.objects.all()
 
         script_type = self.forwarded.get('script_type')
-
-        if script_type is None:
-            qs = Projects.objects.none()
+        
+        if script_type is None or script_type == "":
+            return Projects.objects.none()
 
         if self.q:
-            qs = qs.filter(name__contains=self.q)
+            qs = qs.filter(name__icontains=self.q)
 
             if script_type == "GDC" or script_type == "GTEx":
                 qs = qs.filter(source=script_type)

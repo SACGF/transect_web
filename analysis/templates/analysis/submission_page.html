@@ -95,7 +95,12 @@
 
         const script_choice = document.getElementById("script_choice")
 
-        script_choice.addEventListener("change", () => {rna_species_alert.style.display = 'none'})
+        script_choice.addEventListener("change", () => {
+            $("[name='project']").empty(); // in jquery, can fetch attribute in this manner
+            // remember, we cannot use ID in conjunction with the forward widget in dal
+            // as it will not work
+            rna_species_alert.style.display = 'none'
+        })
 
         function trigger_de_checkbox() {
             show_de_options();
