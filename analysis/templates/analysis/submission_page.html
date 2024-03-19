@@ -73,8 +73,15 @@
                             </div>
                         </div>
                     </div>
-                    <div id="submission_and_loading_container" class="mt-3 row ms-3 justify-content-md-center">
-                        <input type="submit" id="submit_req" class="btn btn-primary">
+                    <div id="submission_and_loading_container" class="d-flex row mt-3 justify-content-md-center">
+                        {% if analysis_form.errors %}
+                            {% for error_list in analysis_form.errors.values %}
+                                {% for error in error_list %}
+                                    <strong class="d-flex column justify-content-md-center text-danger">{{ error }}</strong>
+                                {% endfor %}
+                            {% endfor %}
+                        {% endif %}
+                        <input type="submit" id="submit_req" class="btn btn-primary mt-3 column">
                     </div>
                 </form>
             </div>

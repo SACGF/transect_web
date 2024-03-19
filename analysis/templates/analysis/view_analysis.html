@@ -61,7 +61,7 @@
       dummyElement.download = dummyElement.href.split("/")[dummyElement.href.split("/").length - 1]; // Replace "filename" with the desired name of the downloaded file
       document.body.appendChild(dummyElement);
       dummyElement.click();
-      document.body.removeChild(dummyElement);  
+      document.body.removeChild(dummyElement);
     })
 
     function get_gois() {
@@ -254,15 +254,24 @@
 
       const url =  de_only === false ? "{% url 'check-fully-downloaded' analysis_id=analysis %}" : "{% url 'check-de-finished' analysis_id=analysis %}"
 
+      function timeout(ms) { 
+        return new Promise(resolve => setTimeout(resolve, ms));
+      }
+
       try {
-        const response = await fetch(url)
-        if (response.status === 404) {
-            throw new Error(` ${response.status} - Analysis not found`)
-        }
-        const json_response = await response.json()
-        if (response.status !== 200) {
-            throw new Error(` ${response.status} - ${json_response.error}`)
-        }
+        while (true) {
+            const response = await fetch(url)
+            if (response.status === 404) {
+                throw new Error(` ${response.status} - Analysis not found`)
+            }
+            const json_response = await response.json()
+            if (response.status !== 200) {
+                throw new Error(` ${response.status} - ${json_response.error}`)
+            } else {
+              if (json_response.completed === true) break
+            }
+            await timeout(5000)
+          }
       } catch (exception) {
         throw new Error(exception)
       }

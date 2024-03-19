@@ -125,12 +125,13 @@ def check_de_finished(request, analysis_id):
         return JsonResponse({'error': analysis_id + " is not a Differential Expression Analysis."}, status=500)
 
     # check to see if the GSEA folder exists, if so, then that signals the completion of the DE step
-    while os.path.exists(os.path.join(env('OUTPUT_DIR'), str(analysis_id), "GSEA")) is False:
-        time.sleep(5)
+    if os.path.exists(os.path.join(env('OUTPUT_DIR'), str(analysis_id), "GSEA")) is False:
         if analysis.reason_for_failure != "":
             return JsonResponse({'error': 'Analysis Failed. ' + analysis.reason_for_failure}, status=500)
+        else:
+            return JsonResponse({'completed': False, 'error': ''}, status=200)
         
-    return JsonResponse({'error': ""}, status=200)
+    return JsonResponse({'completed': True, 'error': ""}, status=200)
 
 # the logic here is that both the DE and Correlation analysis will use this function
 # however, the DE will use it to check if the entire analysis (GSEA inclucded) is fully finished,
@@ -144,11 +145,8 @@ def check_fully_downloaded(request, analysis_id):
 
     print("not null")
 
-    while analysis.fully_downloaded is False and analysis.reason_for_failure == "":
-        time.sleep(5)
-        analysis = Analysis.objects.filter(sha_hash=str(analysis_id)).first()
-        print(analysis.fully_downloaded)
-        print(analysis.fully_downloaded is False)
+    if analysis.fully_downloaded is False and analysis.reason_for_failure == "":
+        return JsonResponse({'completed': False, 'error': ''}, status=200)
 
     print("checkpoint 1")
 
@@ -164,7 +162,7 @@ def check_fully_downloaded(request, analysis_id):
 
     print("checkpoint 2")
 
-    return JsonResponse({'error': ""}, status=200)
+    return JsonResponse({'completed': True, 'error': ""}, status=200)
 
 # as an extension to this, it might be good to create a directory for all 3 types of scripts, GDC, etc, containing 
 
@@ -337,6 +335,7 @@ def display_settings_page(request):
                     newAnalysis.save()
                 else:
                     analysis_form.add_error(None, filter_obj.first().reason_for_failure) # first attribute is field
+                    print(analysis_form.errors)
                     return render(request, 'analysis/submission_page.html', {"analysis_form": analysis_form})
 
                 # setting the task ID below to be equal to the sha_hash
