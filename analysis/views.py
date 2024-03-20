@@ -16,6 +16,9 @@ import hashlib
 import os
 from sRT_backend.settings import env
 
+# also fetches root folder name of the GSEA curated/hallmark reports
+# this is because these folders contains a number at the end
+# that appears to be procedurally generated
 def FetchGseaSummary(request, analysis_id):
     print("YES")
     analysis =  Analysis.objects.filter(sha_hash=str(analysis_id))
@@ -63,8 +66,17 @@ def FetchGseaSummary(request, analysis_id):
     print(x)
     print(y)
 
+    hallmark_report_root = ""
+    curated_report_root = ""
 
-    return JsonResponse({'error': "", "x": x, "y": y}, status=200)
+    # now lets fetch the reports
+    for item in os.listdir(os.path.join(env('OUTPUT_DIR'), str(analysis_id), "GSEA")):
+        if "Strat_Vs_Curated.GseaPreranked" in item:
+            curated_report_root = item
+        elif "Strat_Vs_Hallmark.GseaPreranked" in item:
+            hallmark_report_root = item
+
+    return JsonResponse({'error': "", "x": x, "y": y, "hallmark_report_root": hallmark_report_root, "curated_report_root": curated_report_root}, status=200)
 
 # needs to be changed to support better pagination
 # current method will be too memory intensive as it loads everything
@@ -355,5 +367,5 @@ def fetch(request, analysis):
     gois = []
     for goi in filter_obj.genes_of_interest.all():
         gois.append(goi.name)
-    analysis_info = {'analysis': analysis, 'gois': gois, 'analysis_type': "DE" if filter_obj.percentile > 0 else "Correlation"}
+    analysis_info = {'analysis': analysis, 'gois': gois, 'analysis_type': "DE" if filter_obj.percentile > 0 else "Correlation", 'composite_analysis_type': filter_obj.composite_analysis_type}
     return render(request, 'analysis/view_analysis.html', analysis_info)

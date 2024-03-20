@@ -73,13 +73,17 @@
     }
 
     async function display_gsea_results(analysis) {
-      const gsea_url_base = "{{ MEDIA_URL }}/media/".concat(analysis).concat("GSEA")
+      const gsea_url_base = "{{ MEDIA_URL }}/media/".concat(analysis).concat("/GSEA")
 
       const gsea_loading_div = document.getElementById("gsea_loading_div")
       gsea_loading_div.style.display = "none"
 
       try {
         const json_response = await fetch_response("{% url 'fetch-gsea-summary' analysis_id=analysis %}")
+
+        document.getElementById("gsea_hallmark_report").href = gsea_url_base.concat("/").concat(json_response.hallmark_report_root).concat("/index.html")
+        document.getElementById("gsea_curated_report").href = gsea_url_base.concat("/").concat(json_response.curated_report_root).concat("/index.html")
+
         const data = [{
           type: 'bar',
           x: json_response.x,
@@ -109,9 +113,42 @@
       console.log("Hi")
       const gois = get_gois();
 
-      const de_url_base = "{{ MEDIA_URL }}/media/".concat(analysis).concat("/DE_Analysis/glimma-plots/").concat(gois.join("-"))
-      const de_url_volcano = de_url_base.concat("-High_Vs_Low-Volcano.html")
-      const de_url_mds_plot = de_url_base.concat("-MDS-Plot.html")
+      const de_url_base = "{{ MEDIA_URL }}/media/".concat(analysis).concat("/DE_Analysis/").concat(gois.join("-"))
+
+      const de_url_glimma_base = "{{ MEDIA_URL }}/media/".concat(analysis).concat("/DE_Analysis/glimma-plots/").concat(gois.join("-"))
+      const de_url_volcano = de_url_glimma_base.concat("-High_Vs_Low-Volcano.html")
+      const de_url_mds_plot = de_url_glimma_base.concat("-MDS-Plot.html")
+
+      const n_t_boxplot_image = document.getElementById("n_t_boxplot_image")
+      const strat_boxplot_image = document.getElementById("strat_boxplot_image")
+      const analysis_specific_image = document.getElementById("analysis_specific_image")
+      
+      n_t_boxplot_image.src = de_url_base.concat("_TPM_N-T_boxplot.svg")
+      n_t_boxplot_image.addEventListener('click', () => {
+        image_modal.getElementsByClassName("modal-title")[0].innerHTML = gois.join("-").concat("_TPM_N-T_boxplot.svg")
+        image_modal.getElementsByClassName("modal-image")[0].src = n_t_boxplot_image.src
+        modal_download.href = n_t_boxplot_image.src
+        $("#image_modal").modal('show');
+      })
+
+      strat_boxplot_image.src = de_url_base.concat("_TPM_strat_boxplot.svg")
+      strat_boxplot_image.addEventListener('click', () => {
+        image_modal.getElementsByClassName("modal-title")[0].innerHTML = gois.join("-").concat("_TPM_strat_boxplot.svg")
+        image_modal.getElementsByClassName("modal-image")[0].src = strat_boxplot_image.src
+        modal_download.href = strat_boxplot_image.src
+        $("#image_modal").modal('show');
+      })
+
+      const composite_analysis_type = '{{ composite_analysis_type }}'
+      const composite_analysis_plot = (composite_analysis_type === "Additive") ? "_TPM_Boxplot_Sina.svg" : (composite_analysis_type === "Ratio") ? "_TPM_Scatter.svg" : "_TPM_histogram.svg"
+      
+      analysis_specific_image.src = de_url_base.concat(composite_analysis_plot)
+      analysis_specific_image.addEventListener('click', () => {
+        image_modal.getElementsByClassName("modal-title")[0].innerHTML = gois.join("-").concat(composite_analysis_plot)
+        image_modal.getElementsByClassName("modal-image")[0].src = analysis_specific_image.src
+        modal_download.href = analysis_specific_image.src
+        $("#image_modal").modal('show');
+      })
 
       document.getElementById("download_de").addEventListener('click', () => {
         try {
@@ -124,8 +161,17 @@
       document.getElementById("de_volcano").src = de_url_volcano
       document.getElementById("de_mds").src = de_url_mds_plot
 
+      const toggle_de_summary = document.getElementById("toggle_de_summary")
+      toggle_de_summary.addEventListener('click', () => {
+        document.getElementById("de_summary_div").style.display = "block";
+        document.getElementById("de_volcano_div").style.display = "none";
+        document.getElementById("de_mds_div").style.display = "none";
+        document.getElementById("de_gsea_div").style.display = "none";
+      })
+
       const toggle_de_volcano = document.getElementById("toggle_de_volcano")
       toggle_de_volcano.addEventListener('click', () => {
+        document.getElementById("de_summary_div").style.display = "none";
         document.getElementById("de_volcano_div").style.display = "block";
         document.getElementById("de_mds_div").style.display = "none";
         document.getElementById("de_gsea_div").style.display = "none";
@@ -133,6 +179,7 @@
 
       const toggle_de_mds = document.getElementById("toggle_de_mds")
       toggle_de_mds.addEventListener('click', () => {
+        document.getElementById("de_summary_div").style.display = "none";
         document.getElementById("de_volcano_div").style.display = "none";
         document.getElementById("de_mds_div").style.display = "block";
         document.getElementById("de_gsea_div").style.display = "none";
@@ -140,10 +187,11 @@
 
       const toggle_gsea_summary = document.getElementById("toggle_gsea_summary")
       toggle_gsea_summary.addEventListener('click', () => {
+        document.getElementById("de_summary_div").style.display = "none";
         document.getElementById("de_volcano_div").style.display = "none";
         document.getElementById("de_mds_div").style.display = "none";
         document.getElementById("de_gsea_div").style.display = "block";
-        // since the plot has a display of none at the start, the initial resize 
+        // since the plot has a display of none at the start, the initial resize
         // will not trigger, need to do it manually
         setTimeout(()=> {window.dispatchEvent(new Event('resize'));}, 0.1);
       })
