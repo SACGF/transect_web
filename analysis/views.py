@@ -14,6 +14,7 @@ from analysis.tasks import submit_command
 import time
 import hashlib
 import os
+import string
 from sRT_backend.settings import env
 
 # also fetches root folder name of the GSEA curated/hallmark reports
@@ -301,8 +302,13 @@ def display_settings_page(request):
             except:
                 raise Http404("Project " + curr_proj_text + " does not exist")
 
+            # GTEx capitalises the first words only, anything after a "_" character is considered a separate word
+            # It is different to RECOUNT3 which has the entire string capitalised
+
             if script_chosen == "GDC":
                 project_str = "TCGA-" + project_str
+            elif script_chosen == "GTEx":
+                project_str = string.capwords(project_str.replace("_", " ")).replace("_", " ")
 
             all_gois = analysis_form.cleaned_data.get('gene_selected')
             goi_name_list = []
