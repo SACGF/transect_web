@@ -308,7 +308,7 @@ def display_settings_page(request):
             if script_chosen == "GDC":
                 project_str = "TCGA-" + project_str
             elif script_chosen == "GTEx":
-                project_str = string.capwords(project_str.replace("_", " ")).replace("_", " ")
+                project_str = string.capwords(project_str.replace("_", " ")).replace(" ", "_")
 
             all_gois = analysis_form.cleaned_data.get('gene_selected')
             goi_name_list = []
