@@ -1,12 +1,21 @@
 from django import forms
 from analysis.models import Analysis, Genes, Projects
 from django.core.validators import MaxValueValidator, MinValueValidator
+from django.db.models import Case, When
 from dal import autocomplete, forward
 
 class AnalysisForm(forms.Form):
     def __init__(self, *args, **kwargs):
        super().__init__(*args, **kwargs)
        self.label_suffix = ""  # Removes : as label suffix
+
+    def clean_gene_selected(self):
+       order = self.data.getlist("gene_selected")
+       cleaned = self.cleaned_data.get("gene_selected")
+       preserved = Case(*[When(name=name, then=pos) for pos, name in enumerate(order)])
+       print("reorder")
+       print(cleaned.filter(name__in=order).order_by(preserved))
+       return cleaned.filter(name__in=order).order_by(preserved)
 
     script_type = forms.ChoiceField(choices=[('', ' -- select an option -- '), 
                                                            ("GDC", "GDC"), 
@@ -34,6 +43,7 @@ class AnalysisForm(forms.Form):
                                                                          )
                                    )
 
+    # ModelMultipleChoiceField does not preserve the order of the elements
     gene_selected = forms.ModelMultipleChoiceField(queryset=Genes.objects.all(),
                                          required=True,
                                          widget=autocomplete.ModelSelect2Multiple(url='genes-autocomplete',

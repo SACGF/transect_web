@@ -283,7 +283,7 @@ def display_settings_page(request):
     if request.method == 'POST':
         print("Enter")
         analysis_form = AnalysisForm(request.POST)
-        print(analysis_form.errors.as_data())
+        #print(analysis_form.errors.as_data())
         print("Goodbtye")
 
         # if not doing single gene analysis, automatically becomes de_analysis
@@ -293,6 +293,8 @@ def display_settings_page(request):
             analysis_script_path = env('GDC_SCRIPT') if script_chosen == "GDC" else \
                                   (env('GTEX_SCRIPT') if script_chosen == "GTEx" else env('RECOUNT_SCRIPT'))
 
+	    
+            print(request.POST.getlist("gene_selected"))
             curr_proj_text = analysis_form.cleaned_data.get('project')
             print("Hellii")
             
@@ -311,9 +313,12 @@ def display_settings_page(request):
                 project_str = string.capwords(project_str.replace("_", " ")).replace(" ", "_")
 
             all_gois = analysis_form.cleaned_data.get('gene_selected')
+            print(all_gois)
+            print(type(all_gois))
             goi_name_list = []
             for i in range(0, len(all_gois)):
                 goi_name_list.append(all_gois[i].name)
+                print(all_gois[i].name)
 
             curr_goi_composite_analysis_type = analysis_form.cleaned_data.get('composite_analysis_type')
 
