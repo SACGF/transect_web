@@ -135,7 +135,7 @@
                 // e.target.style.cursor // does not work
             }
         })
-        $('#gene_selected').on('change', function (e) {goi_alert.style.display = 'none'})
+        $('#gene_selected').on('change', function (e) {goi_alert.style.display = 'none'; console.log($('#gene_selected').val())})
 
         $("#composite_analysis_choice").change(function() {
             $("option[value='']").prop("disabled", true);

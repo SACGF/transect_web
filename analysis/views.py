@@ -5,6 +5,7 @@ from django.conf import settings
 from django.forms.models import model_to_dict
 from django.urls.base import reverse
 from django.core.exceptions import ValidationError
+from django.db.models.functions import Length
 from wsgiref.util import FileWrapper
 from celery.result import AsyncResult
 from dal import autocomplete, forward
@@ -21,39 +22,23 @@ from sRT_backend.settings import env
 # this is because these folders contains a number at the end
 # that appears to be procedurally generated
 def FetchGseaSummary(request, analysis_id):
-    print("YES")
     analysis =  Analysis.objects.filter(sha_hash=str(analysis_id))
     if analysis.exists() is False:
         raise Http404("Analysis Not Found")
 
     analysis = analysis.first()
 
-    print("GSEA 1")
-    print(analysis.percentile)
     if analysis.percentile == 0:
         return JsonResponse({'error': f'{analysis_id} is not a DE analysis'}, status=500)
 
-    print("GSEA 2")
-
     gois = []
-    print(analysis)
-    print(analysis.genes_of_interest.all())
     for goi in analysis.genes_of_interest.all():
-        print(goi)
         gois.append(goi.name)
 
-    print("GSEA 3")
-
     GSEA_path = os.path.join(env('OUTPUT_DIR'), str(analysis_id), "GSEA")
-    print("GSEA 3.5")
     GSEA_summary = os.path.join(GSEA_path, "-".join(gois) + "_Strat_Vs_Curated.csv")
-    print("GSEA 3.5")
-    print(GSEA_summary)
     if os.path.exists(GSEA_path) is False or os.path.exists(GSEA_summary) is False:
-        print("BAD")
         return JsonResponse({'error': f'{analysis_id} does not contain sufficient data '}, status=500)
-
-    print("GSEA 4")
 
     x = []
     y = []
@@ -63,9 +48,6 @@ def FetchGseaSummary(request, analysis_id):
             curr = line.strip().split(",")
             y.append(curr[0])
             x.append(float(curr[4]))
-    
-    print(x)
-    print(y)
 
     hallmark_report_root = ""
     curated_report_root = ""
@@ -150,62 +132,38 @@ def check_de_finished(request, analysis_id):
 # however, the DE will use it to check if the entire analysis (GSEA inclucded) is fully finished,
 # instead DE will use another function to check if the DE part has finished.
 def check_fully_downloaded(request, analysis_id):
-    print("Hello")
     analysis = Analysis.objects.filter(sha_hash=str(analysis_id)).first()
 
     if analysis is None:
         raise Http404("Analysis Not Found")
 
-    print("not null")
-
     if analysis.fully_downloaded is False and analysis.reason_for_failure == "":
         return JsonResponse({'completed': False, 'error': ''}, status=200)
 
-    print("checkpoint 1")
-
     if analysis.reason_for_failure != "":
-        print("THE MAWSSIVE ANALYSIS HAS FAILED")
-        print(f'{analysis_id} Analysis Failed. ' + analysis.reason_for_failure)
         return JsonResponse({'error': 'Analysis Failed. ' + analysis.reason_for_failure}, status=500)
-
-    print("checkpoint 2")
 
     if os.path.exists(env('OUTPUT_DIR') + "/" + str(analysis_id) + ".zip") is False:
         raise Http404("Analysis Not Found")
-
-    print("checkpoint 2")
 
     return JsonResponse({'completed': True, 'error': ""}, status=200)
 
 # as an extension to this, it might be good to create a directory for all 3 types of scripts, GDC, etc, containing 
 
 def download(request, analysis_id):
-    print("Plant")
     if Analysis.objects.filter(sha_hash=str(analysis_id)).exists() is False:
         raise Http404("Analysis Not Found")
-
-    print("Hi")
 
     analysis = Analysis.objects.filter(sha_hash=str(analysis_id)).first()
     analysis_type = "Correlation" if analysis.percentile == 0 else "Differential Expression"
     download_filename = "correlation_" if analysis_type == "Correlation" else "de_"
     # make download filename have a combination of some of the parameters
-    print("slicker")
-    print(analysis.script.lower())
-    print(str(analysis.project).lower())
-    print("_".join([analysis.script.lower(), str(analysis.project).lower()]))
     download_filename += "_".join([analysis.script.lower(), str(analysis.project).lower()]) + "_"
-    
-    print("TRIPPER")
-    print(analysis.genes_of_interest.all())
 
     gois = []
     for gene in analysis.genes_of_interest.all():
-        print(gene)
         gois.append(str(gene))
 
-    print("Stopper")
-    
     if analysis.composite_analysis_type == "Single":
         download_filename += gois[0]
     elif analysis.composite_analysis_type == "Additive":
@@ -216,11 +174,8 @@ def download(request, analysis_id):
     download_filename += "_" + str(analysis.percentile) + "%_" + analysis.rna_species if analysis_type == "Differential Expression" else ""
     download_filename += ".zip"
 
-    print(download_filename)
-
     try:
         response = check_fully_downloaded(request, analysis_id)
-        print(response)
     except:
         raise Http404("Analysis Not Found")
 
@@ -229,8 +184,6 @@ def download(request, analysis_id):
     analysisOutDir = env('OUTPUT_DIR') + "/" + str(analysis_id) + ".zip"
     if os.path.exists(analysisOutDir) is False:
         return Http404({f'{analysis_type} Analysis Not Found'})
-
-    print("TRAP")
 
     # files could be very large, best to serve it in chunks
     def generate_file_chunks(file_path, chunk_size=8192):
@@ -244,10 +197,7 @@ def download(request, analysis_id):
     try:
         response = StreamingHttpResponse(generate_file_chunks(analysisOutDir), content_type='application/zip')
         response['Content-Disposition'] = f'attachment; filename={download_filename}'
-        print("ALMOST")
         response["Access-Control-Allow-Origin"] = env('WEBSERVER_PORT')
-        print("CLIPPER")
-        print(response)
         return response
     except:
         return JsonResponse({'error': f'{analysis_type} Analysis Download Failed'}, status=500)
@@ -257,7 +207,9 @@ class GenesAutocomplete(autocomplete.Select2QuerySetView):
         qs = Genes.objects.all()
 
         if self.q:
-            qs = qs.filter(name__icontains=self.q) # i at the start of contains indicates case insensitivity
+            qs = qs.filter(name__istartswith=self.q) # i at the start of contains indicates case insensitivity
+            # good idea to sort by length of items, with shorter genes being brought up first
+            qs = qs.annotate(gene_name_length=Length('name')).order_by('gene_name_length')
 
         return qs
 
@@ -271,7 +223,7 @@ class ProjectsAutocomplete(autocomplete.Select2QuerySetView):
             return Projects.objects.none()
 
         if self.q:
-            qs = qs.filter(name__icontains=self.q)
+            qs = qs.filter(name__istartswith=self.q)
 
             if script_type == "GDC" or script_type == "GTEx":
                 qs = qs.filter(source=script_type)
@@ -279,12 +231,8 @@ class ProjectsAutocomplete(autocomplete.Select2QuerySetView):
         return qs
 
 def display_settings_page(request):
-    print("Rain")
     if request.method == 'POST':
-        print("Enter")
         analysis_form = AnalysisForm(request.POST)
-        #print(analysis_form.errors.as_data())
-        print("Goodbtye")
 
         # if not doing single gene analysis, automatically becomes de_analysis
         # and cannot do single analysis
@@ -293,10 +241,7 @@ def display_settings_page(request):
             analysis_script_path = env('GDC_SCRIPT') if script_chosen == "GDC" else \
                                   (env('GTEX_SCRIPT') if script_chosen == "GTEx" else env('RECOUNT_SCRIPT'))
 
-	    
-            print(request.POST.getlist("gene_selected"))
             curr_proj_text = analysis_form.cleaned_data.get('project')
-            print("Hellii")
             
             try:
                 project_obj = Projects.objects.filter(pk=curr_proj_text).first()
@@ -313,16 +258,11 @@ def display_settings_page(request):
                 project_str = string.capwords(project_str.replace("_", " ")).replace(" ", "_")
 
             all_gois = analysis_form.cleaned_data.get('gene_selected')
-            print(all_gois)
-            print(type(all_gois))
             goi_name_list = []
             for i in range(0, len(all_gois)):
                 goi_name_list.append(all_gois[i].name)
-                print(all_gois[i].name)
 
             curr_goi_composite_analysis_type = analysis_form.cleaned_data.get('composite_analysis_type')
-
-            print(analysis_form.cleaned_data)
 
             if analysis_form.cleaned_data.get('do_de_analysis') == True:
                 curr_percentile = analysis_form.cleaned_data.get('percentile')
@@ -358,7 +298,6 @@ def display_settings_page(request):
                     newAnalysis.save()
                 else:
                     analysis_form.add_error(None, filter_obj.first().reason_for_failure) # first attribute is field
-                    print(analysis_form.errors)
                     return render(request, 'analysis/submission_page.html', {"analysis_form": analysis_form})
 
                 # setting the task ID below to be equal to the sha_hash
@@ -368,9 +307,8 @@ def display_settings_page(request):
             analysis_url = reverse('analysis-fetch', kwargs={key: value for (key, value) in analysis_query.items()})
             return redirect(analysis_url)
     else:
-        print("Fails")
         analysis_form = AnalysisForm()
-    print("Here")
+
     return render(request, 'analysis/submission_page.html', {"analysis_form": analysis_form})
 
 def fetch(request, analysis):

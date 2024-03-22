@@ -1,5 +1,6 @@
 # Create your tasks here
 
+import logging
 import os
 import subprocess
 import shutil
@@ -27,7 +28,6 @@ def delete_file(file_to_delete):
 # if composite_analysis_type == "Single" and curr_percentile is not 0, this trigger de_analysis
 @shared_task
 def submit_command(project, all_gois, composite_analysis_type, percentile, rna_species, sha_hash, analysis_script_path):
-    print("Hello submit command")
     command = analysis_script_path + " -p " + project + " -g "
     # INSPECT! Change gene.split(",") to just gene
     
@@ -44,14 +44,12 @@ def submit_command(project, all_gois, composite_analysis_type, percentile, rna_s
             to_add = "%".join(all_gois)
         
         command += to_add
-        print(command)
         command += " -t " + str(percentile)
-        print("Hello tasks")
         command += " -s " + rna_species
-        command += " -d "
+        command += " -d"
     else:
         command += all_gois[0]
-        command += " -c "
+        command += " -c"
 
     out_path = os.path.join(env('OUTPUT_DIR'), sha_hash)
 
@@ -66,29 +64,28 @@ def submit_command(project, all_gois, composite_analysis_type, percentile, rna_s
     os.mkdir(out_path)
 
     command += " -o " + out_path
-    print(command)
     # run the command
     # if the command failed, delete its folder and associated database entry
 
-    completed_process = subprocess.run(command, shell=True)
+    logging.info("Executing command: " + command)
+    analysis_process = subprocess.Popen(command.split(" "), stderr=subprocess.PIPE)
+    stdout, stderr = analysis_process.communicate()
 
-    print("TASK CHECKPOINT")
-    print(completed_process.returncode)
-
-    if completed_process.returncode != 0:
-        print("TF CHECKPOINT 1")
+    if analysis_process.returncode != 0:
+        logging.error("Command failed with the error code " + str(analysis_process.returncode) + ": " + command)
+        logging.error(stderr.decode('utf-8'))
         analysis = Analysis.objects.filter(sha_hash=sha_hash).first()
         analysis.reason_for_failure = "The analysis failed as the submitted command failed."
-        if completed_process.returncode == 2:
+        if analysis_process.returncode == 2:
             analysis.reason_for_failure = "Insufficient observations in this dataset."
         analysis.save()
         delete_folder(out_path)
         delete_file(out_path + ".zip")
-        print("TF CHECKPOINT 2")
         # if the command failed because there was insufficient data,
         # return that message, otherwise return "analysis failed as 
         # the submitted command failed"
     else:
+        logging.info("Command finished successfully: " + command)
         analysis_obj = Analysis.objects.filter(sha_hash=sha_hash).first()
         analysis_obj.fully_downloaded = True
         analysis_obj.save()
@@ -102,9 +99,6 @@ def submit_command(project, all_gois, composite_analysis_type, percentile, rna_s
 # I should also block this function from occurring if there are still active jobs
 @shared_task(queue='script_queue')
 def clean_database_and_analysis():
-    print("\n\n")
-    print("PERFORMING DATABASE CLEANUP")
-    print("\n\n")
     # removes items that were last accessed more than 24 hours ago
     for analysis in Analysis.objects.all():
         #analysis.last_accessed timezone.localtime()
@@ -147,7 +141,6 @@ def clean_database_and_analysis():
 @celery.signals.task_failure.connect(sender=submit_command)
 def task_failure_handler(sender=None, headers=None, body=None, **kwargs):
     if exception := kwargs.get("exception"):
-        print("Command Failed: ", kwargs.get("args"))
         sha_hash = str(kwargs.get("args")[5])
         analysis = Analysis.objects.filter(sha_hash=sha_hash).first()
         analysis.reason_for_failure = "Unknown Error"

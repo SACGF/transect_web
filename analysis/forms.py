@@ -3,6 +3,7 @@ from analysis.models import Analysis, Genes, Projects
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db.models import Case, When
 from dal import autocomplete, forward
+from django.core.exceptions import ValidationError
 
 class AnalysisForm(forms.Form):
     def __init__(self, *args, **kwargs):
@@ -13,8 +14,6 @@ class AnalysisForm(forms.Form):
        order = self.data.getlist("gene_selected")
        cleaned = self.cleaned_data.get("gene_selected")
        preserved = Case(*[When(name=name, then=pos) for pos, name in enumerate(order)])
-       print("reorder")
-       print(cleaned.filter(name__in=order).order_by(preserved))
        return cleaned.filter(name__in=order).order_by(preserved)
 
     script_type = forms.ChoiceField(choices=[('', ' -- select an option -- '), 
