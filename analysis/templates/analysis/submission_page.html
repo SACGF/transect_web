@@ -135,7 +135,56 @@
                 // e.target.style.cursor // does not work
             }
         })
-        $('#gene_selected').on('change', function (e) {goi_alert.style.display = 'none'; console.log($('#gene_selected').val())})
+        $('#gene_selected').on('change', function (e) {
+            goi_alert.style.display = 'none'; 
+            console.log($('#gene_selected'))
+            if ($('#gene_selected').val().length === 0) {
+                $('#gene_selected')[0].getElementsByTagName("option")[0].remove()
+            } else {
+                for (let i = 0; i < $('#gene_selected')[0].getElementsByTagName("option").length; i++ ) {
+                    const gene_options = $('#gene_selected')[0].getElementsByTagName("option")[i].value
+                    if ($('#gene_selected').val().includes(gene_options) === false) {
+                        $('#gene_selected')[0].getElementsByTagName("option")[i].remove()
+                        break
+                    }
+                }
+            }
+            // fetching what was deleted
+
+
+
+            // object added, 
+            // fetch what was added and push it to the back of our list: gene_order
+            // else is when object is deleted, do reverse
+            // if ($('#gene_selected').val().length > gene_order.length) {
+            //     for (let i = 0; i < $('#gene_selected').val().length; i++) {
+            //         if (gene_order.includes($('#gene_selected').val()[i]) === false) {
+            //             gene_order.push($('#gene_selected').val()[i])
+            //             break;
+            //         }
+            //     }
+            // } else {
+            //     for (let i = 0; i < gene_order.length; i++) {
+            //         if ($('#gene_selected').val().includes(gene_order[i]) === false) {
+            //             gene_order.splice(i, 1)
+            //             // we have identified the index of the element, time to delete it
+            //             break;
+            //         }
+            //     }
+            // }
+            // console.log(gene_order)
+            // console.log($('#gene_selected').val())
+            // $('#gene_selected').val(gene_order)
+            // // $('#gene_selected').val().push(gene_order)
+            // console.log(gene_order)
+            // console.log($('#gene_selected').val())
+
+            //for (let i = 0; i < $('#gene_selected').val().length; i++) {
+            //    $('#gene_selected option:eq(' + i + ')') = gene_order[i]
+            //}
+
+            
+        })
 
         $("#composite_analysis_choice").change(function() {
             $("option[value='']").prop("disabled", true);
@@ -175,6 +224,14 @@
                 if (composite_analysis_choice.value === "Ratio") {
                     // REMOVING EXCESS GOIS, KEEPING FIRST 2
                     while ($('#gene_selected').val().length > 2) {
+                        // when you select an element initially, a new "select" tag is created for that item
+                        // and appended to the dom for the gene_selected object.
+                        // even if you delete an object, it will stay there as a select tag
+                        // hence, need to also remove that object from the dom
+                        // this is such that lets say you add GATA2 and ZEB1
+                        // if you delete GATA2 and then ZEB1 and then add ZEB1 and GATA2
+                        // it will not reverse the order as the GATA2 select object no longer preceeds ZEB1
+                        $('#gene_selected')[0].getElementsByTagName("option")[2].remove()
                         $('#gene_selected option:eq(2)').remove();
                     }
                 }
