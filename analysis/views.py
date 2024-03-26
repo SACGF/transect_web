@@ -6,6 +6,7 @@ from django.forms.models import model_to_dict
 from django.urls.base import reverse
 from django.core.exceptions import ValidationError
 from django.db.models.functions import Length
+from django.db.models import Case, When
 from wsgiref.util import FileWrapper
 from celery.result import AsyncResult
 from dal import autocomplete, forward
@@ -261,6 +262,7 @@ def display_settings_page(request):
             goi_name_list = []
             for i in range(0, len(all_gois)):
                 goi_name_list.append(all_gois[i].name)
+            print(goi_name_list)
 
             curr_goi_composite_analysis_type = analysis_form.cleaned_data.get('composite_analysis_type')
 
@@ -300,6 +302,19 @@ def display_settings_page(request):
                     newAnalysis = Analysis(**command_settings, sha_hash=sha_hash)
                     newAnalysis.save()
                     newAnalysis.genes_of_interest.set(all_gois)
+                    
+                    newAnalysis.genes_of_interest.set(all_gois)
+                    print(goi_name_list)
+                    preserved = Case(*[When(name=name, then=pos) for pos, name in enumerate(goi_name_list)])
+                    print(newAnalysis.genes_of_interest.all())
+                    print(preserved)
+                    print(newAnalysis.genes_of_interest.filter(name__in=goi_name_list).order_by(preserved))
+                    newAnalysis.genes_of_interest.set(newAnalysis.genes_of_interest.filter(name__in=goi_name_list).order_by(preserved))
+                    print(newAnalysis.genes_of_interest)
+                    newAnalysis.genes_of_interest.add(Genes.objects.filter(name="ART1").first())
+                    print(newAnalysis.genes_of_interest.all())
+                    print("After")
+                    print(newAnalysis.genes_of_interest.all())
                     newAnalysis.save()
                 else:
                     analysis_form.add_error(None, filter_obj.first().reason_for_failure) # first attribute is field
@@ -307,7 +322,7 @@ def display_settings_page(request):
 
                 # setting the task ID below to be equal to the sha_hash
                 submit_command.apply_async((project_str, goi_name_list, curr_goi_composite_analysis_type, curr_percentile, curr_rna_species, sha_hash, analysis_script_path), queue="script_queue", task_id=sha_hash)
-            
+
             analysis_query["analysis"] = str(sha_hash)
             analysis_url = reverse('analysis-fetch', kwargs={key: value for (key, value) in analysis_query.items()})
             return redirect(analysis_url)
@@ -321,6 +336,7 @@ def fetch(request, analysis):
     gois = []
     for goi in filter_obj.genes_of_interest.all():
         gois.append(goi.name)
+    print(gois)
 
     analysis_info = {
                         'analysis': analysis, 
