@@ -1,4 +1,5 @@
 from django.db import models
+from sortedm2m.fields import SortedManyToManyField
 import datetime
 
 class Genes(models.Model):
@@ -19,7 +20,7 @@ class Analysis(models.Model): # change name to analysis
     sha_hash = models.TextField(primary_key=True)
     script = models.TextField(default="GDC")
     project = models.ForeignKey(Projects, on_delete=models.CASCADE)
-    genes_of_interest = models.ManyToManyField(Genes)
+    genes_of_interest = SortedManyToManyField(Genes, sort_value_field_name="name")
     composite_analysis_type = models.TextField()
     percentile = models.PositiveIntegerField()
     rna_species = models.TextField()

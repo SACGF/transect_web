@@ -300,21 +300,8 @@ def display_settings_page(request):
                 if filter_obj.exists() is False:
                     del command_settings['all_gois']
                     newAnalysis = Analysis(**command_settings, sha_hash=sha_hash)
-                    newAnalysis.save()
-                    newAnalysis.genes_of_interest.set(all_gois)
-                    
-                    newAnalysis.genes_of_interest.set(all_gois)
-                    print(goi_name_list)
-                    preserved = Case(*[When(name=name, then=pos) for pos, name in enumerate(goi_name_list)])
-                    print(newAnalysis.genes_of_interest.all())
-                    print(preserved)
-                    print(newAnalysis.genes_of_interest.filter(name__in=goi_name_list).order_by(preserved))
-                    newAnalysis.genes_of_interest.set(newAnalysis.genes_of_interest.filter(name__in=goi_name_list).order_by(preserved))
-                    print(newAnalysis.genes_of_interest)
-                    newAnalysis.genes_of_interest.add(Genes.objects.filter(name="ART1").first())
-                    print(newAnalysis.genes_of_interest.all())
-                    print("After")
-                    print(newAnalysis.genes_of_interest.all())
+                    for goi_obj in all_gois:
+                        newAnalysis.genes_of_interest.add(goi_obj)
                     newAnalysis.save()
                 else:
                     analysis_form.add_error(None, filter_obj.first().reason_for_failure) # first attribute is field
