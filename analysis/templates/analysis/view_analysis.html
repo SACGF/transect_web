@@ -16,48 +16,47 @@
     <script src="{% static 'js/plotly-latest.min.js' %}" charset="UTF-8"></script> 
   </head>
   <body>
-        {% if analysis_type == "Correlation" %}
-          <h1 class="ml-3 mt-3 d-flex align-items-center justify-content-center" id="results_header" style="display: none;">Correlation Analysis: </h1>
-        {% else %}
-          <h1 class="ml-3 mt-3 d-flex align-items-center justify-content-center" id="results_header" style="display: none;">Differential Expression Analysis: </h1>
-        {% endif %}
-        <div class="container" id="view_loading_container">
-            <div class="ml-3 mt-3 row justify-content-md-center" id="view_loading_div">
-              <div class="col-auto">
-                <div class="spinner-border" id="view_loading_spinner" role="status">
-                    <span class="sr-only"></span>
-                </div>
-              </div>
-              <div class="col-auto">
-                  <div id="request_status" class="ml-2 pt-1">
-                      Processing your request
-                  </div>
-              </div>
-            </div>
-        </div>
-        {% if analysis_type == "Correlation" %}
-          {% include 'analysis/correlation_analysis_view.html' %}
-        {% else %}
-          {% include 'analysis/de_analysis_view.html' %}
-        {% endif %}
-        <div id="image_modal" class="modal fade" tabindex="-1" aria-labelledby="modal_title" aria-hidden="true">
-          <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="modal_title">Stiuff</h5>
-                <button class="btn btn-secondary ms-3" style="color: black;" id="modal_download"><img src="{% static 'icons/download.svg' %}" class="mb-1 me-2">Download</button>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-              </div>
-              <div class="modal-body">
-                <img class="modal-image" id="modal_image" src="" height="100%" width="100%">
-              </div>
+    <div class="container" id="view_loading_container">
+        <div class="ml-3 mt-3 row justify-content-md-center" id="view_loading_div">
+          <div class="col-auto">
+            <div class="spinner-border" id="view_loading_spinner" role="status">
+                <span class="sr-only"></span>
             </div>
           </div>
+          <div class="col-auto">
+              <div id="request_status" class="ml-2 pt-1">
+                  Processing your request
+              </div>
+          </div>
         </div>
+    </div>
+    <div class="container" style="width: 100vw; height: 100vh;">
+      {% if analysis_type == "Correlation" %}
+        {% include 'analysis/correlation_analysis_view.html' %}
+      {% else %}
+        {% include 'analysis/de_analysis_view.html' %}
+      {% endif %}
+    </div>
+    <div id="image_modal" class="modal fade" tabindex="-1" aria-labelledby="modal_title" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modal_title">Stiuff</h5>
+            <button class="btn btn-secondary ms-3" style="color: black;" id="modal_download"><img src="{% static 'icons/download.svg' %}" class="mb-1 me-2">Download</button>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <img class="modal-image" id="modal_image" src="" height="100%" width="100%">
+          </div>
+        </div>
+      </div>
+    </div>
   </body>
   <script>
     // if having issues with the negative values in plotly: https://github.com/plotly/plotly.js/issues/5327
     const image_modal = document.getElementById("image_modal")
+
+    const settings_content = document.getElementById("analysis_settings_content").getElementsByTagName("p")[0]
 
     const modal_download = document.getElementById("modal_download")
     modal_download.addEventListener('click', () => {
@@ -121,6 +120,16 @@
       const gois_header = '{{ composite_analysis_type }}' === "Additive" ? gois.join("+") : gois.join("/")
       results_header.innerHTML = '{{ composite_analysis_type }}'.concat(" Differential Analysis: ").concat(gois_header)
       results_header.style.display = "block"
+
+      settings_content.innerHTML = `<strong>Analysis Hash: </strong>{{ analysis }}</br>
+      <strong>Script: </strong> {{ script }} </br>
+      <strong>Project: </strong> {{ project }} </br>
+      <strong>Genes of Interest: </strong> {{ gois }} </br>
+      <strong>Analysis Type: </strong> {{ analysis_type }} </br>
+      <strong>Composite Analysis Choice: </strong> {{ composite_analysis_type }} </br>
+      <strong>Percentile: </strong> {{ percentile }}% </br>
+      <strong>RNA Species: </strong> {{ rna_species }} </br>
+      `
 
       document.getElementById("de_view_container").style.display = "block"
       console.log("Hi")
@@ -216,6 +225,12 @@
     async function display_correlation_analysis_results(analysis) {
       const gois = get_gois()
       const goi = gois[0]
+
+      settings_content.innerHTML = `<strong>Analysis Hash: </strong>{{ analysis }}</br>
+      <strong>Script: </strong> {{ script }} </br>
+      <strong>Project: </strong> {{ project }} </br>
+      <strong>Genes of Interest: </strong> {{ gois }} </br>
+      `
 
       const results_header = document.getElementById("results_header")
       results_header.innerHTML = "Correlation Analysis: ".concat(goi)
