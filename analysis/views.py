@@ -274,9 +274,14 @@ def display_settings_page(request):
                 curr_percentile = 0
                 curr_rna_species = ""
 
-            command_settings = {'script': script_chosen, 'project': project_obj, 'all_gois': goi_name_list, 
-                                       'composite_analysis_type': curr_goi_composite_analysis_type,
-                                       'percentile': curr_percentile, 'rna_species': curr_rna_species}
+            command_settings = {
+                                    'script': script_chosen, 
+                                    'project': project_obj, 
+                                    'all_gois': goi_name_list, 
+                                    'composite_analysis_type': curr_goi_composite_analysis_type,
+                                    'percentile': curr_percentile, 
+                                    'rna_species': curr_rna_species
+                                }
 
             analysis_query = {}
 
@@ -316,5 +321,16 @@ def fetch(request, analysis):
     gois = []
     for goi in filter_obj.genes_of_interest.all():
         gois.append(goi.name)
-    analysis_info = {'analysis': analysis, 'gois': gois, 'analysis_type': "DE" if filter_obj.percentile > 0 else "Correlation", 'composite_analysis_type': filter_obj.composite_analysis_type}
+
+    analysis_info = {
+                        'analysis': analysis, 
+                        'gois': gois,
+                        'script': filter_obj.script,
+                        'project': filter_obj.project,
+                        'percentile': filter_obj.percentile,
+                        'rna_species': filter_obj.rna_species,
+                        'analysis_type': "DE" if filter_obj.percentile > 0 else "Correlation", 
+                        'composite_analysis_type': filter_obj.composite_analysis_type
+                    }
+
     return render(request, 'analysis/view_analysis.html', analysis_info)

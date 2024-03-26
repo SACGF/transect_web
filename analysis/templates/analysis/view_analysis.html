@@ -16,6 +16,11 @@
     <script src="{% static 'js/plotly-latest.min.js' %}" charset="UTF-8"></script> 
   </head>
   <body>
+        {% if analysis_type == "Correlation" %}
+          <h1 class="ml-3 mt-3 d-flex align-items-center justify-content-center" id="results_header" style="display: none;">Correlation Analysis: </h1>
+        {% else %}
+          <h1 class="ml-3 mt-3 d-flex align-items-center justify-content-center" id="results_header" style="display: none;">Differential Expression Analysis: </h1>
+        {% endif %}
         <div class="container" id="view_loading_container">
             <div class="ml-3 mt-3 row justify-content-md-center" id="view_loading_div">
               <div class="col-auto">
@@ -111,15 +116,23 @@
     }
 
     async function display_de_analysis_results(analysis) {
+      const gois = get_gois();
+      const results_header = document.getElementById("results_header")
+      const gois_header = '{{ composite_analysis_type }}' === "Additive" ? gois.join("+") : gois.join("/")
+      results_header.innerHTML = '{{ composite_analysis_type }}'.concat(" Differential Analysis: ").concat(gois_header)
+      results_header.style.display = "block"
+
       document.getElementById("de_view_container").style.display = "block"
       console.log("Hi")
-      const gois = get_gois();
 
       const de_url_base = "{{ MEDIA_URL }}/media/".concat(analysis).concat("/DE_Analysis/").concat(gois.join("-"))
 
       const de_url_glimma_base = "{{ MEDIA_URL }}/media/".concat(analysis).concat("/DE_Analysis/glimma-plots/").concat(gois.join("-"))
       const de_url_volcano = de_url_glimma_base.concat("-High_Vs_Low-Volcano.html")
       const de_url_mds_plot = de_url_glimma_base.concat("-MDS-Plot.html")
+
+      document.getElementById("n_t_boxplot_image_title").innerHTML = gois.join("-").concat("_TPM_N-T_boxplot.svg")
+      document.getElementById("strat_boxplot_image_title").innerHTML = gois.join("-").concat("_TPM_strat_boxplot.svg")
 
       const n_t_boxplot_image = document.getElementById("n_t_boxplot_image")
       const strat_boxplot_image = document.getElementById("strat_boxplot_image")
@@ -143,7 +156,8 @@
 
       const composite_analysis_type = '{{ composite_analysis_type }}'
       const composite_analysis_plot = (composite_analysis_type === "Additive") ? "_TPM_Boxplot_Sina.svg" : (composite_analysis_type === "Ratio") ? "_TPM_Scatter.svg" : "_TPM_histogram.svg"
-      
+      document.getElementById("analysis_specific_image_title").innerHTML = gois.join("-").concat(composite_analysis_plot)
+
       analysis_specific_image.src = de_url_base.concat(composite_analysis_plot)
       analysis_specific_image.addEventListener('click', () => {
         image_modal.getElementsByClassName("modal-title")[0].innerHTML = gois.join("-").concat(composite_analysis_plot)
@@ -202,6 +216,10 @@
     async function display_correlation_analysis_results(analysis) {
       const gois = get_gois()
       const goi = gois[0]
+
+      const results_header = document.getElementById("results_header")
+      results_header.innerHTML = "Correlation Analysis: ".concat(goi)
+      results_header.style.display = "block"
 
       document.getElementById("correlation_view_container").style.display = "block"
       const correlation_volcano_image = document.getElementById("correlation_volcano_image")

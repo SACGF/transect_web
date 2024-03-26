@@ -176,6 +176,7 @@
             if (composite_analysis_choice.value === "Single") {
                 // DELETE EVERY GOI EXCEPT FIRST 1
                 while ($('#gene_selected').val().length > 1) {
+                    $('#gene_selected')[0].getElementsByTagName("option")[1].remove()
                     $('#gene_selected option:eq(1)').remove();
                 }
 
