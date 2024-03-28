@@ -10,7 +10,7 @@ from django.db.models import Case, When
 from wsgiref.util import FileWrapper
 from celery.result import AsyncResult
 from dal import autocomplete, forward
-from analysis.models import Analysis, Genes, Projects
+from analysis.models import Analysis, Genes, Projects, AnalysisGenes
 from analysis.forms import AnalysisForm
 from analysis.tasks import submit_command
 import time
@@ -300,9 +300,9 @@ def display_settings_page(request):
                 if filter_obj.exists() is False:
                     del command_settings['all_gois']
                     newAnalysis = Analysis(**command_settings, sha_hash=sha_hash)
-                    for goi_obj in all_gois:
-                        newAnalysis.genes_of_interest.add(goi_obj)
                     newAnalysis.save()
+                    for index, goi_obj in enumerate(all_gois):
+                        AnalysisGenes.objects.create(gene=goi_obj, analysis=newAnalysis, order=index)
                 else:
                     analysis_form.add_error(None, filter_obj.first().reason_for_failure) # first attribute is field
                     return render(request, 'analysis/submission_page.html', {"analysis_form": analysis_form})
@@ -323,6 +323,7 @@ def fetch(request, analysis):
     gois = []
     for goi in filter_obj.genes_of_interest.all():
         gois.append(goi.name)
+    print("clipper")
     print(gois)
 
     analysis_info = {

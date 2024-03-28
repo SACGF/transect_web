@@ -1,5 +1,4 @@
 from django.db import models
-from sortedm2m.fields import SortedManyToManyField
 import datetime
 
 class Genes(models.Model):
@@ -20,7 +19,7 @@ class Analysis(models.Model): # change name to analysis
     sha_hash = models.TextField(primary_key=True)
     script = models.TextField(default="GDC")
     project = models.ForeignKey(Projects, on_delete=models.CASCADE)
-    genes_of_interest = SortedManyToManyField(Genes, sort_value_field_name="name")
+    genes_of_interest = models.ManyToManyField(Genes, through="AnalysisGenes")
     composite_analysis_type = models.TextField()
     percentile = models.PositiveIntegerField()
     rna_species = models.TextField()
@@ -37,3 +36,11 @@ class Analysis(models.Model): # change name to analysis
     #    # This ensures that there can only be 1 record that has the same values below
     #    # You could thus use get_or_create to retrieve exisitng/create new, and there will be guaranteed no dupes
     #    unique_together = ('script', 'project', 'genes_of_interest', 'composite_analysis_type', 'percentile', 'rna_species')
+
+class AnalysisGenes(models.Model):
+    gene = models.ForeignKey(Genes, on_delete=models.CASCADE)
+    analysis = models.ForeignKey(Analysis, on_delete=models.CASCADE)
+    order = models.PositiveIntegerField()
+
+    class Meta:
+        ordering = ['order']
