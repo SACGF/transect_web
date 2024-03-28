@@ -291,28 +291,28 @@ def display_settings_page(request):
             sha_hash = hashlib.sha1(settings.encode("utf-8")).hexdigest()
             filter_obj = Analysis.objects.filter(sha_hash=sha_hash)
 
-            if filter_obj.exists() is True and filter_obj.first().fully_downloaded == True:
-                analysis = filter_obj.first()
-                analysis.times_accessed += 1
-                analysis.save()
-            else:
-                # cannot pass an object e.g. Project, Genes to the celery app
-                if filter_obj.exists() is False:
-                    del command_settings['all_gois']
-                    newAnalysis = Analysis(**command_settings, sha_hash=sha_hash)
-                    newAnalysis.save()
-                    for index, goi_obj in enumerate(all_gois):
-                        AnalysisGenes.objects.create(gene=goi_obj, analysis=newAnalysis, order=index)
-                else:
+            if filter_obj.exists() is True:
+                if filter_obj.first().reason_for_failure != "":
                     analysis_form.add_error(None, filter_obj.first().reason_for_failure) # first attribute is field
                     return render(request, 'analysis/submission_page.html', {"analysis_form": analysis_form})
-
+                else:
+                    analysis = filter_obj.first()
+                    analysis.times_accessed += 1
+                    analysis.save()
+            else:
+                del command_settings['all_gois']
+                newAnalysis = Analysis(**command_settings, sha_hash=sha_hash)
+                newAnalysis.save()
+                for index, goi_obj in enumerate(all_gois):
+                    AnalysisGenes.objects.create(gene=goi_obj, analysis=newAnalysis, order=index)
+                # cannot pass an object e.g. Project, Genes to the celery app
                 # setting the task ID below to be equal to the sha_hash
                 submit_command.apply_async((project_str, goi_name_list, curr_goi_composite_analysis_type, curr_percentile, curr_rna_species, sha_hash, analysis_script_path), queue="script_queue", task_id=sha_hash)
 
             analysis_query["analysis"] = str(sha_hash)
             analysis_url = reverse('analysis-fetch', kwargs={key: value for (key, value) in analysis_query.items()})
             return redirect(analysis_url)
+
     else:
         analysis_form = AnalysisForm()
 
