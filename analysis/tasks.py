@@ -105,6 +105,7 @@ def clean_database_and_analysis():
         difference = timezone.localtime() - analysis.last_accessed.astimezone(timezone.get_current_timezone())
         if difference.days > 1: # dates are more than 24 hours apart from each other, can use difference.minutes, etc
         #if difference.seconds > 600:
+            logging.info("Removing Analysis: " + analysis.sha_hash + " because has been a while since it was last accessed.")
             out_path = os.path.join(env('OUTPUT_DIR'), analysis.sha_hash)
             analysis.delete()
             delete_folder(out_path)
@@ -116,6 +117,7 @@ def clean_database_and_analysis():
     for analysis in Analysis.objects.all():
         out_path = os.path.join(env('OUTPUT_DIR'), analysis.sha_hash)
         if os.path.exists(out_path) is False or os.path.exists(out_path + ".zip") is False:
+            logging.info("Removing Analysis: " + analysis.sha_hash + " because it is either missing an output directory or is not inside the Analysis database.")
             analysis.delete()
             delete_folder(out_path)
             delete_file(out_path + ".zip")
@@ -133,6 +135,7 @@ def clean_database_and_analysis():
         if Analysis.objects.filter(sha_hash=sha_hash).exists() is False \
            or os.path.exists(zip_path) is False \
            or os.path.exists(unzipped_path) is False:
+            logging.info("Removing Analysis: " + sha_hash + " because it is either missing an output directory/zip file or is not inside the Analysis database.")
             if Analysis.objects.filter(sha_hash=sha_hash).exists():
                 Analysis.objects.filter(sha_hash=sha_hash).first().delete()
             delete_folder(unzipped_path)
