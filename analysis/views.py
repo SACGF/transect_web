@@ -17,6 +17,8 @@ import time
 import hashlib
 import os
 import string
+import pandas as pd
+import math
 from sRT_backend.settings import env
 
 # also fetches root folder name of the GSEA curated/hallmark reports
@@ -110,6 +112,25 @@ def provide_correlation_comparisons(request, analysis_id):
                 i += 1
 
     return JsonResponse({'table_items': table_items, "last_plot_index": last_plot_index})
+
+def get_pearsons_correlation_plot_points(request, analysis_id):
+    analysis =  Analysis.objects.filter(sha_hash=str(analysis_id))
+    if analysis.exists() is False:
+        raise Http404("Analysis Not Found")
+    if analysis.first().percentile != 0:
+        return JsonResponse({'error': f'{analysis_id} is not a correlation analysis'}, status=500)
+
+    tsv_comp_file = os.path.join(env('OUTPUT_DIR'), str(analysis_id), "Corr_Analysis", analysis.first().genes_of_interest.all()[0].name + "_corr.tsv")
+
+    # should not be too much data to return,
+    # at most ~22000 records (which are equal to the number of genes)
+    # hence, should not exceed 1MB
+    df = pd.read_csv(tsv_comp_file, sep="\t")
+    logExp_Cor = list(df["logExp_Cor"])
+    df.loc[df['logExp_FDR'] == 0, 'logExp_FDR'] = 1e-320
+    logExp_FDR = list(df["logExp_FDR"])
+    logExp_FDR = [-math.log10(item) for item in logExp_FDR]
+    return JsonResponse({'logExp_Cor': logExp_Cor, "logExp_FDR": logExp_FDR})
 
 def check_de_finished(request, analysis_id):
     analysis = Analysis.objects.filter(sha_hash=str(analysis_id)).first()
