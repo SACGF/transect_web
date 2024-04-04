@@ -18,6 +18,7 @@ import hashlib
 import os
 import string
 import pandas as pd
+import numpy as np
 import math
 from sRT_backend.settings import env
 
@@ -130,7 +131,22 @@ def get_pearsons_correlation_plot_points(request, analysis_id):
     df.loc[df['logExp_FDR'] == 0, 'logExp_FDR'] = 1e-320
     logExp_FDR = list(df["logExp_FDR"])
     logExp_FDR = [-math.log10(item) for item in logExp_FDR]
-    return JsonResponse({'logExp_Cor': logExp_Cor, "logExp_FDR": logExp_FDR})
+
+    conditions = [
+        (df['logExp_FDR'] < 1e-150) & (df['logExp_Cor'] > 0.7),
+        (df['logExp_FDR'] < 1e-150) & (df['logExp_Cor'] < -0.7),
+        (df['logExp_FDR'] < 1e-50),
+    ]
+
+    # create a list of the values we want to assign for each condition
+    # values correspond to conditions
+    # red, blue, green
+    values = ['#fc0004', 'blue', '#32f724']
+    df['colors'] = np.select(conditions, values, default="grey")
+
+    colors = list(df['colors'])
+
+    return JsonResponse({'logExp_Cor': logExp_Cor, "logExp_FDR": logExp_FDR, "colors": colors, "gene2": list(df['gene2_id'])})
 
 def check_de_finished(request, analysis_id):
     analysis = Analysis.objects.filter(sha_hash=str(analysis_id)).first()
