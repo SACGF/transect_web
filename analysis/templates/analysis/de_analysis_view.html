@@ -16,7 +16,7 @@
         </div>
     </div>
 
-    <div class="de_results" style="width: 100%; height: 100%">
+    <div class="de_results">
         <div id="de_summary_div">
             <h2 class="d-flex justify-content-center mt-3">DE Summary</h2>
             <div id="de_summary_plots" class="card mt-3">
@@ -37,15 +37,21 @@
                 </div>
             </div>
         </div>
-        <div id="de_mds_div" style="width: 100%; height: 100%; overflow: hidden; display: none;">
+        <div id="de_mds_div" style="overflow: hidden; display: none;">
             <h2 class="d-flex justify-content-center mt-3">MDS Plot</h2>
-            <iframe id="de_mds" class="iframe_div"></iframe>
+            <div class="card mt-3" style="height: 800px;">
+                <div class="card-header">DE MDS Plot</div>
+                <iframe id="de_mds" class="iframe_div"></iframe>
+            </div>
         </div>
-        <div id="de_volcano_div" style="width: 100%; height: 100%; overflow: hidden; display: none;">
+        <div id="de_volcano_div" style="overflow: hidden; display: none;">
             <h2 class="d-flex justify-content-center mt-3">Volcano Plot</h2>
-            <iframe id="de_volcano" class="iframe_div"></iframe>
+            <div class="card mt-3" style="height: 800px;">
+                <div class="card-header">DE Volcano Plot</div>
+                <iframe id="de_volcano" class="iframe_div"></iframe>
+            </div>
         </div>
-        <div id="de_gsea_div" style="width: 100%; height: 100%; display: none;">
+        <div id="de_gsea_div" style="display: none;">
             <div class="ml-3 mt-3 row justify-content-md-center" style="width: 100%; height: 100%;" id="gsea_loading_div">
                 <div class="col-auto">
                     <div class="spinner-border" id="gsea_loading_spinner" role="status">
@@ -58,13 +64,16 @@
                     </div>
                 </div>
             </div>
-            <div id="gsea_content" class="ml-3 mt-3 justify-content-md-center" style="width: 100%; height: 100%; display: none;">
+            <div id="gsea_content" class="ml-3 mt-3 justify-content-md-center" style="display: none;">
                 <h2 class="d-flex justify-content-center mt-3">GSEA Summary</h2>
-                <div id="de_gsea_summary" class="d-flex justify-content-center" style="width: 100%; height: 95%;"></div>
-            </div>
-            <div id="gsea_reports" class="ml-3 mt-3 d-flex justify-content-around" style="width: 100%;">
-                <a href="" id="gsea_hallmark_report" target="_blank" rel="noopener noreferrer">GSEA Hallmark Report</a>
-                <a href="" id="gsea_curated_report" target="_blank" rel="noopener noreferrer">GSEA Curated Report</a>
+                <div class="card mt-3">
+                    <div class="card-header">DE GSEA Plot</div>
+                    <div id="de_gsea_summary" class="d-flex justify-content-center" style="width: 100%; height: 800px;"></div>
+                    <div id="gsea_reports" class="ml-3 mt-3 mb-3 d-flex justify-content-around" style="width: 100%;">
+                        <a href="" id="gsea_hallmark_report" target="_blank" rel="noopener noreferrer">GSEA Hallmark Report</a>
+                        <a href="" id="gsea_curated_report" target="_blank" rel="noopener noreferrer">GSEA Curated Report</a>
+                    </div>
+                </div>
             </div>
         </div>
 
