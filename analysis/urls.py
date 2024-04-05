@@ -12,5 +12,6 @@ urlpatterns = [
     path('projects_autocomplete', views.ProjectsAutocomplete.as_view(), name='projects-autocomplete'),
     path('fetch_gsea_summary/<analysis_id>', views.FetchGseaSummary, name='fetch-gsea-summary'),
     path('get_pearsons_correlation_plot_points/<analysis_id>', views.get_pearsons_correlation_plot_points, name='get-pearsons-correlation-plot-points'),
+    path('fetch_high_corr_gene_exprs/<analysis_id>', views.fetch_high_corr_gene_exprs, name='fetch-high-corr-gene-exprs'),
 ]
 

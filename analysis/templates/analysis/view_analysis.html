@@ -239,17 +239,6 @@
       document.getElementById("correlation_view_container").style.display = "block"
       const correlation_volcano_image = document.getElementById("correlation_volcano_image")
 
-      /*
-      const volcano_url = "{{ MEDIA_URL }}/media/".concat(analysis).concat("/Corr_Analysis/").concat(goi).concat("_corr_volcano.png")
-      correlation_volcano_image.src = volcano_url // will change this in the future to use media/
-      correlation_volcano_image.addEventListener('click', () => {
-        image_modal.getElementsByClassName("modal-title")[0].innerHTML = goi.concat("_corr_volcano.png")
-        image_modal.getElementsByClassName("modal-image")[0].src = volcano_url
-        modal_download.href = volcano_url
-        $("#image_modal").modal('show');
-      })
-      */
-
       let json_response;
       try {
         json_response = await fetch_response("{% url 'get-pearsons-correlation-plot-points' analysis_id=analysis %}")
@@ -257,7 +246,8 @@
         throw new Error(exception)
       }
 
-      let hovertext = '<b>logExp_Cor</b>: %{x}<br>'
+      let hovertext = '<b>Gene 2</b>: %{customdata}<br>'
+      hovertext = hovertext.concat('<b>logExp_Cor</b>: %{x}<br>')
       hovertext = hovertext.concat('<b>logExp_FDR</b>: %{y}<br>')
       hovertext = hovertext.concat('<extra></extra>')
 
@@ -266,6 +256,7 @@
         type: 'scatter',
         x: json_response.logExp_Cor,
         y: json_response.logExp_FDR,
+        customdata: json_response.gene2,
         hovertemplate: hovertext,
         orientation: 'h',
         marker: { size: 4, color: json_response.colors } // keeping size equal, as plotly is struggling with too much data
@@ -293,13 +284,21 @@
 
       correlation_comparison_table_body = document.getElementById("correlation_comparison_table").getElementsByTagName("tbody")[0]
 
+      let json_response_gene_expr;
+      try {
+        const json_response_gene_expr = await fetch_response("{% url 'fetch-high-corr-gene-exprs' analysis_id=analysis %}")
+      } catch (exception) {
+        throw new Error(exception)
+      }
+      alert(json_response_gene_expr)
+
       // finally fetching the tsv
       let correlation_comparisons;
       let last_plot_index;
       try {
-        const json_response = await fetch_response("{% url 'provide-correlation-comparisons' analysis_id=analysis %}")
-        correlation_comparisons = json_response.table_items
-        last_plot_index = json_response.last_plot_index
+        const json_response_correlation_comparisons = await fetch_response("{% url 'provide-correlation-comparisons' analysis_id=analysis %}")
+        correlation_comparisons = json_response_correlation_comparisons.table_items
+        last_plot_index = json_response_correlation_comparisons.last_plot_index
       } catch (exception) {
         throw new Error(exception)
       }
