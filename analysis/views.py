@@ -162,10 +162,13 @@ def fetch_high_corr_gene_exprs(request, analysis_id):
 
     expr_df = pd.read_csv(expr_file, sep="\t")
     expression_scores = {}
-    expr_df = expr_df.fillna(0) # nan is not valid in JSON, will cause issues in javascript
+    expr_df = expr_df.dropna() # nan is not valid in JSON, will cause issues in javascript
 
-    for item in expr_df.columns:
-        expression_scores[item] = list(expr_df[item])
+    for column in expr_df.columns:
+        column_values = list(expr_df[column])
+        if column != "Names":
+            column_values = [math.log2(x) for x in column_values]
+        expression_scores[column] = column_values
     
     return JsonResponse(expression_scores)
 
