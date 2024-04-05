@@ -152,43 +152,21 @@ def get_pearsons_correlation_plot_points(request, analysis_id):
     return JsonResponse({'logExp_Cor': logExp_Cor, "logExp_FDR": logExp_FDR, "colors": colors, "gene2": list(df['gene2_id'])})
 
 def fetch_high_corr_gene_exprs(request, analysis_id):
-    print("hi")
     analysis =  Analysis.objects.filter(sha_hash=str(analysis_id))
     if analysis.exists() is False:
         raise Http404("Analysis Not Found")
     if analysis.first().percentile != 0:
         return JsonResponse({'error': f'{analysis_id} is not a correlation analysis'}, status=500)
     
-    tsv_comp_file = os.path.join(env('OUTPUT_DIR'), str(analysis_id), "Corr_Analysis", analysis.first().genes_of_interest.all()[0].name + "_corr.tsv")
-    high_corr_genes = []
-    print("checkpoint 1.5")
-    df = pd.read_csv(tsv_comp_file, sep="\t")
-    for index, record in df.iterrows():
-        if os.path.exists(os.path.join(env('OUTPUT_DIR'), str(analysis_id), "Corr_Analysis", "plots", record.gene1_id  + "_" + record.gene2_id + ".png")) is True:
-            high_corr_genes.append(record["gene2_id"])
+    expr_file = os.path.join(env('OUTPUT_DIR'), str(analysis_id), "Corr_Analysis", analysis.first().genes_of_interest.all()[0].name + "_most_correlated_gene_exprs.tsv")
 
-    project_id = str(analysis.first().project)
-    script_type = analysis.first().script
-    script_folder_path = "GDC" if script_type == "GDC" else ("GTEx/GTEx-v8" if script_type == "GTEx" else "RECOUNT3")
-    project_path = os.path.join(env("PROJECT_DIR"), script_folder_path, project_id)
-    print("checkpoint 2.5")
-    pattern = "GDC_TCGA-BRCA.*gene_mir_exp_zero2nan.tsv" if script_type == "GDC"  else ("GTEx-Breast-*_tpm-mRNA.tsv" if script_type == "GTEx" else "R3-BRCA-*_tpm-mRNA.tsv")
-    print("checkpoint 2.8")
-    z2n_file = ""
-    for filename in os.listdir(project_path):
-        if re.match(pattern, filename):
-            z2n_file = os.path.join(project_path, filename)
-            break
-
-    print(z2n_file)
-
-    z2n_df = pd.read_csv(z2n_file, sep="\t")
-    print("hi")
-    print(z2n_df)
+    expr_df = pd.read_csv(expr_file, sep="\t")
     expression_scores = {}
-    for gene in high_corr_genes:
-        expression_scores[gene] = list(z2n_df[gene])
-    print("Finished")
+    expr_df = expr_df.fillna(0) # nan is not valid in JSON, will cause issues in javascript
+
+    for item in expr_df.columns:
+        expression_scores[item] = list(expr_df[item])
+    
     return JsonResponse(expression_scores)
 
 def check_de_finished(request, analysis_id):

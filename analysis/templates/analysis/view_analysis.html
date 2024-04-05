@@ -286,7 +286,7 @@
 
       let json_response_gene_expr;
       try {
-        const json_response_gene_expr = await fetch_response("{% url 'fetch-high-corr-gene-exprs' analysis_id=analysis %}")
+        json_response_gene_expr = await fetch_response("{% url 'fetch-high-corr-gene-exprs' analysis_id=analysis %}")
       } catch (exception) {
         throw new Error(exception)
       }
