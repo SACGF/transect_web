@@ -46,7 +46,8 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            <img class="modal-image" id="modal_image" src="" height="100%" width="100%">
+            <img class="modal-image" id="modal_image" src="" height="100%" width="100%" style="display: none;">
+            <div id="modal_graph" style="height: 600px; width: 100%; display: none;"></div>
           </div>
         </div>
       </div>
@@ -290,7 +291,6 @@
       } catch (exception) {
         throw new Error(exception)
       }
-      alert(json_response_gene_expr)
 
       // finally fetching the tsv
       let correlation_comparisons;
@@ -320,7 +320,32 @@
           newRecord.addEventListener('click', () => {
             const img_url = "{{ MEDIA_URL }}/media/".concat(analysis).concat("/Corr_Analysis/plots/").concat(goi).concat("_").concat(gene_of_comparison).concat(".png")
             image_modal.getElementsByClassName("modal-title")[0].innerHTML = goi.concat(" vs ").concat(gene_of_comparison)
-            image_modal.getElementsByClassName("modal-image")[0].src = img_url
+
+            const data = [{
+              mode: 'markers',
+              type: 'scatter',
+              x: json_response_gene_expr[gene_of_comparison],
+              y: json_response_gene_expr[goi],
+              customdata: json_response_gene_expr.Names,
+              hovertemplate: "",
+              orientation: 'h',
+              marker: { size: 4, color: "grey" } // keeping size equal, as plotly is struggling with too much data
+            }];
+            const layout = {
+              title: "Expression Scatterplot: ".concat(goi).concat(" vs ").concat(gene_of_comparison),
+              xaxis: {title: gene_of_comparison }, // safe values for ranges, as correlation should never exceed/go below +-1 respectively
+              yaxis: {title: goi},
+              hoverlabel: { bgcolor: "white" },
+              margin: {l: 60} ,// use it to adjust space for the margins
+              autosize: true
+            }
+            const config = {responsive: true} // size of graph automatically changes when size of view changes
+            //Plotly.newPlot('correlation_volcano_graph', data, layout, config);
+            document.getElementById("modal_graph").style.display = "block";
+            Plotly.newPlot('modal_graph', data, layout, config);
+            setTimeout(()=> {window.dispatchEvent(new Event('resize'));}, 0.1);
+
+            //image_modal.getElementsByClassName("modal-image")[0].src = img_url
             modal_download.href = img_url
             $("#image_modal").modal('show');
           })
