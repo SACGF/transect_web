@@ -57,6 +57,12 @@
     // if having issues with the negative values in plotly: https://github.com/plotly/plotly.js/issues/5327
     const image_modal = document.getElementById("image_modal")
 
+    $('#image_modal').on('hide.bs.modal', function (e) { 
+      document.getElementById("modal_image").style.display = "none"; 
+      document.getElementById("modal_graph").innerHTML = ""; 
+      document.getElementById("modal_graph").style.display = "none"; 
+    })
+
     const settings_content = document.getElementById("analysis_settings_content").getElementsByTagName("p")[0]
 
     const modal_download = document.getElementById("modal_download")
@@ -151,6 +157,7 @@
       n_t_boxplot_image.src = de_url_base.concat("_TPM_N-T_boxplot.svg")
       n_t_boxplot_image.addEventListener('click', () => {
         image_modal.getElementsByClassName("modal-title")[0].innerHTML = gois.join("-").concat("_TPM_N-T_boxplot.svg")
+        image_modal.getElementsByClassName("modal-image")[0].style.display = "block"
         image_modal.getElementsByClassName("modal-image")[0].src = n_t_boxplot_image.src
         modal_download.href = n_t_boxplot_image.src
         $("#image_modal").modal('show');
@@ -159,6 +166,7 @@
       strat_boxplot_image.src = de_url_base.concat("_TPM_strat_boxplot.svg")
       strat_boxplot_image.addEventListener('click', () => {
         image_modal.getElementsByClassName("modal-title")[0].innerHTML = gois.join("-").concat("_TPM_strat_boxplot.svg")
+        image_modal.getElementsByClassName("modal-image")[0].style.display = "block"
         image_modal.getElementsByClassName("modal-image")[0].src = strat_boxplot_image.src
         modal_download.href = strat_boxplot_image.src
         $("#image_modal").modal('show');
@@ -171,6 +179,7 @@
       analysis_specific_image.src = de_url_base.concat(composite_analysis_plot)
       analysis_specific_image.addEventListener('click', () => {
         image_modal.getElementsByClassName("modal-title")[0].innerHTML = gois.join("-").concat(composite_analysis_plot)
+        image_modal.getElementsByClassName("modal-image")[0].style.display = "block"
         image_modal.getElementsByClassName("modal-image")[0].src = analysis_specific_image.src
         modal_download.href = analysis_specific_image.src
         $("#image_modal").modal('show');
@@ -340,12 +349,10 @@
               autosize: true
             }
             const config = {responsive: true} // size of graph automatically changes when size of view changes
-            //Plotly.newPlot('correlation_volcano_graph', data, layout, config);
             document.getElementById("modal_graph").style.display = "block";
             Plotly.newPlot('modal_graph', data, layout, config);
             setTimeout(()=> {window.dispatchEvent(new Event('resize'));}, 0.1);
 
-            //image_modal.getElementsByClassName("modal-image")[0].src = img_url
             modal_download.href = img_url
             $("#image_modal").modal('show');
           })
