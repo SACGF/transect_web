@@ -162,7 +162,11 @@ def fetch_high_corr_gene_exprs(request, analysis_id):
 
     expr_df = pd.read_csv(expr_file, sep="\t")
     expression_scores = {}
-    expr_df = expr_df.dropna() # nan is not valid in JSON, will cause issues in javascript
+
+    # for some reason, pandas is killing most columns, specify how='row' to specify to only to kill the column
+    # this is because certain columns mostly have nans, hence kill most rows
+    # it is therefore better if we do this function on a column by column basis
+    expr_df = expr_df.dropna(subset=expr_df.columns[1:], axis=0, how="any") # nan is not valid in JSON, will cause issues in javascript
 
     for column in expr_df.columns:
         column_values = list(expr_df[column])

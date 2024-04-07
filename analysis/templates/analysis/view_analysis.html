@@ -340,8 +340,6 @@
             const img_url = "{{ MEDIA_URL }}/media/".concat(analysis).concat("/Corr_Analysis/plots/").concat(goi).concat("_").concat(gene_of_comparison).concat(".png")
             image_modal.getElementsByClassName("modal-title")[0].innerHTML = goi.concat(" vs ").concat(gene_of_comparison)
 
-            alert(typeof(json_response_gene_expr[gene_of_comparison][0]))
-
             let x_data = json_response_gene_expr[gene_of_comparison]
             let y_data = json_response_gene_expr[goi]
 
@@ -350,7 +348,7 @@
             hovertext = hovertext.concat(`<b>log2(${goi})</b>: %{y}<br>`)
             hovertext = hovertext.concat('<extra></extra>')
 
-            const data = [{
+            const main_plot = {
               name: 'Data',
               mode: 'markers',
               type: 'scatter',
@@ -360,11 +358,24 @@
               hovertemplate: hovertext,
               orientation: 'h',
               marker: { size: 4, color: "grey" } // keeping size equal, as plotly is struggling with too much data
-            }];
+            };
 
             // before we would take the highest/lowest for each axis, but the scale would look weird,
             // hence take highest axis valie
-            const highest_axis_value = Math.max(Math.abs(...x_data)) > Math.max(Math.abs(...y_data)) ? Math.max(Math.abs(...x_data)) : Math.max(Math.abs(...y_data))
+            // the ... deconstructs array elements into individual items, which is what the Math functions use
+
+            function turn_positive(arr) {
+              for (let i = 0; i < arr.length; i++) {
+                arr[i] = Math.abs(arr[i]);
+              }
+              return arr;
+            }
+
+            const positive_x_vals = turn_positive(x_data)
+            const positive_y_vals = turn_positive(y_data)
+
+
+            const highest_axis_value = Math.max(...positive_x_vals) > Math.max(...positive_y_vals) ? Math.max(...positive_x_vals) : Math.max(...positive_y_vals)
 
             // const x_highest_range = Math.max(Math.abs(...x_data)) + 0.05
             // const x_lowest_range = Math.min(...x_data) > 0 ? (0 + 0.05) : Math.max(Math.abs(...x_data)) + 0.05
@@ -407,13 +418,16 @@
 
             // plotly.js does not currently have any support for a line of best fit
             // will need to use workarounds (hence, a new "plot")
-            // line_of_best_fit_plot = {
-            //     x: lineOfBestFit.map(point => point[0]),
-            //     y: lineOfBestFit.map(point => point[1]),
-            //     mode: 'lines',
-            //     type: 'scatter',
-            //     name: 'Line of Best Fit'
-            // };
+            const line_of_best_fit_plot = {
+                x: lineOfBestFit.map(point => point[0]),
+                y: lineOfBestFit.map(point => point[1]),
+                mode: 'lines',
+                type: 'scatter',
+                name: 'Line of Best Fit',
+                hoverinfo: 'none',
+            };
+
+            const data = [main_plot, line_of_best_fit_plot]
 
             document.getElementById("modal_graph").style.display = "block";
             Plotly.newPlot('modal_graph', data, layout, config);
