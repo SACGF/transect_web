@@ -57,17 +57,27 @@
     // if having issues with the negative values in plotly: https://github.com/plotly/plotly.js/issues/5327
     const image_modal = document.getElementById("image_modal")
 
-    $('#image_modal').on('hide.bs.modal', function (e) { 
+    $('#image_modal').on('hidden.bs.modal', function (e) { 
       document.getElementById("modal_image").style.display = "none"; 
       document.getElementById("modal_graph").innerHTML = ""; 
       document.getElementById("modal_graph").style.display = "none"; 
+    })
+
+    // show is triggered at the start of an event
+    // shown is triggered at the end of an event
+    // need to do a resize event such that any graphs that were previously hidden
+    // and hence will look weird upon a display = "block" are automatically resized
+    // to fix the bug
+    // done at the end as it will be after display="block" is done for the graph
+    $('#image_modal').on('shown.bs.modal', function (e) { 
+      setTimeout(()=> {window.dispatchEvent(new Event('resize'));}, 0.1);
     })
 
     const settings_content = document.getElementById("analysis_settings_content").getElementsByTagName("p")[0]
 
     const modal_download = document.getElementById("modal_download")
     modal_download.addEventListener('click', () => {
-      var dummyElement = document.createElement("a");
+      let dummyElement = document.createElement("a");
       dummyElement.href = modal_download.href // Replace "path_to_your_file" with the URL or file path you want to download
       dummyElement.download = dummyElement.href.split("/")[dummyElement.href.split("/").length - 1]; // Replace "filename" with the desired name of the downloaded file
       document.body.appendChild(dummyElement);
@@ -330,25 +340,81 @@
             const img_url = "{{ MEDIA_URL }}/media/".concat(analysis).concat("/Corr_Analysis/plots/").concat(goi).concat("_").concat(gene_of_comparison).concat(".png")
             image_modal.getElementsByClassName("modal-title")[0].innerHTML = goi.concat(" vs ").concat(gene_of_comparison)
 
+            alert(typeof(json_response_gene_expr[gene_of_comparison][0]))
+
+            let x_data = json_response_gene_expr[gene_of_comparison]
+            let y_data = json_response_gene_expr[goi]
+
+            let hovertext = '<b>Patient</b>: %{customdata}<br>'
+            hovertext = hovertext.concat(`<b>log2(${gene_of_comparison})</b>: %{x}<br>`)
+            hovertext = hovertext.concat(`<b>log2(${goi})</b>: %{y}<br>`)
+            hovertext = hovertext.concat('<extra></extra>')
+
             const data = [{
+              name: 'Data',
               mode: 'markers',
               type: 'scatter',
-              x: json_response_gene_expr[gene_of_comparison],
-              y: json_response_gene_expr[goi],
+              x: x_data,
+              y: y_data,
               customdata: json_response_gene_expr.Names,
-              hovertemplate: "",
+              hovertemplate: hovertext,
               orientation: 'h',
               marker: { size: 4, color: "grey" } // keeping size equal, as plotly is struggling with too much data
             }];
+
+            // before we would take the highest/lowest for each axis, but the scale would look weird,
+            // hence take highest axis valie
+            const highest_axis_value = Math.max(Math.abs(...x_data)) > Math.max(Math.abs(...y_data)) ? Math.max(Math.abs(...x_data)) : Math.max(Math.abs(...y_data))
+
+            // const x_highest_range = Math.max(Math.abs(...x_data)) + 0.05
+            // const x_lowest_range = Math.min(...x_data) > 0 ? (0 + 0.05) : Math.max(Math.abs(...x_data)) + 0.05
+            // const y_highest_range = Math.max(Math.abs(...y_data)) + 0.05
+            // const y_lowest_range = Math.min(...y_data) > 0 ? (0 + 0.05) : Math.max(Math.abs(...y_data)) + 0.05
+
+            const x_highest_range = highest_axis_value + 0.05
+            const x_lowest_range = Math.min(...x_data) > 0 ? (0 + 0.05) : highest_axis_value + 0.05
+            const y_highest_range = highest_axis_value + 0.05
+            const y_lowest_range = Math.min(...y_data) > 0 ? (0 + 0.05) : highest_axis_value + 0.05
+
             const layout = {
               title: "Expression Scatterplot: ".concat(goi).concat(" vs ").concat(gene_of_comparison),
-              xaxis: {title: gene_of_comparison }, // safe values for ranges, as correlation should never exceed/go below +-1 respectively
-              yaxis: {title: goi},
+              xaxis: {title: `log2(${gene_of_comparison})`, range: [-x_lowest_range, x_highest_range] }, // safe values for ranges, as correlation should never exceed/go below +-1 respectively
+              yaxis: {title: `log2(${goi})`, range: [-y_lowest_range, y_highest_range]},
               hoverlabel: { bgcolor: "white" },
               margin: {l: 60} ,// use it to adjust space for the margins
               autosize: true
             }
             const config = {responsive: true} // size of graph automatically changes when size of view changes
+
+            // now need to calculate the regression line:
+            var x_mean = x_data.reduce((acc, cur) => acc + cur, 0) / x_data.length;
+            var y_mean = y_data.reduce((acc, cur) => acc + cur, 0) / y_data.length;
+
+            // Calculate slope (m) and y-intercept (b)
+            var numerator = 0;
+            var denominator = 0;
+
+            for (var i = 0; i < x_data.length; i++) {
+                numerator += (x_data[i] - x_mean) * (y_data[i] - y_mean);
+                denominator += Math.pow((x_data[i] - x_mean), 2);
+            }
+
+            var slope = numerator / denominator;
+            var intercept = y_mean - slope * x_mean;
+
+            // Calculate the line of best fit
+            var lineOfBestFit = x_data.map(x => [x, slope * x + intercept]);
+
+            // plotly.js does not currently have any support for a line of best fit
+            // will need to use workarounds (hence, a new "plot")
+            // line_of_best_fit_plot = {
+            //     x: lineOfBestFit.map(point => point[0]),
+            //     y: lineOfBestFit.map(point => point[1]),
+            //     mode: 'lines',
+            //     type: 'scatter',
+            //     name: 'Line of Best Fit'
+            // };
+
             document.getElementById("modal_graph").style.display = "block";
             Plotly.newPlot('modal_graph', data, layout, config);
             setTimeout(()=> {window.dispatchEvent(new Event('resize'));}, 0.1);
