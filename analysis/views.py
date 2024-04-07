@@ -151,7 +151,8 @@ def get_pearsons_correlation_plot_points(request, analysis_id):
 
     return JsonResponse({'logExp_Cor': logExp_Cor, "logExp_FDR": logExp_FDR, "colors": colors, "gene2": list(df['gene2_id'])})
 
-def fetch_high_corr_gene_exprs(request, analysis_id):
+def fetch_high_corr_gene_exprs(request, analysis_id, gene1_id, gene2_id):
+    print("Yes")
     analysis =  Analysis.objects.filter(sha_hash=str(analysis_id))
     if analysis.exists() is False:
         raise Http404("Analysis Not Found")
@@ -160,8 +161,15 @@ def fetch_high_corr_gene_exprs(request, analysis_id):
     
     expr_file = os.path.join(env('OUTPUT_DIR'), str(analysis_id), "Corr_Analysis", analysis.first().genes_of_interest.all()[0].name + "_most_correlated_gene_exprs.tsv")
 
-    expr_df = pd.read_csv(expr_file, sep="\t")
+    expr_df_full = pd.read_csv(expr_file, sep="\t")
     expression_scores = {}
+
+    expr_df = expr_df_full[['Names', gene1_id, gene2_id]]
+
+    if gene1_id == gene2_id:
+        expr_df = expr_df_full[['Names', gene1_id]]
+    else:
+        expr_df = expr_df_full[['Names', gene1_id, gene2_id]]
 
     # for some reason, pandas is killing most columns, specify how='row' to specify to only to kill the column
     # this is because certain columns mostly have nans, hence kill most rows
@@ -174,6 +182,8 @@ def fetch_high_corr_gene_exprs(request, analysis_id):
             column_values = [math.log2(x) for x in column_values]
         expression_scores[column] = column_values
     
+    print("Finished")
+
     return JsonResponse(expression_scores)
 
 def check_de_finished(request, analysis_id):

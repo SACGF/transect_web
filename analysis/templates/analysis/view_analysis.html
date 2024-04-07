@@ -304,13 +304,6 @@
 
       correlation_comparison_table_body = document.getElementById("correlation_comparison_table").getElementsByTagName("tbody")[0]
 
-      let json_response_gene_expr;
-      try {
-        json_response_gene_expr = await fetch_response("{% url 'fetch-high-corr-gene-exprs' analysis_id=analysis %}")
-      } catch (exception) {
-        throw new Error(exception)
-      }
-
       // finally fetching the tsv
       let correlation_comparisons;
       let last_plot_index;
@@ -336,10 +329,19 @@
         // check if a plot here exists, and add the code below
         if (last_plot_index !== -1 && i <= last_plot_index) {
           newRecord.className = "inspectable_item"
-          newRecord.addEventListener('click', () => {
+          newRecord.addEventListener('click', async () => {
+            let json_response_gene_expr;
+
+            try {
+              json_response_gene_expr = await fetch_response("/analysis/fetch_high_corr_gene_exprs/{{ analysis }}/".concat(goi).concat("/").concat(gene_of_comparison))
+            } catch (exception) {
+              throw new Error(exception)
+            }
+
             const img_url = "{{ MEDIA_URL }}/media/".concat(analysis).concat("/Corr_Analysis/plots/").concat(goi).concat("_").concat(gene_of_comparison).concat(".png")
             image_modal.getElementsByClassName("modal-title")[0].innerHTML = goi.concat(" vs ").concat(gene_of_comparison)
 
+            // should not be an issue if gene_of_comparison and goi are equal
             let x_data = json_response_gene_expr[gene_of_comparison]
             let y_data = json_response_gene_expr[goi]
 
