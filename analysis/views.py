@@ -180,9 +180,8 @@ def fetch_high_corr_gene_exprs(request, analysis_id, gene1_id, gene2_id):
         column_values = list(expr_df[column])
         if column != "Names":
             column_values = [math.log2(x) for x in column_values]
+
         expression_scores[column] = column_values
-    
-    print("Finished")
 
     return JsonResponse(expression_scores)
 

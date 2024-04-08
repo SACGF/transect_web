@@ -367,10 +367,11 @@
             // the ... deconstructs array elements into individual items, which is what the Math functions use
 
             function turn_positive(arr) {
+              let newArr = [];
               for (let i = 0; i < arr.length; i++) {
-                arr[i] = Math.abs(arr[i]);
+                newArr.push(Math.abs(arr[i]));
               }
-              return arr;
+              return newArr;
             }
 
             const positive_x_vals = turn_positive(x_data)
