@@ -134,7 +134,7 @@
     async function display_de_analysis_results(analysis) {
       const gois = get_gois();
       const results_header = document.getElementById("results_header")
-      const gois_header = '{{ composite_analysis_type }}' === "Additive" ? gois.join("+") : gois.join("/")
+      const gois_header = '{{ composite_analysis_type }}' === "Additive" ? gois.join("+") : gois.join("%")
       results_header.innerHTML = '{{ composite_analysis_type }}'.concat(" Differential Analysis: ").concat(gois_header)
       results_header.style.display = "block"
 
@@ -160,6 +160,115 @@
       document.getElementById("n_t_boxplot_image_title").innerHTML = gois.join("-").concat("_TPM_N-T_boxplot.svg")
       document.getElementById("strat_boxplot_image_title").innerHTML = gois.join("-").concat("_TPM_strat_boxplot.svg")
 
+      // NEW INTERACTIVE PLOTS METHOD
+      const de_summary_json_response = await fetch_response("{% url 'fetch-de-summary-info' analysis_id=analysis %}")
+      
+      let unaffected_log_expr = []
+      let affected_log_expr = []
+
+      let low_log_expr = []
+      let high_log_expr = []
+      console.log(de_summary_json_response.goi_log2.length)
+      for (let j = 0; j < de_summary_json_response.goi_log2.length; j++) {
+        if (de_summary_json_response.is_unaffected[j] === true) {
+          unaffected_log_expr.push(de_summary_json_response.goi_log2[j])
+        } else {
+          affected_log_expr.push(de_summary_json_response.goi_log2[j])
+        }
+
+        if (de_summary_json_response.low[j]) {
+          low_log_expr.push(de_summary_json_response.goi_log2[j])
+        } else if (de_summary_json_response.high[j]) {
+          high_log_expr.push(de_summary_json_response.goi_log2[j])
+        } 
+      }
+
+      console.log("HI")
+      console.log(unaffected_log_expr)
+      console.log(affected_log_expr)
+      
+      const nt_box1 = {
+        type: 'box',
+        y: unaffected_log_expr,
+        // hovertemplate: '<b>X</b>: %{x}<br><extra></extra>',
+        name: 'Unaffected',
+        boxpoints: 'all'
+      }
+
+      const nt_box2 = {
+        type: 'box',
+        y: affected_log_expr,
+        // hovertemplate: '<b>X</b>: %{x}<br><extra></extra>',
+        name: 'Affected',
+        boxpoints: 'all'
+      }
+
+      const nt_data = [nt_box1, nt_box2];
+
+      const layout = {
+        margin: {l: 60} ,// use it to adjust space for the margins
+        autosize: true
+      }
+      const config = {responsive: true} // size of graph automatically changes when size of view changes
+      Plotly.newPlot('n_t_boxplot_graph', nt_data, layout, config);
+ 
+      const hi_box = {
+        type: 'box',
+        y: high_log_expr,
+        // hovertemplate: '<b>X</b>: %{x}<br><extra></extra>',
+        name: 'Unaffected',
+        boxpoints: 'all'
+      }
+      const low_box = {
+        type: 'box',
+        y: low_log_expr,
+        // hovertemplate: '<b>X</b>: %{x}<br><extra></extra>',
+        name: 'Affected',
+        boxpoints: 'all'
+      }
+      const hilo_data = [low_box, hi_box];
+      console.log(high_log_expr)
+      console.log(low_log_expr)
+      Plotly.newPlot('strat_boxplot_graph', hilo_data, layout, config);
+
+      const analysis_specific_graph = document.getElementById("analysis_specific_graph")
+      if ('{{ composite_analysis_type }}' === "Single") {
+        const single_hist_data = [{
+          type: 'histogram',
+          x: de_summary_json_response.goi_log2,
+          // hovertemplate: '<b>X</b>: %{x}<br><extra></extra>',
+          name: 'Unaffected',
+          nbinsx: 100, // does same thing as breaks in original rscript hist function (i.e. num bars)
+        }]
+        // for some reason, nbinsx hates it when you add a layout
+        Plotly.newPlot('analysis_specific_graph', single_hist_data, {}, config);
+      } else if ('{{ composite_analysis_type }}' === "Additive") {
+        console.log("not yet")
+      } else {
+        const gene1 = {
+          mode: 'markers',
+          type: 'scatter',
+          x: de_summary_json_response.percentile_rank,
+          y: de_summary_json_response[gois[0]],
+          // hovertemplate: '<b>X</b>: %{x}<br><extra></extra>',
+          name: 'Unaffected',
+          marker: {
+            symbol: 'square'
+          }
+        }
+        const gene2 = {
+          mode: 'markers',
+          type: 'scatter',
+          x: de_summary_json_response.percentile_rank,
+          y: de_summary_json_response[gois[1]],
+          // hovertemplate: '<b>X</b>: %{x}<br><extra></extra>',
+          name: 'Affected',
+        }
+        const ratio_scatter_data = [gene1, gene2];
+        Plotly.newPlot('analysis_specific_graph', ratio_scatter_data, layout, config);
+      }
+
+      // DELETE EVERYTHING BELOW STARTING FROM HERE
       const n_t_boxplot_image = document.getElementById("n_t_boxplot_image")
       const strat_boxplot_image = document.getElementById("strat_boxplot_image")
       const analysis_specific_image = document.getElementById("analysis_specific_image")
@@ -194,6 +303,7 @@
         modal_download.href = analysis_specific_image.src
         $("#image_modal").modal('show');
       })
+      // DELETE EVERYTHING ABOVE ENDING HERE
 
       document.getElementById("download_de").addEventListener('click', () => {
         try {

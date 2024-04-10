@@ -185,6 +185,83 @@ def fetch_high_corr_gene_exprs(request, analysis_id, gene1_id, gene2_id):
 
     return JsonResponse(expression_scores)
 
+def fetch_de_summary_info(request, analysis_id):
+    analysis =  Analysis.objects.filter(sha_hash=str(analysis_id))
+    if analysis.exists() is False:
+        raise Http404("Analysis Not Found")
+    if analysis.first().percentile == 0:
+        return JsonResponse({'error': f'{analysis_id} is not a DE analysis'}, status=500)
+    
+    # start off with the common TPM_N-T_boxplot.svg and TPM_strat_boxplot.svg files
+    gois = []
+    for goi in analysis.first().genes_of_interest.all():
+        gois.append(goi.name)
+
+    analysis_type = analysis.first().composite_analysis_type
+
+    joined_gois = ""
+    if analysis_type == "Additive":
+        joined_gois = "+".join(gois)
+    elif analysis_type == "Ratio":
+        joined_gois = "%".join(gois)
+    else:
+        joined_gois = gois[0]
+
+    goi_strat_file = os.path.join(env('OUTPUT_DIR'), str(analysis_id), "DE_Analysis", "GOI_with_strat.tsv")
+    design_file = os.path.join(env('OUTPUT_DIR'), str(analysis_id), "DE_Analysis", "design.tsv")
+
+    goi_strat_df = pd.read_csv(goi_strat_file, sep="\t")
+    design_df = pd.read_csv(design_file, sep=" ") # NOTICE SEPARATOR
+
+    goi_strat_df = goi_strat_df.rename(columns={goi_strat_df.columns[0]: 'Names'})
+    design_df = design_df.rename(columns={design_df.columns[0]: 'Names'})
+    
+    goi_strat_df["Names"] = goi_strat_df["Names"].astype(str)
+    design_df["Names"] = design_df["Names"].astype(str)
+    design_df["lo"] = design_df["lo"].astype(bool)
+    design_df["hi"] = design_df["hi"].astype(bool)
+
+    goi_strat_df = pd.merge(goi_strat_df, design_df, on="Names", how="outer")
+    goi_strat_df['lo'].fillna(0, inplace=True)
+    goi_strat_df['hi'].fillna(0, inplace=True)
+    goi_strat_df = goi_strat_df.dropna(axis=0, how="any")
+
+    rows_with_na = goi_strat_df[goi_strat_df.isna().any(axis=1)]
+
+    def check_unaffected(name):
+        print(name)
+        if name.endswith(('11A', '11B')):
+            return True
+        return False
+
+    goi_strat_df['Unaffected'] = goi_strat_df['Names'].apply(check_unaffected)
+    goi_strat_df[joined_gois] = np.log2(goi_strat_df[joined_gois])
+
+    # ranking_score is not in analysis involving 1 gene
+    if 'ranking_score' not in goi_strat_df.columns:
+        goi_strat_df['ranking_score'] = -1        
+
+    print("finished")
+
+    expr_data = {
+                    "goi_log2": list(goi_strat_df[joined_gois]), 
+                    "is_unaffected": list(goi_strat_df["Unaffected"]), 
+                    "low": list(goi_strat_df["lo"]),
+                    "high": list(goi_strat_df["hi"]),
+                    "quantile_rank": list(goi_strat_df["quantile_rank"]),
+                    "percentile_rank": list(goi_strat_df["percentile_rank"])
+                }
+    # ranking_score is not in analysis involving 1 gene
+    if 'ranking_score' not in goi_strat_df.columns:
+        expr_data["ranking_score"] = list(goi_strat_df["ranking_score"])
+    if analysis_type == "Ratio":
+        goi_strat_df[gois[0]] = np.log2(goi_strat_df[gois[0]])
+        goi_strat_df[gois[1]] = np.log2(goi_strat_df[gois[1]])
+        expr_data[gois[0]] = list(goi_strat_df[gois[0]])
+        expr_data[gois[1]] = list(goi_strat_df[gois[1]])
+
+    return JsonResponse(expr_data, status=200)
+
 def check_de_finished(request, analysis_id):
     analysis = Analysis.objects.filter(sha_hash=str(analysis_id)).first()
 
