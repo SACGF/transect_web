@@ -217,14 +217,16 @@
         y: high_log_expr,
         // hovertemplate: '<b>X</b>: %{x}<br><extra></extra>',
         name: 'Unaffected',
-        boxpoints: 'all'
+        boxpoints: 'all',
+        jitter: 0.7 // Adjust this value to control jitter
       }
       const low_box = {
         type: 'box',
         y: low_log_expr,
         // hovertemplate: '<b>X</b>: %{x}<br><extra></extra>',
         name: 'Affected',
-        boxpoints: 'all'
+        boxpoints: 'all',
+        jitter: 0.7 // Adjust this value to control jitter
       }
       const hilo_data = [low_box, hi_box];
       console.log(high_log_expr)
@@ -240,11 +242,43 @@
           name: 'Unaffected',
           nbinsx: 100, // does same thing as breaks in original rscript hist function (i.e. num bars)
         }]
+        console.log("Single Gene")
+        console.log(de_summary_json_response.goi_log2)
         // for some reason, nbinsx hates it when you add a layout
         Plotly.newPlot('analysis_specific_graph', single_hist_data, {}, config);
       } else if ('{{ composite_analysis_type }}' === "Additive") {
-        console.log("not yet")
+        let data = []
+        for (let m = 0; m < gois.length; m++) {
+          console.log(gois[m])
+          data.push(
+          {
+            type: 'violin',
+            y: de_summary_json_response["long_exp_".concat(gois[m])],
+            //y: [1,2,3],
+            points: 'all', // Show all points
+            meanline: {
+              visible: false // Hide the mean line
+            },
+            box: {
+              visible: false // Hide the box plot
+            },
+            jitter: 1 // Adjust this value to control jitter
+          }
+        );
+        }
+
+        // Define layout for the plot
+        const layout = {
+          title: 'Violin Plot with Points Only',
+          yaxis: {
+            title: 'Y Axis',
+          }
+        };
+
+        // Generate the plot
+        Plotly.newPlot('analysis_specific_graph', data, layout);
       } else {
+        // ratio
         const gene1 = {
           mode: 'markers',
           type: 'scatter',
@@ -264,6 +298,12 @@
           // hovertemplate: '<b>X</b>: %{x}<br><extra></extra>',
           name: 'Affected',
         }
+        console.log("Ratio")
+        console.log("Gene 1:")
+        console.log(de_summary_json_response[gois[0]])
+        console.log("Gene 2:")
+        console.log(de_summary_json_response[gois[1]])
+
         const ratio_scatter_data = [gene1, gene2];
         Plotly.newPlot('analysis_specific_graph', ratio_scatter_data, layout, config);
       }

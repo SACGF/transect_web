@@ -198,6 +198,7 @@ def fetch_de_summary_info(request, analysis_id):
         gois.append(goi.name)
 
     analysis_type = analysis.first().composite_analysis_type
+    percentile = analysis.first().percentile
 
     joined_gois = ""
     if analysis_type == "Additive":
@@ -208,25 +209,22 @@ def fetch_de_summary_info(request, analysis_id):
         joined_gois = gois[0]
 
     goi_strat_file = os.path.join(env('OUTPUT_DIR'), str(analysis_id), "DE_Analysis", "GOI_with_strat.tsv")
-    design_file = os.path.join(env('OUTPUT_DIR'), str(analysis_id), "DE_Analysis", "design.tsv")
-
     goi_strat_df = pd.read_csv(goi_strat_file, sep="\t")
-    design_df = pd.read_csv(design_file, sep=" ") # NOTICE SEPARATOR
-
     goi_strat_df = goi_strat_df.rename(columns={goi_strat_df.columns[0]: 'Names'})
-    design_df = design_df.rename(columns={design_df.columns[0]: 'Names'})
     
     goi_strat_df["Names"] = goi_strat_df["Names"].astype(str)
-    design_df["Names"] = design_df["Names"].astype(str)
-    design_df["lo"] = design_df["lo"].astype(bool)
-    design_df["hi"] = design_df["hi"].astype(bool)
+    goi_strat_df["lo"] = 0
+    goi_strat_df["hi"] = 0
 
-    goi_strat_df = pd.merge(goi_strat_df, design_df, on="Names", how="outer")
-    goi_strat_df['lo'].fillna(0, inplace=True)
-    goi_strat_df['hi'].fillna(0, inplace=True)
+    for i in range(0, len(goi_strat_df)):
+        if goi_strat_df["percentile_rank"][i] <= percentile:
+            goi_strat_df["lo"][i] = 1
+        elif goi_strat_df["percentile_rank"][i] >= (100 - percentile):
+            goi_strat_df["hi"][i] = 1
+
+    goi_strat_df["lo"] = goi_strat_df["lo"].astype(bool)
+    goi_strat_df["hi"] = goi_strat_df["hi"].astype(bool)
     goi_strat_df = goi_strat_df.dropna(axis=0, how="any")
-
-    rows_with_na = goi_strat_df[goi_strat_df.isna().any(axis=1)]
 
     def check_unaffected(name):
         print(name)
@@ -235,11 +233,15 @@ def fetch_de_summary_info(request, analysis_id):
         return False
 
     goi_strat_df['Unaffected'] = goi_strat_df['Names'].apply(check_unaffected)
+
+    # log2 is not producing identical values to R version
+    print(goi_strat_df[goi_strat_df.iloc[:, 0] == "TCGA-D8-A141-01A"])
+
     goi_strat_df[joined_gois] = np.log2(goi_strat_df[joined_gois])
 
     # ranking_score is not in analysis involving 1 gene
     if 'ranking_score' not in goi_strat_df.columns:
-        goi_strat_df['ranking_score'] = -1        
+        goi_strat_df['ranking_score'] = -1
 
     print("finished")
 
@@ -259,6 +261,23 @@ def fetch_de_summary_info(request, analysis_id):
         goi_strat_df[gois[1]] = np.log2(goi_strat_df[gois[1]])
         expr_data[gois[0]] = list(goi_strat_df[gois[0]])
         expr_data[gois[1]] = list(goi_strat_df[gois[1]])
+
+    print("Hehe")
+    if analysis_type == "Additive":
+        goi_exp_strat_long_file = os.path.join(env('OUTPUT_DIR'), str(analysis_id), "DE_Analysis", "GOI_exp_strat_long.tsv")
+        # in pandas, when reading a df, if the leftmost column contains integers starting from
+        # 0, it will automatically interpret it as an index column
+        goi_exp_strat_long_df = pd.read_csv(goi_exp_strat_long_file, sep="\t")
+        print(goi_exp_strat_long_df)
+        for gene in gois:
+            print("HELLO")
+            print(gene)
+            print(goi_exp_strat_long_df.loc[goi_exp_strat_long_df['geneID'] == gene]["expression"])
+            expr_data["long_exp_" + gene] = list(goi_exp_strat_long_df.loc[goi_exp_strat_long_df['geneID'] == gene]["expression"])
+        
+        
+    print("Finished")
+    print(expr_data)
 
     return JsonResponse(expr_data, status=200)
 
