@@ -161,6 +161,7 @@
       document.getElementById("strat_boxplot_image_title").innerHTML = gois.join("-").concat("_TPM_strat_boxplot.svg")
 
       // NEW INTERACTIVE PLOTS METHOD
+      /*
       const de_summary_json_response = await fetch_response("{% url 'fetch-de-summary-info' analysis_id=analysis %}")
       
       let unaffected_log_expr = []
@@ -307,42 +308,43 @@
         const ratio_scatter_data = [gene1, gene2];
         Plotly.newPlot('analysis_specific_graph', ratio_scatter_data, layout, config);
       }
+      */
 
       // DELETE EVERYTHING BELOW STARTING FROM HERE
       const n_t_boxplot_image = document.getElementById("n_t_boxplot_image")
       const strat_boxplot_image = document.getElementById("strat_boxplot_image")
       const analysis_specific_image = document.getElementById("analysis_specific_image")
       
-      n_t_boxplot_image.src = de_url_base.concat("_TPM_N-T_boxplot.svg")
-      n_t_boxplot_image.addEventListener('click', () => {
-        image_modal.getElementsByClassName("modal-title")[0].innerHTML = gois.join("-").concat("_TPM_N-T_boxplot.svg")
-        image_modal.getElementsByClassName("modal-image")[0].style.display = "block"
-        image_modal.getElementsByClassName("modal-image")[0].src = n_t_boxplot_image.src
-        modal_download.href = n_t_boxplot_image.src
-        $("#image_modal").modal('show');
-      })
+      n_t_boxplot_image.src = de_url_base.concat("_TPM_N-T_boxplot.html")
+      // n_t_boxplot_image.addEventListener('click', () => {
+      //   image_modal.getElementsByClassName("modal-title")[0].innerHTML = gois.join("-").concat("_TPM_N-T_boxplot.svg")
+      //   image_modal.getElementsByClassName("modal-image")[0].style.display = "block"
+      //   image_modal.getElementsByClassName("modal-image")[0].src = n_t_boxplot_image.src
+      //   modal_download.href = n_t_boxplot_image.src
+      //   $("#image_modal").modal('show');
+      // })
 
-      strat_boxplot_image.src = de_url_base.concat("_TPM_strat_boxplot.svg")
-      strat_boxplot_image.addEventListener('click', () => {
-        image_modal.getElementsByClassName("modal-title")[0].innerHTML = gois.join("-").concat("_TPM_strat_boxplot.svg")
-        image_modal.getElementsByClassName("modal-image")[0].style.display = "block"
-        image_modal.getElementsByClassName("modal-image")[0].src = strat_boxplot_image.src
-        modal_download.href = strat_boxplot_image.src
-        $("#image_modal").modal('show');
-      })
+      strat_boxplot_image.src = de_url_base.concat("_TPM_strat_boxplot.html")
+      // strat_boxplot_image.addEventListener('click', () => {
+      //   image_modal.getElementsByClassName("modal-title")[0].innerHTML = gois.join("-").concat("_TPM_strat_boxplot.svg")
+      //   image_modal.getElementsByClassName("modal-image")[0].style.display = "block"
+      //   image_modal.getElementsByClassName("modal-image")[0].src = strat_boxplot_image.src
+      //   modal_download.href = strat_boxplot_image.src
+      //   $("#image_modal").modal('show');
+      // })
 
       const composite_analysis_type = '{{ composite_analysis_type }}'
-      const composite_analysis_plot = (composite_analysis_type === "Additive") ? "_TPM_Boxplot_Sina.svg" : (composite_analysis_type === "Ratio") ? "_TPM_Scatter.svg" : "_TPM_histogram.svg"
+      const composite_analysis_plot = (composite_analysis_type === "Additive") ? "_TPM_Boxplot_Sina.html" : (composite_analysis_type === "Ratio") ? "_TPM_Scatter.html" : "_TPM_histogram.html"
       document.getElementById("analysis_specific_image_title").innerHTML = gois.join("-").concat(composite_analysis_plot)
 
       analysis_specific_image.src = de_url_base.concat(composite_analysis_plot)
-      analysis_specific_image.addEventListener('click', () => {
-        image_modal.getElementsByClassName("modal-title")[0].innerHTML = gois.join("-").concat(composite_analysis_plot)
-        image_modal.getElementsByClassName("modal-image")[0].style.display = "block"
-        image_modal.getElementsByClassName("modal-image")[0].src = analysis_specific_image.src
-        modal_download.href = analysis_specific_image.src
-        $("#image_modal").modal('show');
-      })
+      // analysis_specific_image.addEventListener('click', () => {
+      //   image_modal.getElementsByClassName("modal-title")[0].innerHTML = gois.join("-").concat(composite_analysis_plot)
+      //   image_modal.getElementsByClassName("modal-image")[0].style.display = "block"
+      //   image_modal.getElementsByClassName("modal-image")[0].src = analysis_specific_image.src
+      //   modal_download.href = analysis_specific_image.src
+      //   $("#image_modal").modal('show');
+      // })
       // DELETE EVERYTHING ABOVE ENDING HERE
 
       document.getElementById("download_de").addEventListener('click', () => {
