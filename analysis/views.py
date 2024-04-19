@@ -83,35 +83,22 @@ def provide_correlation_comparisons(request, analysis_id):
     last_plot_index = -1
     i = 0
 
-    # pushing items with a plot at the front
-    # plot should be sorted by record 5 (logExp_FDR)
-    # either way, add only the items with a plot first
-    # checking if path exists will negate the need for us to check a certain
-    # value which may present design problems in the future
     tsv_comp_file = os.path.join(env('OUTPUT_DIR'), str(analysis_id), "Corr_Analysis", analysis.first().genes_of_interest.all()[0].name + "_corr.tsv")
+    correlation_records = pd.read_csv(tsv_comp_file, sep="\t")
+    correlation_records = correlation_records.sort_values(by='logExp_Cor', ascending=False)
 
-    with open(tsv_comp_file, "r") as f:
-        next(f)
-        for line in f:
-            if i == 1000:
-                break
+    for i in range(0, len(correlation_records)):
+        if i == 1000:
+            break
 
-            record = line.replace("\"", "").strip().split("\t")
-            if os.path.exists(os.path.join(env('OUTPUT_DIR'), str(analysis_id), "Corr_Analysis", "plots", record[0] + "_" + record[1] + ".png")) is True:
-                last_plot_index += 1
-                table_items.append(record[1:])
-                i += 1
-    
-    with open(tsv_comp_file, "r") as f:
-        next(f)
-        for line in f:
-            if i == 1000:
-                break
+        curr_record = correlation_records.iloc[i]
 
-            record = line.replace("\"", "").strip().split("\t")
-            if os.path.exists(os.path.join(env('OUTPUT_DIR'), str(analysis_id), "Corr_Analysis", "plots", record[0] + "_" + record[1] + ".png")) is False:
-                table_items.append(record[1:])
-                i += 1
+        if curr_record["logExp_Cor"] > 0.7:
+            last_plot_index += 1
+
+        # ignore first column (i.e. GOI)
+        record = curr_record[1:].tolist()
+        table_items.append(record)
 
     return JsonResponse({'table_items': table_items, "last_plot_index": last_plot_index})
 

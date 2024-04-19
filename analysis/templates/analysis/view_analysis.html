@@ -42,7 +42,6 @@
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title" id="modal_title">Stiuff</h5>
-            <button class="btn btn-secondary ms-3" style="color: black;" id="modal_download"><img src="{% static 'icons/download.svg' %}" class="mb-1 me-2">Download</button>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
@@ -55,9 +54,10 @@
   </body>
   <script>
     // if having issues with the negative values in plotly: https://github.com/plotly/plotly.js/issues/5327
+    // const modal_download = document.getElementById("modal_download")
     const image_modal = document.getElementById("image_modal")
 
-    $('#image_modal').on('hidden.bs.modal', function (e) { 
+    $('#image_modal').on('hidden.bs.modal', function (e) {
       document.getElementById("modal_image").style.display = "none"; 
       document.getElementById("modal_graph").innerHTML = ""; 
       document.getElementById("modal_graph").style.display = "none"; 
@@ -75,15 +75,19 @@
 
     const settings_content = document.getElementById("analysis_settings_content").getElementsByTagName("p")[0]
 
-    const modal_download = document.getElementById("modal_download")
-    modal_download.addEventListener('click', () => {
-      let dummyElement = document.createElement("a");
-      dummyElement.href = modal_download.href // Replace "path_to_your_file" with the URL or file path you want to download
-      dummyElement.download = dummyElement.href.split("/")[dummyElement.href.split("/").length - 1]; // Replace "filename" with the desired name of the downloaded file
-      document.body.appendChild(dummyElement);
-      dummyElement.click();
-      document.body.removeChild(dummyElement);
-    })
+
+    // its better to create the download function on a modal "on the fly"
+    // and then delete it when the modal gets deleted
+
+   // const modal_download = document.getElementById("modal_download")
+   // modal_download.addEventListener('click', () => {
+   //   let dummyElement = document.createElement("a");
+   //   dummyElement.href = modal_download.href // Replace "path_to_your_file" with the URL or file path you want to download
+   //   dummyElement.download = dummyElement.href.split("/")[dummyElement.href.split("/").length - 1]; // Replace "filename" with the desired name of the downloaded file
+   //   document.body.appendChild(dummyElement);
+   //   dummyElement.click();
+   //   document.body.removeChild(dummyElement);
+   // })
 
     function get_gois() {
       let goi_list = []
@@ -409,8 +413,8 @@
       results_header.style.display = "block"
 
       document.getElementById("correlation_view_container").style.display = "block"
-      const correlation_volcano_image = document.getElementById("correlation_volcano_image")
-      correlation_volcano_image.src = "{{ MEDIA_URL }}/media/".concat(analysis).concat("/Corr_Analysis/").concat(goi).concat("_corr_volcano.html")
+      const correlation_volcano_graph = document.getElementById("correlation_volcano_graph")
+      correlation_volcano_graph.src = "{{ MEDIA_URL }}/media/".concat(analysis).concat("/Corr_Analysis/").concat(goi).concat("_corr_volcano.html")
 
       /*
       let json_response;
@@ -583,6 +587,9 @@
                 type: 'scatter',
                 name: 'Line of Best Fit',
                 hoverinfo: 'none',
+                line: {
+                  width: 1 // Set the width of the lines to 2 pixels
+                }
             };
 
             const data = [main_plot, line_of_best_fit_plot]
@@ -591,7 +598,17 @@
             Plotly.newPlot('modal_graph', data, layout, config);
             setTimeout(()=> {window.dispatchEvent(new Event('resize'));}, 0.1);
 
-            modal_download.href = img_url
+            //modal_download.addEventListener('click', () => {
+            //  const plotHtml = Plotly.toHTML('modal_graph')
+            //  console.log(plotHtml)
+            //  //let dummyElement = document.createElement("a");
+            //  //dummyElement.href = modal_download.href // Replace "path_to_your_file" with the URL or file path you want to download
+            //  //dummyElement.download = dummyElement.href.split("/")[dummyElement.href.split("/").length - 1]; // Replace "filename" with the desired name of the downloaded file
+            //  //document.body.appendChild(dummyElement);
+            //  //dummyElement.click();
+            //  //document.body.removeChild(dummyElement);
+            //})
+
             $("#image_modal").modal('show');
           })
           const graph_icon = new Image()
