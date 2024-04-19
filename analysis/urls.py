@@ -11,8 +11,6 @@ urlpatterns = [
     path('genes_autocomplete', views.GenesAutocomplete.as_view(), name='genes-autocomplete'),
     path('projects_autocomplete', views.ProjectsAutocomplete.as_view(), name='projects-autocomplete'),
     path('fetch_gsea_summary/<analysis_id>', views.FetchGseaSummary, name='fetch-gsea-summary'),
-    path('get_pearsons_correlation_plot_points/<analysis_id>', views.get_pearsons_correlation_plot_points, name='get-pearsons-correlation-plot-points'),
     path('fetch_high_corr_gene_exprs/<analysis_id>/<gene1_id>/<gene2_id>', views.fetch_high_corr_gene_exprs, name='fetch-high-corr-gene-exprs'),
-    path('fetch_de_summary_info/<analysis_id>', views.fetch_de_summary_info, name='fetch-de-summary-info'),
 ]
 

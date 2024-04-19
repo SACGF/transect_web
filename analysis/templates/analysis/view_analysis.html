@@ -164,155 +164,6 @@
       document.getElementById("n_t_boxplot_image_title").innerHTML = gois.join("-").concat("_TPM_N-T_boxplot.svg")
       document.getElementById("strat_boxplot_image_title").innerHTML = gois.join("-").concat("_TPM_strat_boxplot.svg")
 
-      // NEW INTERACTIVE PLOTS METHOD
-      /*
-      const de_summary_json_response = await fetch_response("{% url 'fetch-de-summary-info' analysis_id=analysis %}")
-      
-      let unaffected_log_expr = []
-      let affected_log_expr = []
-
-      let low_log_expr = []
-      let high_log_expr = []
-      console.log(de_summary_json_response.goi_log2.length)
-      for (let j = 0; j < de_summary_json_response.goi_log2.length; j++) {
-        if (de_summary_json_response.is_unaffected[j] === true) {
-          unaffected_log_expr.push(de_summary_json_response.goi_log2[j])
-        } else {
-          affected_log_expr.push(de_summary_json_response.goi_log2[j])
-        }
-
-        if (de_summary_json_response.low[j]) {
-          low_log_expr.push(de_summary_json_response.goi_log2[j])
-        } else if (de_summary_json_response.high[j]) {
-          high_log_expr.push(de_summary_json_response.goi_log2[j])
-        } 
-      }
-
-      console.log("HI")
-      console.log(unaffected_log_expr)
-      console.log(affected_log_expr)
-      
-      const nt_box1 = {
-        type: 'box',
-        y: unaffected_log_expr,
-        // hovertemplate: '<b>X</b>: %{x}<br><extra></extra>',
-        name: 'Unaffected',
-        boxpoints: 'all'
-      }
-
-      const nt_box2 = {
-        type: 'box',
-        y: affected_log_expr,
-        // hovertemplate: '<b>X</b>: %{x}<br><extra></extra>',
-        name: 'Affected',
-        boxpoints: 'all'
-      }
-
-      const nt_data = [nt_box1, nt_box2];
-
-      const layout = {
-        margin: {l: 60} ,// use it to adjust space for the margins
-        autosize: true
-      }
-      const config = {responsive: true} // size of graph automatically changes when size of view changes
-      Plotly.newPlot('n_t_boxplot_graph', nt_data, layout, config);
- 
-      const hi_box = {
-        type: 'box',
-        y: high_log_expr,
-        // hovertemplate: '<b>X</b>: %{x}<br><extra></extra>',
-        name: 'Unaffected',
-        boxpoints: 'all',
-        jitter: 0.7 // Adjust this value to control jitter
-      }
-      const low_box = {
-        type: 'box',
-        y: low_log_expr,
-        // hovertemplate: '<b>X</b>: %{x}<br><extra></extra>',
-        name: 'Affected',
-        boxpoints: 'all',
-        jitter: 0.7 // Adjust this value to control jitter
-      }
-      const hilo_data = [low_box, hi_box];
-      console.log(high_log_expr)
-      console.log(low_log_expr)
-      Plotly.newPlot('strat_boxplot_graph', hilo_data, layout, config);
-
-      const analysis_specific_graph = document.getElementById("analysis_specific_graph")
-      if ('{{ composite_analysis_type }}' === "Single") {
-        const single_hist_data = [{
-          type: 'histogram',
-          x: de_summary_json_response.goi_log2,
-          // hovertemplate: '<b>X</b>: %{x}<br><extra></extra>',
-          name: 'Unaffected',
-          nbinsx: 100, // does same thing as breaks in original rscript hist function (i.e. num bars)
-        }]
-        console.log("Single Gene")
-        console.log(de_summary_json_response.goi_log2)
-        // for some reason, nbinsx hates it when you add a layout
-        Plotly.newPlot('analysis_specific_graph', single_hist_data, {}, config);
-      } else if ('{{ composite_analysis_type }}' === "Additive") {
-        let data = []
-        for (let m = 0; m < gois.length; m++) {
-          console.log(gois[m])
-          data.push(
-          {
-            type: 'violin',
-            y: de_summary_json_response["long_exp_".concat(gois[m])],
-            //y: [1,2,3],
-            points: 'all', // Show all points
-            meanline: {
-              visible: false // Hide the mean line
-            },
-            box: {
-              visible: false // Hide the box plot
-            },
-            jitter: 1 // Adjust this value to control jitter
-          }
-        );
-        }
-
-        // Define layout for the plot
-        const layout = {
-          title: 'Violin Plot with Points Only',
-          yaxis: {
-            title: 'Y Axis',
-          }
-        };
-
-        // Generate the plot
-        Plotly.newPlot('analysis_specific_graph', data, layout);
-      } else {
-        // ratio
-        const gene1 = {
-          mode: 'markers',
-          type: 'scatter',
-          x: de_summary_json_response.percentile_rank,
-          y: de_summary_json_response[gois[0]],
-          // hovertemplate: '<b>X</b>: %{x}<br><extra></extra>',
-          name: 'Unaffected',
-          marker: {
-            symbol: 'square'
-          }
-        }
-        const gene2 = {
-          mode: 'markers',
-          type: 'scatter',
-          x: de_summary_json_response.percentile_rank,
-          y: de_summary_json_response[gois[1]],
-          // hovertemplate: '<b>X</b>: %{x}<br><extra></extra>',
-          name: 'Affected',
-        }
-        console.log("Ratio")
-        console.log("Gene 1:")
-        console.log(de_summary_json_response[gois[0]])
-        console.log("Gene 2:")
-        console.log(de_summary_json_response[gois[1]])
-
-        const ratio_scatter_data = [gene1, gene2];
-        Plotly.newPlot('analysis_specific_graph', ratio_scatter_data, layout, config);
-      }
-      */
 
       // DELETE EVERYTHING BELOW STARTING FROM HERE
       const n_t_boxplot_image = document.getElementById("n_t_boxplot_image")
@@ -320,36 +171,14 @@
       const analysis_specific_image = document.getElementById("analysis_specific_image")
       
       n_t_boxplot_image.src = de_url_base.concat("_TPM_N-T_boxplot.html")
-      // n_t_boxplot_image.addEventListener('click', () => {
-      //   image_modal.getElementsByClassName("modal-title")[0].innerHTML = gois.join("-").concat("_TPM_N-T_boxplot.svg")
-      //   image_modal.getElementsByClassName("modal-image")[0].style.display = "block"
-      //   image_modal.getElementsByClassName("modal-image")[0].src = n_t_boxplot_image.src
-      //   modal_download.href = n_t_boxplot_image.src
-      //   $("#image_modal").modal('show');
-      // })
 
       strat_boxplot_image.src = de_url_base.concat("_TPM_strat_boxplot.html")
-      // strat_boxplot_image.addEventListener('click', () => {
-      //   image_modal.getElementsByClassName("modal-title")[0].innerHTML = gois.join("-").concat("_TPM_strat_boxplot.svg")
-      //   image_modal.getElementsByClassName("modal-image")[0].style.display = "block"
-      //   image_modal.getElementsByClassName("modal-image")[0].src = strat_boxplot_image.src
-      //   modal_download.href = strat_boxplot_image.src
-      //   $("#image_modal").modal('show');
-      // })
 
       const composite_analysis_type = '{{ composite_analysis_type }}'
       const composite_analysis_plot = (composite_analysis_type === "Additive") ? "_TPM_Boxplot_Sina.html" : (composite_analysis_type === "Ratio") ? "_TPM_Scatter.html" : "_TPM_histogram.html"
       document.getElementById("analysis_specific_image_title").innerHTML = gois.join("-").concat(composite_analysis_plot)
 
       analysis_specific_image.src = de_url_base.concat(composite_analysis_plot)
-      // analysis_specific_image.addEventListener('click', () => {
-      //   image_modal.getElementsByClassName("modal-title")[0].innerHTML = gois.join("-").concat(composite_analysis_plot)
-      //   image_modal.getElementsByClassName("modal-image")[0].style.display = "block"
-      //   image_modal.getElementsByClassName("modal-image")[0].src = analysis_specific_image.src
-      //   modal_download.href = analysis_specific_image.src
-      //   $("#image_modal").modal('show');
-      // })
-      // DELETE EVERYTHING ABOVE ENDING HERE
 
       document.getElementById("download_de").addEventListener('click', () => {
         try {
@@ -415,42 +244,6 @@
       document.getElementById("correlation_view_container").style.display = "block"
       const correlation_volcano_graph = document.getElementById("correlation_volcano_graph")
       correlation_volcano_graph.src = "{{ MEDIA_URL }}/media/".concat(analysis).concat("/Corr_Analysis/").concat(goi).concat("_corr_volcano.html")
-
-      /*
-      let json_response;
-      try {
-        json_response = await fetch_response("{% url 'get-pearsons-correlation-plot-points' analysis_id=analysis %}")
-      } catch (exception) {
-        throw new Error(exception)
-      }
-
-      let hovertext = '<b>Gene 2</b>: %{customdata}<br>'
-      hovertext = hovertext.concat('<b>logExp_Cor</b>: %{x}<br>')
-      hovertext = hovertext.concat('<b>logExp_FDR</b>: %{y}<br>')
-      hovertext = hovertext.concat('<extra></extra>')
-
-      const data = [{
-        mode: 'markers',
-        type: 'scatter',
-        x: json_response.logExp_Cor,
-        y: json_response.logExp_FDR,
-        customdata: json_response.gene2,
-        hovertemplate: hovertext,
-        orientation: 'h',
-        marker: { size: 4, color: json_response.colors } // keeping size equal, as plotly is struggling with too much data
-      }];
-      const layout = {
-        title: "Pearson's Correlations",
-        xaxis: {title: 'R', range: [-1.05 ,1.05] }, // safe values for ranges, as correlation should never exceed/go below +-1 respectively
-        yaxis: {title: '-log10(FDR)'},
-        hoverlabel: { bgcolor: "white" },
-        margin: {l: 60} ,// use it to adjust space for the margins
-        autosize: true
-      }
-      const config = {responsive: true} // size of graph automatically changes when size of view changes
-      Plotly.newPlot('correlation_volcano_graph', data, layout, config);
-      setTimeout(()=> {window.dispatchEvent(new Event('resize'));}, 0.1);
-      */
 
       document.getElementById("download_correlation").addEventListener('click', () => {
         try {
