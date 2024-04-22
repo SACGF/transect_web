@@ -41,18 +41,9 @@ def FetchGseaSummary(request, analysis_id):
         gois.append(goi.name)
 
     GSEA_path = os.path.join(env('OUTPUT_DIR'), str(analysis_id), "GSEA")
-    GSEA_summary = os.path.join(GSEA_path, "-".join(gois) + "_Strat_Vs_Curated.csv")
+    GSEA_summary = os.path.join(GSEA_path, "-".join(gois) + "_Strat_Vs_Curated.html")
     if os.path.exists(GSEA_path) is False or os.path.exists(GSEA_summary) is False:
         return JsonResponse({'error': f'{analysis_id} does not contain sufficient data '}, status=500)
-
-    x = []
-    y = []
-    with open(GSEA_summary, "r") as f:
-        next(f)
-        for line in f:
-            curr = line.strip().split(",")
-            y.append(curr[0])
-            x.append(float(curr[4]))
 
     hallmark_report_root = ""
     curated_report_root = ""
@@ -64,7 +55,7 @@ def FetchGseaSummary(request, analysis_id):
         elif "Strat_Vs_Hallmark.GseaPreranked" in item:
             hallmark_report_root = item
 
-    return JsonResponse({'error': "", "x": x, "y": y, "hallmark_report_root": hallmark_report_root, "curated_report_root": curated_report_root}, status=200)
+    return JsonResponse({'error': "", "hallmark_report_root": hallmark_report_root, "curated_report_root": curated_report_root}, status=200)
 
 # needs to be changed to support better pagination
 # current method will be too memory intensive as it loads everything
@@ -103,7 +94,6 @@ def provide_correlation_comparisons(request, analysis_id):
     return JsonResponse({'table_items': table_items, "last_plot_index": last_plot_index})
 
 def fetch_high_corr_gene_exprs(request, analysis_id, gene1_id, gene2_id):
-    print("Yes")
     analysis =  Analysis.objects.filter(sha_hash=str(analysis_id))
     if analysis.exists() is False:
         raise Http404("Analysis Not Found")
@@ -287,7 +277,6 @@ def display_settings_page(request):
             goi_name_list = []
             for i in range(0, len(all_gois)):
                 goi_name_list.append(all_gois[i].name)
-            print(goi_name_list)
 
             curr_goi_composite_analysis_type = analysis_form.cleaned_data.get('composite_analysis_type')
 
@@ -348,8 +337,6 @@ def fetch(request, analysis):
     gois = []
     for goi in filter_obj.genes_of_interest.all():
         gois.append(goi.name)
-    print("clipper")
-    print(gois)
 
     analysis_info = {
                         'analysis': analysis, 
