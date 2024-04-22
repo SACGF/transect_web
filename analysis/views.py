@@ -78,13 +78,15 @@ def provide_correlation_comparisons(request, analysis_id):
     correlation_records = pd.read_csv(tsv_comp_file, sep="\t")
     correlation_records = correlation_records.sort_values(by='logExp_Cor', ascending=False)
 
+    cutoff = 0.7 if str(analysis.objects.filter(sha_hash=str(analysis_id)).script) == "GDC" else 0.8
+
     for i in range(0, len(correlation_records)):
         if i == 1000:
             break
 
         curr_record = correlation_records.iloc[i]
 
-        if curr_record["logExp_Cor"] > 0.7:
+        if curr_record["logExp_Cor"] > cutoff:
             last_plot_index += 1
 
         # ignore first column (i.e. GOI)
