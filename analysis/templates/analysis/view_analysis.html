@@ -109,7 +109,29 @@
 
         document.getElementById("gsea_hallmark_report").href = gsea_url_base.concat("/").concat(json_response.hallmark_report_root).concat("/index.html")
         document.getElementById("gsea_curated_report").href = gsea_url_base.concat("/").concat(json_response.curated_report_root).concat("/index.html")
-        document.getElementById("de_gsea_summary_image").src = gsea_url_base.concat("/").concat(gois.join("-")).concat("_Strat_Vs_Curated.html")
+        // document.getElementById("de_gsea_summary_image").src = gsea_url_base.concat("/").concat(gois.join("-")).concat("_Strat_Vs_Curated.html")
+          
+        const gsea_curated_plotly_data = json_response.gsea_curated_plotly_data
+        // Create the plot
+        Plotly.newPlot('de_gsea_summary_image', gsea_curated_plotly_data.data, gsea_curated_plotly_data.layout);
+
+        // in the plot there are 2 separate data arrays supplied for the bars
+        // first one is for the positive values, second one is for the negative value
+        // in the data when the points are combined, eg. the ticktext attribute
+        // the negative stuff is displayed first and correspond to the order of
+        // the y-labels in the plot from bottom to top
+        // therefore we need to know how many negative items there are, so we
+        // can correctly get the index of the positive items to fetch the correct
+        // name from ticktext
+
+        const gsea_summary_plot = document.getElementById("de_gsea_summary_image")
+        const num_negative = gsea_summary_plot.data[1].x.length // second array contains the negative stuff
+          
+        gsea_summary_plot.on('plotly_click', function(data){
+          let pointIndex = data.points[0].pointIndex 
+          pointIndex = data.points[0].x > 0 ? pointIndex + num_negative : pointIndex
+          const pathway = data.points[0].yaxis.ticktext[pointIndex]
+        });
 
         // EDIT HERE NOW
       } catch (exception) {

@@ -17,6 +17,7 @@ import time
 import hashlib
 import os
 import re
+import json
 import string
 import pandas as pd
 import numpy as np
@@ -47,6 +48,7 @@ def FetchGseaSummary(request, analysis_id):
 
     hallmark_report_root = ""
     curated_report_root = ""
+    gsea_curated_plotly_data = ""
 
     # now lets fetch the reports
     for item in os.listdir(os.path.join(env('OUTPUT_DIR'), str(analysis_id), "GSEA")):
@@ -54,8 +56,13 @@ def FetchGseaSummary(request, analysis_id):
             curated_report_root = item
         elif "Strat_Vs_Hallmark.GseaPreranked" in item:
             hallmark_report_root = item
+        elif "Strat_Vs_Curated.json" in item:
+            gsea_curated_data_file = os.path.join(env('OUTPUT_DIR'), str(analysis_id), "GSEA", item)
+            with open(gsea_curated_data_file, "r") as f:
+                gsea_curated_plotly_data = json.load(f)
+    
 
-    return JsonResponse({'error': "", "hallmark_report_root": hallmark_report_root, "curated_report_root": curated_report_root}, status=200)
+    return JsonResponse({'error': "", "hallmark_report_root": hallmark_report_root, "curated_report_root": curated_report_root, "gsea_curated_plotly_data": gsea_curated_plotly_data}, status=200)
 
 # needs to be changed to support better pagination
 # current method will be too memory intensive as it loads everything
