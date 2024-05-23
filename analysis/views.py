@@ -60,7 +60,6 @@ def FetchGseaSummary(request, analysis_id):
             gsea_curated_data_file = os.path.join(env('OUTPUT_DIR'), str(analysis_id), "GSEA", item)
             with open(gsea_curated_data_file, "r") as f:
                 gsea_curated_plotly_data = json.load(f)
-    
 
     return JsonResponse({'error': "", "hallmark_report_root": hallmark_report_root, "curated_report_root": curated_report_root, "gsea_curated_plotly_data": gsea_curated_plotly_data}, status=200)
 
