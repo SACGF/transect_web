@@ -133,6 +133,7 @@
           let pointIndex = data.points[0].pointIndex 
           pointIndex = data.points[0].x > 0 ? pointIndex + num_negative : pointIndex
           const pathway = data.points[0].yaxis.ticktext[pointIndex]
+          window.open(gsea_url_base.concat("/").concat(json_response.curated_report_root).concat("/").concat(pathway).concat(".html"), '_blank');
         });
 
         // EDIT HERE NOW
