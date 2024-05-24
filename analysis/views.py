@@ -354,7 +354,8 @@ def fetch(request, analysis):
                         'percentile': filter_obj.percentile,
                         'rna_species': filter_obj.rna_species,
                         'analysis_type': "DE" if filter_obj.percentile > 0 else "Correlation", 
-                        'composite_analysis_type': filter_obj.composite_analysis_type
+                        'composite_analysis_type': filter_obj.composite_analysis_type,
+                        'expected_time': "1 minute for just the DE part" if filter_obj.percentile > 0 else "5 minutes"
                     }
 
     return render(request, 'analysis/view_analysis.html', analysis_info)

@@ -14,6 +14,7 @@ apt-get install -y libcurl4-openssl-dev # Needed to install Glimma
 apt-get install -y libssl-dev # Needed to install Glimma
 apt-get install -y libxml2-dev # Needed to install Glimma
 apt-get install -y libfontconfig1-dev # Needed to install ggforce
+apt-get install -y pandoc
 
 # install Rstudio packages
 
