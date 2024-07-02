@@ -30,7 +30,9 @@ environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [env("HOST"), '127.0.0.1', 'localhost']
+ALLOWED_HOSTS = [env("HOST"), '127.0.0.1', 'localhost', 'transect.au', 'www.transect.au']
+
+CSRF_TRUSTED_ORIGINS = ["https://transect.au"]
 
 # Application definition
 
@@ -173,8 +175,6 @@ CELERY_RESULT_BACKEND = 'django-db'
 CELERY_REDIRECT_STDOUTS = True
 
 CELERY_TASK_QUEUES = (Queue("script_queue"),)
-
-CELERY_RESULT_BACKEND = 'django-db'
 
 # celery setting.
 CELERY_CACHE_BACKEND = 'default'
