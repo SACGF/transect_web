@@ -22,7 +22,7 @@ import string
 import pandas as pd
 import numpy as np
 import math
-from sRT_backend.settings import env
+from transect_web.settings import env
 
 # also fetches root folder name of the GSEA curated/hallmark reports
 # this is because these folders contains a number at the end

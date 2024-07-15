@@ -1,7 +1,7 @@
 from django.db.models.signals import pre_delete, post_delete
 from analysis.models import Analysis
 from django.dispatch import receiver
-from sRT_backend.settings import env
+from transect_web.settings import env
 import os
 import shutil
 

@@ -16,3 +16,11 @@
     width: 100%;
     height: 800px;
 }
+
+.yaxislayer-above .ytick text {
+    background-color: red;
+    width: 100px;
+    height: 100px;
+    white-space: pre-wrap; /* Allow line breaks */
+    overflow-wrap: break-word;
+  }

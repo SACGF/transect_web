@@ -7,7 +7,7 @@ import shutil
 
 from analysis.models import Analysis, Genes, Projects
 from django.utils import timezone
-from sRT_backend.settings import env
+from transect_web.settings import env
 
 import celery
 from celery import shared_task

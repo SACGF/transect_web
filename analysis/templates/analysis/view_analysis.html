@@ -117,6 +117,8 @@
         // document.getElementById("de_gsea_summary_image").src = gsea_url_base.concat("/").concat(gois.join("-")).concat("_Strat_Vs_Curated.html")
           
         const gsea_curated_plotly_data = json_response.gsea_curated_plotly_data
+        console.log(gsea_curated_plotly_data.layout)
+        gsea_curated_plotly_data.layout.yaxis.tickformatwidth=50
         const config = {responsive: true} // size of graph automatically changes when size of view changes
         // Create the plot
         Plotly.newPlot('de_gsea_summary_image', gsea_curated_plotly_data.data, gsea_curated_plotly_data.layout, config);
