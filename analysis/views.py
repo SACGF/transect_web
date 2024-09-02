@@ -359,3 +359,6 @@ def fetch(request, analysis):
                     }
 
     return render(request, 'analysis/view_analysis.html', analysis_info)
+
+def home(request):
+    return render(request, 'analysis/TRANSECT.html', {'title': 'Home'})
