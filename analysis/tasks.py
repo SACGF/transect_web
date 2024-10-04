@@ -44,7 +44,7 @@ def submit_command(project, all_gois, composite_analysis_type, percentile, rna_s
             to_add = "%".join(all_gois)
         
         command += to_add
-        command += " -e "
+        command += " -e"
         command += " -t " + str(percentile)
         command += " -s " + rna_species
         command += " -d"
