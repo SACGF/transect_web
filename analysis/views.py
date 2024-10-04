@@ -248,9 +248,8 @@ class ProjectsAutocomplete(autocomplete.Select2QuerySetView):
 
         if self.q:
             qs = qs.filter(name__istartswith=self.q)
-
-            if script_type == "GDC" or script_type == "GTEx":
-                qs = qs.filter(source=script_type)
+            # since project names are more complex, we cannot simply filter by only GTEx or GDC
+            qs = qs.filter(source=script_type)
 
         return qs
 
