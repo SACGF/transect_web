@@ -267,7 +267,7 @@ def display_settings_page(request):
             curr_proj_text = analysis_form.cleaned_data.get('project')
             
             try:
-                project_obj = Projects.objects.filter(pk=curr_proj_text).first()
+                project_obj = Projects.objects.filter(name=curr_proj_text).first()
                 project_str = str(project_obj)
             except:
                 raise Http404("Project " + curr_proj_text + " does not exist")
