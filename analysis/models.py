@@ -8,11 +8,16 @@ class Genes(models.Model):
         return self.name 
 
 class Projects(models.Model):
-    name = models.TextField(primary_key=True)
+    name = models.TextField()
     source = models.TextField() # study source, either TCGA or GTEx
+    id = models.AutoField(primary_key=True)
+    
+    class Meta:
+        unique_together = ('name', 'source')
 
     def __str__(self):
         return self.name
+    
 
 # TimestampedModel <- automatically adds created and modified
 class Analysis(models.Model): # change name to analysis
