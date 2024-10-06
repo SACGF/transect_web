@@ -169,6 +169,7 @@
       <strong>Composite Analysis Choice: </strong> {{ composite_analysis_type }} </br>
       <strong>Percentile: </strong> {{ percentile }}% </br>
       <strong>RNA Species: </strong> {{ rna_species }} </br>
+      <strong>Stratum Switched: </strong> {{ is_switch_stratum }} </br>
       `
 
       document.getElementById("de_view_container").style.display = "block"
@@ -176,7 +177,7 @@
 
       const de_url_base = "{{ MEDIA_URL }}/media/".concat(analysis).concat("/DE_Analysis/01-Stratification/").concat(gois.join("-"))
 
-      const de_url_glimma_base = "{{ MEDIA_URL }}/media/".concat(analysis).concat("/DE_Analysis/glimma-plots/").concat(gois.join("-"))
+      const de_url_glimma_base = "{{ MEDIA_URL }}/media/".concat(analysis).concat("/DE_Analysis/02-DE/glimma-plots/").concat(gois.join("-"))
       const de_url_volcano = de_url_glimma_base.concat("-High_Vs_Low-Volcano.html")
       const de_url_mds_plot = de_url_glimma_base.concat("-MDS-Plot.html")
 

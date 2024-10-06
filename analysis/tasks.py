@@ -27,7 +27,7 @@ def delete_file(file_to_delete):
 
 # if composite_analysis_type == "Single" and curr_percentile is not 0, this trigger de_analysis
 @shared_task
-def submit_command(project, all_gois, composite_analysis_type, percentile, rna_species, sha_hash, analysis_script_path):
+def submit_command(project, all_gois, composite_analysis_type, percentile, rna_species, is_switch_stratum, sha_hash, analysis_script_path):
     command = analysis_script_path + " -p " + project + " -g "
     # INSPECT! Change gene.split(",") to just gene
     
@@ -47,6 +47,8 @@ def submit_command(project, all_gois, composite_analysis_type, percentile, rna_s
         command += " -e"
         command += " -t " + str(percentile)
         command += " -s " + rna_species
+        if is_switch_stratum:
+            command += " -S"
         command += " -d"
     else:
         command += all_gois[0]

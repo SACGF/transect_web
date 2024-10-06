@@ -28,6 +28,7 @@ class Analysis(models.Model): # change name to analysis
     composite_analysis_type = models.TextField()
     percentile = models.PositiveIntegerField()
     rna_species = models.TextField()
+    switch_stratum = models.BooleanField(default=False)
 
     reason_for_failure = models.TextField(default="")
     fully_downloaded = models.BooleanField(default=False) # if this becomes None, then the download has failed

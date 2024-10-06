@@ -70,11 +70,11 @@ class AnalysisForm(forms.Form):
 
     do_correlation_analysis = forms.BooleanField(required=False,
                                                  label="Correlation Analysis",
-                                                 widget=forms.CheckboxInput(attrs={'id': 'correlation_checkbox', 'class': "validate-checkbox"}))
+                                                 widget=forms.CheckboxInput(attrs={'id': 'correlation_checkbox', 'class': "analysis-type-checkbox"}))
     
     do_de_analysis = forms.BooleanField(required=False,
                                           label="Differential Expression Analysis",
-                                          widget=forms.CheckboxInput(attrs={'id': 'de_checkbox', 'class': "validate-checkbox"}))
+                                          widget=forms.CheckboxInput(attrs={'id': 'de_checkbox', 'class': "analysis-type-checkbox"}))
 
     percentile = forms.IntegerField(required=False,
                                    label="This program will compare the expressions of " + \
@@ -85,10 +85,10 @@ class AnalysisForm(forms.Form):
                                                                    'class': "form-control col-md-2",
                                                                    'min': 2, 'max': 25}))
 
-    rna_species = forms.ChoiceField(required=False,
-                                   choices=[('', ' -- select an option -- '), 
-                                             ("mRNA", "mRNA"), 
-                                             ("miRNA", "miRNA")], 
-                                    widget=forms.Select(attrs={'id': 'rna_species_choices', 
-                                                               'class': "form-select", 
-                                                               'empty_label': " -- select an option -- "}))
+    use_mirna = forms.BooleanField(required=False,
+                                   label="Multimodal analysis (assess changes in mRNA given a miRNA query, at present can only be TCGA data)",
+                                   widget=forms.CheckboxInput(attrs={'id': 'use_mirna_checkbox'}))
+    
+    switch_stratum = forms.BooleanField(required=False,
+                               label="Switch comparison (compares low stratum to high stratum)",
+                               widget=forms.CheckboxInput(attrs={'id': 'switch_stratum_checkbox'}))

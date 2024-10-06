@@ -289,7 +289,8 @@ def display_settings_page(request):
 
             if analysis_form.cleaned_data.get('do_de_analysis') == True:
                 curr_percentile = analysis_form.cleaned_data.get('percentile')
-                curr_rna_species = analysis_form.cleaned_data.get('rna_species')
+                curr_rna_species = "mRNA" if analysis_form.cleaned_data.get('use_mirna') is False else "miRNA"
+                is_switch_stratum = analysis_form.cleaned_data.get('switch_stratum')
             elif analysis_form.cleaned_data.get('do_correlation_analysis') == True:
                 # only single genes can submit both types of analysis potentially
                 # submit it in a list of commands to execute
@@ -303,7 +304,8 @@ def display_settings_page(request):
                                     'all_gois': goi_name_list, 
                                     'composite_analysis_type': curr_goi_composite_analysis_type,
                                     'percentile': curr_percentile, 
-                                    'rna_species': curr_rna_species
+                                    'rna_species': curr_rna_species,
+                                    'switch_stratum': is_switch_stratum
                                 }
 
             analysis_query = {}
@@ -328,7 +330,7 @@ def display_settings_page(request):
                     AnalysisGenes.objects.create(gene=goi_obj, analysis=newAnalysis, order=index)
                 # cannot pass an object e.g. Project, Genes to the celery app
                 # setting the task ID below to be equal to the sha_hash
-                submit_command.apply_async((project_str, goi_name_list, curr_goi_composite_analysis_type, curr_percentile, curr_rna_species, sha_hash, analysis_script_path), queue="script_queue", task_id=sha_hash)
+                submit_command.apply_async((project_str, goi_name_list, curr_goi_composite_analysis_type, curr_percentile, curr_rna_species, is_switch_stratum, sha_hash, analysis_script_path), queue="script_queue", task_id=sha_hash)
 
             analysis_query["analysis"] = str(sha_hash)
             analysis_url = reverse('analysis-fetch', kwargs={key: value for (key, value) in analysis_query.items()})
@@ -352,6 +354,7 @@ def fetch(request, analysis):
                         'project': filter_obj.project,
                         'percentile': filter_obj.percentile,
                         'rna_species': filter_obj.rna_species,
+                        'is_switch_stratum': filter_obj.switch_stratum,
                         'analysis_type': "DE" if filter_obj.percentile > 0 else "Correlation", 
                         'composite_analysis_type': filter_obj.composite_analysis_type,
                         'expected_time': "1 minute for just the DE part" if filter_obj.percentile > 0 else "5 minutes"
