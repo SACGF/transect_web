@@ -330,7 +330,7 @@ def display_settings_page(request):
                     AnalysisGenes.objects.create(gene=goi_obj, analysis=newAnalysis, order=index)
                 # cannot pass an object e.g. Project, Genes to the celery app
                 # setting the task ID below to be equal to the sha_hash
-                submit_command.apply_async((project_str, goi_name_list, curr_goi_composite_analysis_type, curr_percentile, curr_rna_species, is_switch_stratum, sha_hash, analysis_script_path), queue="script_queue", task_id=sha_hash)
+                submit_command.apply_async((project_str, goi_name_list, curr_goi_composite_analysis_type, curr_percentile, curr_rna_species, is_switch_stratum, sha_hash, analysis_script_path, env('POST_ANALYSIS_SORT_SCRIPT')), queue="script_queue", task_id=sha_hash)
 
             analysis_query["analysis"] = str(sha_hash)
             analysis_url = reverse('analysis-fetch', kwargs={key: value for (key, value) in analysis_query.items()})

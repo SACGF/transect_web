@@ -27,7 +27,7 @@ def delete_file(file_to_delete):
 
 # if composite_analysis_type == "Single" and curr_percentile is not 0, this trigger de_analysis
 @shared_task
-def submit_command(project, all_gois, composite_analysis_type, percentile, rna_species, is_switch_stratum, sha_hash, analysis_script_path):
+def submit_command(project, all_gois, composite_analysis_type, percentile, rna_species, is_switch_stratum, sha_hash, analysis_script_path, post_analysis_sort_script):
     command = analysis_script_path + " -p " + project + " -g "
     # INSPECT! Change gene.split(",") to just gene
     
@@ -89,10 +89,25 @@ def submit_command(project, all_gois, composite_analysis_type, percentile, rna_s
         # the submitted command failed"
     else:
         logging.info("Command finished successfully: " + command)
+        # if DE analysis, sort and zip the output such that a user can download
+        # the sorted version, however the website will use the unsorted version
+        # to avoid any issues
+        if percentile != 0:
+            tmp_dir = out_path + "_tmp"
+            os.makedirs(tmp_dir)
+            shutil.copytree(out_path, tmp_dir, dirs_exist_ok=True)
+            # now sort the output inside tmp_dir
+            sort_process = subprocess.Popen(post_analysis_sort_script.split(" "), stderr=subprocess.PIPE, cwd=tmp_dir + "/DE_Analysis")
+            stdout, stderr = sort_process.communicate()
+            shutil.make_archive(out_path, 'zip', tmp_dir) # finally zip the command
+            shutil.rmtree(tmp_dir)
+        else:
+            shutil.make_archive(out_path, 'zip', out_path) # finally zip the command
+
+        # repositioned this as it makes sense to have this here after everything is complete
         analysis_obj = Analysis.objects.filter(sha_hash=sha_hash).first()
         analysis_obj.fully_downloaded = True
         analysis_obj.save()
-        shutil.make_archive(out_path, 'zip', out_path) # finally zip the command
 
 # removes analysis (and their folders) that have existed for more than 1 day
 # in addition, removes databases without an output directory, vice-versa
