@@ -92,3 +92,7 @@ class AnalysisForm(forms.Form):
     switch_stratum = forms.BooleanField(required=False,
                                label="Switch comparison (compares low stratum to high stratum)",
                                widget=forms.CheckboxInput(attrs={'id': 'switch_stratum_checkbox'}))
+    
+    display_gsea = forms.BooleanField(required=False,
+                     label="Display GSEA Results",
+                     widget=forms.CheckboxInput(attrs={'id': 'display_gsea_checkbox'}))

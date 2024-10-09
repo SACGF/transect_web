@@ -14,8 +14,10 @@
             <input type="radio" class="btn-check" name="btnradio" id="toggle_webgestalt_summary" autocomplete="off">
             <label class="btn btn-outline-primary" for="toggle_webgestalt_summary">WebGestalt</label>
 
+            {% if display_gsea %}
             <input type="radio" class="btn-check" name="btnradio" id="toggle_gsea_summary" autocomplete="off">
             <label class="btn btn-outline-primary" for="toggle_gsea_summary">GSEA</label>
+            {% endif %}
         </div>
     </div>
 
@@ -64,9 +66,10 @@
             <h3 class="d-flex justify-content-center mt-3">WebGestalt</h3>
             <div class="card mt-3" style="height: 800px;">
                 <div class="card-header">DE WebGestalt</div>
-                <iframe id="de_webgestalt" class="iframe_div"></iframe>
+                <h2>Placeholder</h2>
             </div>
         </div>
+        {% if display_gsea %}
         <div id="de_gsea_div" style="display: none;">
             <div class="ml-3 mt-3 row justify-content-md-center" style="width: 100%; height: 100%;" id="gsea_loading_div">
                 <div class="col-auto">
@@ -94,6 +97,7 @@
                 </div>
             </div>
         </div>
+        {% endif %}
 
         {% include 'analysis/display_analysis_settings.html' %}
 

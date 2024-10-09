@@ -333,7 +333,12 @@ def display_settings_page(request):
                 submit_command.apply_async((project_str, goi_name_list, curr_goi_composite_analysis_type, curr_percentile, curr_rna_species, is_switch_stratum, sha_hash, analysis_script_path, env('POST_ANALYSIS_SORT_SCRIPT')), queue="script_queue", task_id=sha_hash)
 
             analysis_query["analysis"] = str(sha_hash)
+            #analysis_query["display_gsea"] = analysis_form.cleaned_data.get('display_gsea')
+            # see if you can use context
             analysis_url = reverse('analysis-fetch', kwargs={key: value for (key, value) in analysis_query.items()})
+            print(analysis_url)
+            analysis_url += "?display_gsea=" + str(analysis_form.cleaned_data.get('display_gsea'))
+            print(analysis_url)
             return redirect(analysis_url)
 
     else:
@@ -343,6 +348,10 @@ def display_settings_page(request):
 
 def fetch(request, analysis):
     filter_obj = Analysis.objects.filter(sha_hash=analysis).first()
+
+    display_gsea = request.GET.get('display_gsea')  # Defaults to 'false'
+    display_gsea = True if display_gsea == 'True' else False
+
     gois = []
     for goi in filter_obj.genes_of_interest.all():
         gois.append(goi.name)
@@ -357,6 +366,7 @@ def fetch(request, analysis):
                         'is_switch_stratum': filter_obj.switch_stratum,
                         'analysis_type': "DE" if filter_obj.percentile > 0 else "Correlation", 
                         'composite_analysis_type': filter_obj.composite_analysis_type,
+                        'display_gsea': display_gsea,
                         'expected_time': "1 minute for just the DE part" if filter_obj.percentile > 0 else "5 minutes"
                     }
 
