@@ -177,6 +177,12 @@ def check_fully_downloaded(request, analysis_id):
 def download(request, analysis_id):
     if Analysis.objects.filter(sha_hash=str(analysis_id)).exists() is False:
         raise Http404("Analysis Not Found")
+    
+    print("Should we show gsea?")
+    display_gsea = request.GET.get('display_gsea')  # Defaults to 'false'
+    display_gsea = True if display_gsea == "true" else False
+    print(type(display_gsea))
+    print(display_gsea)
 
     analysis = Analysis.objects.filter(sha_hash=str(analysis_id)).first()
     analysis_type = "Correlation" if analysis.percentile == 0 else "Differential Expression"
@@ -199,13 +205,20 @@ def download(request, analysis_id):
     download_filename += ".zip"
 
     try:
-        response = check_fully_downloaded(request, analysis_id)
+        if analysis_type == "Differential Expression" and display_gsea is False:
+            response = check_de_finished(request, analysis_id)
+        else:
+            response = check_fully_downloaded(request, analysis_id)
     except:
         raise Http404("Analysis Not Found")
 
     # should check database as well as if the file exists
 
-    analysisOutDir = env('OUTPUT_DIR') + "/" + str(analysis_id) + ".zip"
+    if analysis_type == "Differential Expression" and display_gsea is False:
+        analysisOutDir = env('OUTPUT_DIR') + "/" + str(analysis_id) + "_no_gsea.zip"
+    else:
+        analysisOutDir = env('OUTPUT_DIR') + "/" + str(analysis_id) + ".zip"
+
     if os.path.exists(analysisOutDir) is False:
         return Http404({f'{analysis_type} Analysis Not Found'})
 
@@ -291,12 +304,14 @@ def display_settings_page(request):
                 curr_percentile = analysis_form.cleaned_data.get('percentile')
                 curr_rna_species = "mRNA" if analysis_form.cleaned_data.get('use_mirna') is False else "miRNA"
                 is_switch_stratum = analysis_form.cleaned_data.get('switch_stratum')
+                display_gsea = analysis_form.cleaned_data.get('display_gsea')
             elif analysis_form.cleaned_data.get('do_correlation_analysis') == True:
                 # only single genes can submit both types of analysis potentially
                 # submit it in a list of commands to execute
                 curr_goi_composite_analysis_type = "Single"
                 curr_percentile = 0
                 curr_rna_species = ""
+                is_switch_stratum = False
 
             command_settings = {
                                     'script': script_chosen, 
@@ -305,7 +320,7 @@ def display_settings_page(request):
                                     'composite_analysis_type': curr_goi_composite_analysis_type,
                                     'percentile': curr_percentile, 
                                     'rna_species': curr_rna_species,
-                                    'switch_stratum': is_switch_stratum
+                                    'switch_stratum': is_switch_stratum,
                                 }
 
             analysis_query = {}
@@ -333,11 +348,11 @@ def display_settings_page(request):
                 submit_command.apply_async((project_str, goi_name_list, curr_goi_composite_analysis_type, curr_percentile, curr_rna_species, is_switch_stratum, sha_hash, analysis_script_path, env('POST_ANALYSIS_SORT_SCRIPT')), queue="script_queue", task_id=sha_hash)
 
             analysis_query["analysis"] = str(sha_hash)
-            #analysis_query["display_gsea"] = analysis_form.cleaned_data.get('display_gsea')
             # see if you can use context
             analysis_url = reverse('analysis-fetch', kwargs={key: value for (key, value) in analysis_query.items()})
             print(analysis_url)
-            analysis_url += "?display_gsea=" + str(analysis_form.cleaned_data.get('display_gsea'))
+            if analysis_form.cleaned_data.get('do_de_analysis') == True:
+                analysis_url += "?display_gsea=" + str(display_gsea)
             print(analysis_url)
             return redirect(analysis_url)
 
@@ -348,9 +363,6 @@ def display_settings_page(request):
 
 def fetch(request, analysis):
     filter_obj = Analysis.objects.filter(sha_hash=analysis).first()
-
-    display_gsea = request.GET.get('display_gsea')  # Defaults to 'false'
-    display_gsea = True if display_gsea == 'True' else False
 
     gois = []
     for goi in filter_obj.genes_of_interest.all():
@@ -366,9 +378,13 @@ def fetch(request, analysis):
                         'is_switch_stratum': filter_obj.switch_stratum,
                         'analysis_type': "DE" if filter_obj.percentile > 0 else "Correlation", 
                         'composite_analysis_type': filter_obj.composite_analysis_type,
-                        'display_gsea': display_gsea,
                         'expected_time': "1 minute for just the DE part" if filter_obj.percentile > 0 else "5 minutes"
                     }
+    
+    if filter_obj.percentile != 0:
+        display_gsea = request.GET.get('display_gsea')  # Defaults to 'false'
+        display_gsea = True if display_gsea == 'True' else False
+        analysis_info['display_gsea'] = display_gsea
 
     return render(request, 'analysis/view_analysis.html', analysis_info)
 

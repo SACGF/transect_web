@@ -4,6 +4,7 @@ import logging
 import os
 import subprocess
 import shutil
+import time
 
 from analysis.models import Analysis, Genes, Projects
 from django.utils import timezone
@@ -72,7 +73,38 @@ def submit_command(project, all_gois, composite_analysis_type, percentile, rna_s
 
     logging.info("Executing command: " + command)
     analysis_process = subprocess.Popen(command.split(" "), stderr=subprocess.PIPE)
+
+    # for DE analysis, keep 2 copies of the output, one not containing GSEA and one containing GSEA
+    # while this may be strange, it will decrease wait time required for processing the data
+    # similarly, we do not run DE separately (one with and one without GSEA) as 
+    # the boxplots may produce differently appearing results.
+    if percentile != 0:
+        DE_finished = False
+        while True:
+            # Check if the process has finished
+            retcode = analysis_process.poll()
+
+            if os.path.exists(os.path.join(out_path, "GSEA")) and DE_finished is False:
+                no_gsea_out = out_path + "_no_gsea"
+                os.mkdir(no_gsea_out)
+                shutil.copytree(out_path, no_gsea_out, ignore=shutil.ignore_patterns("GSEA"), dirs_exist_ok=True)
+                sort_process = subprocess.Popen(post_analysis_sort_script.split(" "), stderr=subprocess.PIPE, cwd=no_gsea_out + "/DE_Analysis")
+                sort_process.communicate()
+                shutil.make_archive(no_gsea_out, 'zip', no_gsea_out) # finally zip the command
+                shutil.rmtree(no_gsea_out)
+                DE_finished = True
+                print("DE FINISHED")
+
+            # process finished
+            if retcode is not None:
+                print("GSEA/CORR FINISHED pre")
+                break
+            else:
+                time.sleep(5)
+
     stdout, stderr = analysis_process.communicate()
+
+    print("GSEA/CORR FINISHED")
 
     if analysis_process.returncode != 0:
         logging.error("Command failed with the error code " + str(analysis_process.returncode) + ": " + command)

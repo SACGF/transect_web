@@ -202,7 +202,7 @@
 
       document.getElementById("download_de").addEventListener('click', () => {
         try {
-          download_single_analysis(analysis)
+          download_single_analysis(analysis, '{{ display_gsea }}')
         } catch (exception) {
           final_message = exception
           error = true
@@ -470,8 +470,11 @@
       }
     }
 
-    async function download_single_analysis(analysis) {
-      const url = "{% url 'analysis-download' analysis_id=analysis %}"
+    async function download_single_analysis(analysis, display_gsea=false) {
+      let url = "{% url 'analysis-download' analysis_id=analysis %}"
+      display_gsea = display_gsea === "True" ? true : false
+      url = url.concat("?display_gsea=").concat(display_gsea)
+      console.log(url)
       try {
         const response = await fetch(url)
         console.log(response)
