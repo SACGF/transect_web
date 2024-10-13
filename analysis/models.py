@@ -1,4 +1,5 @@
 from django.db import models
+from model_utils.models import TimeStampedModel
 import datetime
 
 class Genes(models.Model):
@@ -20,8 +21,12 @@ class Projects(models.Model):
     
 
 # TimestampedModel <- automatically adds created and modified
-class Analysis(models.Model): # change name to analysis
+class Analysis(TimeStampedModel):
     sha_hash = models.TextField(primary_key=True)
+    primary_analysis_type = models.TextField(choices={
+        "Correlation": "Correlation", 
+        "DE": "Differential Expression"
+        })
     script = models.TextField(default="GDC")
     project = models.ForeignKey(Projects, on_delete=models.CASCADE)
     genes_of_interest = models.ManyToManyField(Genes, through="AnalysisGenes")
@@ -33,15 +38,6 @@ class Analysis(models.Model): # change name to analysis
     reason_for_failure = models.TextField(default="")
     fully_downloaded = models.BooleanField(default=False) # if this becomes None, then the download has failed
     times_accessed = models.PositiveIntegerField(default=0) # may be useful
-    date_posted = models.DateTimeField(auto_now_add=True)  # auto_now_add automatically sets when the record was created
-    last_accessed = models.DateTimeField(auto_now=True) 
-
-    # read this: https://docs.djangoproject.com/en/5.0/ref/models/options/
-    # also provides details on options, including unique_together
-    #class Meta:
-    #    # This ensures that there can only be 1 record that has the same values below
-    #    # You could thus use get_or_create to retrieve exisitng/create new, and there will be guaranteed no dupes
-    #    unique_together = ('script', 'project', 'genes_of_interest', 'composite_analysis_type', 'percentile', 'rna_species')
 
 class AnalysisGenes(models.Model):
     gene = models.ForeignKey(Genes, on_delete=models.CASCADE)

@@ -5,6 +5,7 @@ import os
 import subprocess
 import shutil
 import time
+from datetime import timedelta
 
 from analysis.models import Analysis, Genes, Projects
 from django.utils import timezone
@@ -28,14 +29,27 @@ def delete_file(file_to_delete):
 
 # if composite_analysis_type == "Single" and curr_percentile is not 0, this trigger de_analysis
 @shared_task
-def submit_command(project, all_gois, composite_analysis_type, percentile, rna_species, is_switch_stratum, sha_hash, analysis_script_path, post_analysis_sort_script):
+def submit_command(sha_hash):
+    selected_analysis = Analysis.objects.filter(sha_hash=analysis).first()
+
+    project = selected_analysis.project
+    percentile = selected_analysis.percentile
+    rna_species = selected_analysis.rna_species
+    is_switch_stratum = selected_analysis.switch_stratum
+    composite_analysis_type = selected_analysis.composite_analysis_type
+    post_analysis_sort_script = env('POST_ANALYSIS_SORT_SCRIPT')
+    analysis_script_path = env('GDC_SCRIPT') if selected_analysis.script == "GDC" else \
+                      (env('GTEX_SCRIPT') if selected_analysis.script == "GTEx" else env('RECOUNT_SCRIPT'))
+    
+    all_gois = list(selected_analysis.genes_of_interest.all().values_list(“name”, flat=True))
+
     command = analysis_script_path + " -p " + project + " -g "
     # INSPECT! Change gene.split(",") to just gene
     
     # adding different settings based on whether de or correlation, 
     # if correlation, set percentile input and rna_species_to_analyse
     # adjusted also the analysis script to accomodate this
-    if percentile != 0:
+    if selected_analysis.primary_analysis_type == "DE":
         to_add = ""
         if composite_analysis_type == "Single":
             to_add = all_gois[0]
@@ -78,7 +92,7 @@ def submit_command(project, all_gois, composite_analysis_type, percentile, rna_s
     # while this may be strange, it will decrease wait time required for processing the data
     # similarly, we do not run DE separately (one with and one without GSEA) as 
     # the boxplots may produce differently appearing results.
-    if percentile != 0:
+    if selected_analysis.primary_analysis_type == "DE":
         DE_finished = False
         while True:
             # Check if the process has finished
@@ -124,7 +138,7 @@ def submit_command(project, all_gois, composite_analysis_type, percentile, rna_s
         # if DE analysis, sort and zip the output such that a user can download
         # the sorted version, however the website will use the unsorted version
         # to avoid any issues
-        if percentile != 0:
+        if selected_analysis.primary_analysis_type == "DE":
             tmp_dir = out_path + "_tmp"
             os.makedirs(tmp_dir)
             shutil.copytree(out_path, tmp_dir, dirs_exist_ok=True)
@@ -151,15 +165,9 @@ def submit_command(project, all_gois, composite_analysis_type, percentile, rna_s
 def clean_database_and_analysis():
     # removes items that were last accessed more than 24 hours ago
     for analysis in Analysis.objects.all():
-        #analysis.last_accessed timezone.localtime()
-        difference = timezone.localtime() - analysis.last_accessed.astimezone(timezone.get_current_timezone())
-        if difference.days > 1: # dates are more than 24 hours apart from each other, can use difference.minutes, etc
-        #if difference.seconds > 600:
-            logging.info("Removing Analysis: " + analysis.sha_hash + " because has been a while since it was last accessed.")
-            out_path = os.path.join(env('OUTPUT_DIR'), analysis.sha_hash)
-            analysis.delete()
-            delete_folder(out_path)
-            delete_file(out_path + ".zip")
+        time_threshold = timezone.now() - timedelta(hours=24)
+        # no need to delete folders individually as we have a signal that handles that
+        Analysis.objects.filter(modified__lt=time_threshold).delete()
 
     # remove databases without an output directory, vice-versa
     # if a database lacks an associated .zip or general output directory then delete it
@@ -169,8 +177,6 @@ def clean_database_and_analysis():
         if os.path.exists(out_path) is False or os.path.exists(out_path + ".zip") is False:
             logging.info("Removing Analysis: " + analysis.sha_hash + " because it is either missing an output directory or is not inside the Analysis database.")
             analysis.delete()
-            delete_folder(out_path)
-            delete_file(out_path + ".zip")
 
     # now lets go through the files/folders themselves to see if there are any discrepencies
     # this method works as a "first come first serve" method
@@ -179,17 +185,16 @@ def clean_database_and_analysis():
     for item in os.listdir(env('OUTPUT_DIR')):
         sha_hash = item.split(".zip")[0]
         zip_path = os.path.join(env('OUTPUT_DIR'), sha_hash + ".zip")
+        gsea_zip_path = delete_file(unzipped_path + "_no_gsea.zip")
         unzipped_path = os.path.join(env('OUTPUT_DIR'), sha_hash)
         
         # simple "catch-all" method without having to write extensive conditional checks
-        if Analysis.objects.filter(sha_hash=sha_hash).exists() is False \
-           or os.path.exists(zip_path) is False \
-           or os.path.exists(unzipped_path) is False:
+        if Analysis.objects.filter(sha_hash=sha_hash).exists() is False or os.path.exists(zip_path) is False or os.path.exists(unzipped_path) is False or os.path.exists(gsea_zip_path) is False:
             logging.info("Removing Analysis: " + sha_hash + " because it is either missing an output directory/zip file or is not inside the Analysis database.")
-            if Analysis.objects.filter(sha_hash=sha_hash).exists():
-                Analysis.objects.filter(sha_hash=sha_hash).first().delete()
+            Analysis.objects.filter(sha_hash=sha_hash).delete()
             delete_folder(unzipped_path)
             delete_file(zip_path)
+            delete_file(gsea_zip_path)
 
 @celery.signals.task_failure.connect(sender=submit_command)
 def task_failure_handler(sender=None, headers=None, body=None, **kwargs):
@@ -201,3 +206,4 @@ def task_failure_handler(sender=None, headers=None, body=None, **kwargs):
         analysis.save()
         delete_folder(out_path)
         delete_file(out_path + ".zip")
+        delete_file(out_path + "_no_gsea.zip")

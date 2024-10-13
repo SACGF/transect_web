@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import Http404, HttpResponse, JsonResponse, FileResponse, StreamingHttpResponse
 from django.views.decorators.cache import cache_page
 from django.conf import settings
@@ -28,18 +28,12 @@ from transect_web.settings import env
 # this is because these folders contains a number at the end
 # that appears to be procedurally generated
 def FetchGseaSummary(request, analysis_id):
-    analysis =  Analysis.objects.filter(sha_hash=str(analysis_id))
-    if analysis.exists() is False:
-        raise Http404("Analysis Not Found")
+    analysis = get_object_or_404(Analysis, sha_hash=str(analysis_id))
 
-    analysis = analysis.first()
-
-    if analysis.percentile == 0:
+    if analysis.primary_analysis_type == "Correlation":
         return JsonResponse({'error': f'{analysis_id} is not a DE analysis'}, status=500)
 
-    gois = []
-    for goi in analysis.genes_of_interest.all():
-        gois.append(goi.name)
+    gois = list(analysis.genes_of_interest.all().values_list(“name”, flat=True))
 
     GSEA_path = os.path.join(env('OUTPUT_DIR'), str(analysis_id), "GSEA")
     GSEA_summary = os.path.join(GSEA_path, "-".join(gois) + "_Strat_Vs_Curated.html")
@@ -69,7 +63,7 @@ def provide_correlation_comparisons(request, analysis_id):
     analysis =  Analysis.objects.filter(sha_hash=str(analysis_id))
     if analysis.exists() is False:
         raise Http404("Analysis Not Found")
-    if analysis.first().percentile != 0:
+    if analysis.first().primary_analysis_type != "Correlation":
         return JsonResponse({'error': f'{analysis_id} is not a correlation analysis'}, status=500)
 
     # its better to put items that exist at the front of the table and then return an index indicating
@@ -86,8 +80,10 @@ def provide_correlation_comparisons(request, analysis_id):
 
     cutoff = 0.7 if str(analysis.first().script) == "GDC" else 0.8
 
+    MAX_CORR_RECORDS = 1000
+
     for i in range(0, len(correlation_records)):
-        if i == 1000:
+        if i == MAX_CORR_RECORDS:
             break
 
         curr_record = correlation_records.iloc[i]
@@ -105,7 +101,7 @@ def fetch_high_corr_gene_exprs(request, analysis_id, gene1_id, gene2_id):
     analysis =  Analysis.objects.filter(sha_hash=str(analysis_id))
     if analysis.exists() is False:
         raise Http404("Analysis Not Found")
-    if analysis.first().percentile != 0:
+    if analysis.first().primary_analysis_type != "Correlation":
         return JsonResponse({'error': f'{analysis_id} is not a correlation analysis'}, status=500)
     
     expr_file = os.path.join(env('OUTPUT_DIR'), str(analysis_id), "Corr_Analysis", analysis.first().genes_of_interest.all()[0].name + "_most_correlated_gene_exprs.tsv")
@@ -140,7 +136,7 @@ def check_de_finished(request, analysis_id):
     if analysis is None:
         raise Http404("Analysis Not Found")
     
-    if analysis.percentile == 0:
+    if analysis.primary_analysis_type == "Correlation":
         return JsonResponse({'error': analysis_id + " is not a Differential Expression Analysis."}, status=500)
 
     # check to see if the GSEA folder exists, if so, then that signals the completion of the DE step
@@ -180,19 +176,17 @@ def download(request, analysis_id):
     
     print("Should we show gsea?")
     display_gsea = request.GET.get('display_gsea')  # Defaults to 'false'
-    display_gsea = True if display_gsea == "true" else False
+    display_gsea = display_gsea == "true"
     print(type(display_gsea))
     print(display_gsea)
 
     analysis = Analysis.objects.filter(sha_hash=str(analysis_id)).first()
-    analysis_type = "Correlation" if analysis.percentile == 0 else "Differential Expression"
+    analysis_type = "Correlation" if analysis.primary_analysis_type == "Correlation" else "Differential Expression"
     download_filename = "correlation_" if analysis_type == "Correlation" else "de_"
     # make download filename have a combination of some of the parameters
     download_filename += "_".join([analysis.script.lower(), str(analysis.project).lower()]) + "_"
 
-    gois = []
-    for gene in analysis.genes_of_interest.all():
-        gois.append(str(gene))
+    gois = list(analysis.genes_of_interest.all().values_list(“name”, flat=True))
 
     if analysis.composite_analysis_type == "Single":
         download_filename += gois[0]
@@ -274,8 +268,6 @@ def display_settings_page(request):
         # and cannot do single analysis
         if analysis_form.is_valid():
             script_chosen = analysis_form.cleaned_data.get('script_type')
-            analysis_script_path = env('GDC_SCRIPT') if script_chosen == "GDC" else \
-                                  (env('GTEX_SCRIPT') if script_chosen == "GTEx" else env('RECOUNT_SCRIPT'))
 
             curr_proj_text = analysis_form.cleaned_data.get('project')
             
@@ -294,18 +286,18 @@ def display_settings_page(request):
                 project_str = string.capwords(project_str.replace("_", " ")).replace(" ", "_")
 
             all_gois = analysis_form.cleaned_data.get('gene_selected')
-            goi_name_list = []
-            for i in range(0, len(all_gois)):
-                goi_name_list.append(all_gois[i].name)
+            goi_name_list = [g.name for g in all_gois]
 
             curr_goi_composite_analysis_type = analysis_form.cleaned_data.get('composite_analysis_type')
 
-            if analysis_form.cleaned_data.get('do_de_analysis') == True:
+            primary_analysis_type = "Correlation" if analysis_form.cleaned_data.get('do_correlation_analysis') is True else "DE" if analysis_form.cleaned_data.get('do_de_analysis') is True else None
+
+            if primary_analysis_type == "Correlation":
                 curr_percentile = analysis_form.cleaned_data.get('percentile')
                 curr_rna_species = "mRNA" if analysis_form.cleaned_data.get('use_mirna') is False else "miRNA"
                 is_switch_stratum = analysis_form.cleaned_data.get('switch_stratum')
                 display_gsea = analysis_form.cleaned_data.get('display_gsea')
-            elif analysis_form.cleaned_data.get('do_correlation_analysis') == True:
+            elif primary_analysis_type == "DE":
                 # only single genes can submit both types of analysis potentially
                 # submit it in a list of commands to execute
                 curr_goi_composite_analysis_type = "Single"
@@ -314,6 +306,7 @@ def display_settings_page(request):
                 is_switch_stratum = False
 
             command_settings = {
+                                    'primary_analysis_type': primary_analysis_type,
                                     'script': script_chosen, 
                                     'project': project_obj, 
                                     'all_gois': goi_name_list, 
@@ -323,33 +316,31 @@ def display_settings_page(request):
                                     'switch_stratum': is_switch_stratum,
                                 }
 
-            analysis_query = {}
-
             settings = str(command_settings.values())
             sha_hash = hashlib.sha1(settings.encode("utf-8")).hexdigest()
-            filter_obj = Analysis.objects.filter(sha_hash=sha_hash)
 
-            if filter_obj.exists() is True:
-                if filter_obj.first().reason_for_failure != "":
-                    analysis_form.add_error(None, filter_obj.first().reason_for_failure) # first attribute is field
+            del command_settings['all_gois']
+            newAnalysis, created = Analysis.objects.get_or_create(sha_hash=sha_hash, defaults=command_settings)
+
+            if not created:
+                if newAnalysis.first().reason_for_failure != "":
+                    analysis_form.add_error(None, newAnalysis.first().reason_for_failure) # first attribute is field
                     return render(request, 'analysis/submission_page.html', {"analysis_form": analysis_form})
                 else:
-                    analysis = filter_obj.first()
+                    analysis = newAnalysis.first()
                     analysis.times_accessed += 1
                     analysis.save()
             else:
-                del command_settings['all_gois']
-                newAnalysis = Analysis(**command_settings, sha_hash=sha_hash)
                 newAnalysis.save()
                 for index, goi_obj in enumerate(all_gois):
                     AnalysisGenes.objects.create(gene=goi_obj, analysis=newAnalysis, order=index)
                 # cannot pass an object e.g. Project, Genes to the celery app
                 # setting the task ID below to be equal to the sha_hash
-                submit_command.apply_async((project_str, goi_name_list, curr_goi_composite_analysis_type, curr_percentile, curr_rna_species, is_switch_stratum, sha_hash, analysis_script_path, env('POST_ANALYSIS_SORT_SCRIPT')), queue="script_queue", task_id=sha_hash)
+                submit_command.apply_async((sha_hash), queue="script_queue", task_id=sha_hash)
 
+            analysis_query = {}
             analysis_query["analysis"] = str(sha_hash)
-            # see if you can use context
-            analysis_url = reverse('analysis-fetch', kwargs={key: value for (key, value) in analysis_query.items()})
+            analysis_url = reverse('analysis-fetch', kwargs=analysis_query)
             print(analysis_url)
             if analysis_form.cleaned_data.get('do_de_analysis') == True:
                 analysis_url += "?display_gsea=" + str(display_gsea)
@@ -376,12 +367,12 @@ def fetch(request, analysis):
                         'percentile': filter_obj.percentile,
                         'rna_species': filter_obj.rna_species,
                         'is_switch_stratum': filter_obj.switch_stratum,
-                        'analysis_type': "DE" if filter_obj.percentile > 0 else "Correlation", 
+                        'analysis_type': filter_obj.primary_analysis_type, 
                         'composite_analysis_type': filter_obj.composite_analysis_type,
-                        'expected_time': "1 minute for just the DE part" if filter_obj.percentile > 0 else "5 minutes"
+                        'expected_time': "1 minute for just the DE part" if filter_obj.primary_analysis_type == "DE" else "5 minutes"
                     }
     
-    if filter_obj.percentile != 0:
+    if filter_obj.primary_analysis_type != "Correlation":
         display_gsea = request.GET.get('display_gsea')  # Defaults to 'false'
         display_gsea = True if display_gsea == 'True' else False
         analysis_info['display_gsea'] = display_gsea
