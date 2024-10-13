@@ -174,11 +174,8 @@ def download(request, analysis_id):
     if Analysis.objects.filter(sha_hash=str(analysis_id)).exists() is False:
         raise Http404("Analysis Not Found")
     
-    print("Should we show gsea?")
     display_gsea = request.GET.get('display_gsea')  # Defaults to 'false'
     display_gsea = display_gsea == "true"
-    print(type(display_gsea))
-    print(display_gsea)
 
     analysis = Analysis.objects.filter(sha_hash=str(analysis_id)).first()
     analysis_type = "Correlation" if analysis.primary_analysis_type == "Correlation" else "Differential Expression"
@@ -323,28 +320,23 @@ def display_settings_page(request):
             newAnalysis, created = Analysis.objects.get_or_create(sha_hash=sha_hash, defaults=command_settings)
 
             if not created:
-                if newAnalysis.first().reason_for_failure != "":
-                    analysis_form.add_error(None, newAnalysis.first().reason_for_failure) # first attribute is field
+                if newAnalysis.reason_for_failure != "":
+                    analysis_form.add_error(None, newAnalysis.reason_for_failure) # first attribute is field
                     return render(request, 'analysis/submission_page.html', {"analysis_form": analysis_form})
                 else:
-                    analysis = newAnalysis.first()
-                    analysis.times_accessed += 1
-                    analysis.save()
+                    newAnalysis.times_accessed += 1
+                    newAnalysis.save()
             else:
                 newAnalysis.save()
                 for index, goi_obj in enumerate(all_gois):
                     AnalysisGenes.objects.create(gene=goi_obj, analysis=newAnalysis, order=index)
-                # cannot pass an object e.g. Project, Genes to the celery app
-                # setting the task ID below to be equal to the sha_hash
                 submit_command.apply_async((sha_hash), queue="script_queue", task_id=sha_hash)
 
             analysis_query = {}
             analysis_query["analysis"] = str(sha_hash)
             analysis_url = reverse('analysis-fetch', kwargs=analysis_query)
-            print(analysis_url)
             if analysis_form.cleaned_data.get('do_de_analysis') == True:
                 analysis_url += "?display_gsea=" + str(display_gsea)
-            print(analysis_url)
             return redirect(analysis_url)
 
     else:

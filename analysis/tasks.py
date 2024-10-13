@@ -87,38 +87,7 @@ def submit_command(sha_hash):
 
     logging.info("Executing command: " + command)
     analysis_process = subprocess.Popen(command.split(" "), stderr=subprocess.PIPE)
-
-    # for DE analysis, keep 2 copies of the output, one not containing GSEA and one containing GSEA
-    # while this may be strange, it will decrease wait time required for processing the data
-    # similarly, we do not run DE separately (one with and one without GSEA) as 
-    # the boxplots may produce differently appearing results.
-    if selected_analysis.primary_analysis_type == "DE":
-        DE_finished = False
-        while True:
-            # Check if the process has finished
-            retcode = analysis_process.poll()
-
-            if os.path.exists(os.path.join(out_path, "GSEA")) and DE_finished is False:
-                no_gsea_out = out_path + "_no_gsea"
-                os.mkdir(no_gsea_out)
-                shutil.copytree(out_path, no_gsea_out, ignore=shutil.ignore_patterns("GSEA"), dirs_exist_ok=True)
-                sort_process = subprocess.Popen(post_analysis_sort_script.split(" "), stderr=subprocess.PIPE, cwd=no_gsea_out + "/DE_Analysis")
-                sort_process.communicate()
-                shutil.make_archive(no_gsea_out, 'zip', no_gsea_out) # finally zip the command
-                shutil.rmtree(no_gsea_out)
-                DE_finished = True
-                print("DE FINISHED")
-
-            # process finished
-            if retcode is not None:
-                print("GSEA/CORR FINISHED pre")
-                break
-            else:
-                time.sleep(5)
-
     stdout, stderr = analysis_process.communicate()
-
-    print("GSEA/CORR FINISHED")
 
     if analysis_process.returncode != 0:
         logging.error("Command failed with the error code " + str(analysis_process.returncode) + ": " + command)
@@ -135,20 +104,6 @@ def submit_command(sha_hash):
         # the submitted command failed"
     else:
         logging.info("Command finished successfully: " + command)
-        # if DE analysis, sort and zip the output such that a user can download
-        # the sorted version, however the website will use the unsorted version
-        # to avoid any issues
-        if selected_analysis.primary_analysis_type == "DE":
-            tmp_dir = out_path + "_tmp"
-            os.makedirs(tmp_dir)
-            shutil.copytree(out_path, tmp_dir, dirs_exist_ok=True)
-            # now sort the output inside tmp_dir
-            sort_process = subprocess.Popen(post_analysis_sort_script.split(" "), stderr=subprocess.PIPE, cwd=tmp_dir + "/DE_Analysis")
-            stdout, stderr = sort_process.communicate()
-            shutil.make_archive(out_path, 'zip', tmp_dir) # finally zip the command
-            shutil.rmtree(tmp_dir)
-        else:
-            shutil.make_archive(out_path, 'zip', out_path) # finally zip the command
 
         # repositioned this as it makes sense to have this here after everything is complete
         analysis_obj = Analysis.objects.filter(sha_hash=sha_hash).first()
