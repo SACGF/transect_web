@@ -144,11 +144,11 @@ def clean_database_and_analysis():
     for item in os.listdir(env('OUTPUT_DIR')):
         sha_hash = item.split(".zip")[0]
         zip_path = os.path.join(env('OUTPUT_DIR'), sha_hash + ".zip")
-        gsea_zip_path = delete_file(unzipped_path + "_no_gsea.zip")
         unzipped_path = os.path.join(env('OUTPUT_DIR'), sha_hash)
+        gsea_zip_path = unzipped_path + "_no_gsea.zip"
         
         # simple "catch-all" method without having to write extensive conditional checks
-        if Analysis.objects.filter(sha_hash=sha_hash).exists() is False or os.path.exists(zip_path) is False or os.path.exists(unzipped_path) is False or os.path.exists(gsea_zip_path) is False:
+        if Analysis.objects.filter(sha_hash=sha_hash).exists() is False or os.path.exists(zip_path) is False or os.path.exists(unzipped_path) is False:
             logging.info("Removing Analysis: " + sha_hash + " because it is either missing an output directory/zip file or is not inside the Analysis database.")
             Analysis.objects.filter(sha_hash=sha_hash).delete()
             delete_folder(unzipped_path)

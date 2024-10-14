@@ -61,8 +61,10 @@ def FetchGseaSummary(request, analysis_id):
 # current method will be too memory intensive as it loads everything
 def provide_correlation_comparisons(request, analysis_id):
     analysis = get_object_or_404(Analysis, sha_hash=str(analysis_id))
-    if analysis.first().primary_analysis_type != "Correlation":
+    if analysis.primary_analysis_type != "Correlation":
         return JsonResponse({'error': f'{analysis_id} is not a correlation analysis'}, status=500)
+    
+    print("YES")
 
     # its better to put items that exist at the front of the table and then return an index indicating
     # the last item that has a plot
@@ -72,11 +74,11 @@ def provide_correlation_comparisons(request, analysis_id):
     last_plot_index = -1
     i = 0
 
-    tsv_comp_file = os.path.join(env('OUTPUT_DIR'), str(analysis_id), "Corr_Analysis", analysis.first().genes_of_interest.all()[0].name + "_corr.tsv")
+    tsv_comp_file = os.path.join(env('OUTPUT_DIR'), str(analysis_id), "Corr_Analysis", analysis.genes_of_interest.all()[0].name + "_corr.tsv")
     correlation_records = pd.read_csv(tsv_comp_file, sep="\t")
     correlation_records = correlation_records.sort_values(by='logExp_Cor', ascending=False)
 
-    cutoff = 0.7 if str(analysis.first().script) == "GDC" else 0.8
+    cutoff = 0.7 if str(analysis.script) == "GDC" else 0.8
 
     MAX_CORR_RECORDS = 1000
 
@@ -97,10 +99,10 @@ def provide_correlation_comparisons(request, analysis_id):
 
 def fetch_high_corr_gene_exprs(request, analysis_id, gene1_id, gene2_id):
     analysis = get_object_or_404(Analysis, sha_hash=str(analysis_id))
-    if analysis.first().primary_analysis_type != "Correlation":
+    if analysis.primary_analysis_type != "Correlation":
         return JsonResponse({'error': f'{analysis_id} is not a correlation analysis'}, status=500)
     
-    expr_file = os.path.join(env('OUTPUT_DIR'), str(analysis_id), "Corr_Analysis", analysis.first().genes_of_interest.all()[0].name + "_most_correlated_gene_exprs.tsv")
+    expr_file = os.path.join(env('OUTPUT_DIR'), str(analysis_id), "Corr_Analysis", analysis.genes_of_interest.all()[0].name + "_most_correlated_gene_exprs.tsv")
 
     expr_df_full = pd.read_csv(expr_file, sep="\t")
     expression_scores = {}
