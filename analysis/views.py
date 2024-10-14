@@ -33,7 +33,7 @@ def FetchGseaSummary(request, analysis_id):
     if analysis.primary_analysis_type == "Correlation":
         return JsonResponse({'error': f'{analysis_id} is not a DE analysis'}, status=500)
 
-    gois = list(analysis.genes_of_interest.all().values_list(“name”, flat=True))
+    gois = list(analysis.genes_of_interest.all().values_list("name", flat=True))
 
     GSEA_path = os.path.join(env('OUTPUT_DIR'), str(analysis_id), "GSEA")
     GSEA_summary = os.path.join(GSEA_path, "-".join(gois) + "_Strat_Vs_Curated.html")
@@ -60,9 +60,7 @@ def FetchGseaSummary(request, analysis_id):
 # needs to be changed to support better pagination
 # current method will be too memory intensive as it loads everything
 def provide_correlation_comparisons(request, analysis_id):
-    analysis =  Analysis.objects.filter(sha_hash=str(analysis_id))
-    if analysis.exists() is False:
-        raise Http404("Analysis Not Found")
+    analysis = get_object_or_404(Analysis, sha_hash=str(analysis_id))
     if analysis.first().primary_analysis_type != "Correlation":
         return JsonResponse({'error': f'{analysis_id} is not a correlation analysis'}, status=500)
 
@@ -98,9 +96,7 @@ def provide_correlation_comparisons(request, analysis_id):
     return JsonResponse({'table_items': table_items, "last_plot_index": last_plot_index})
 
 def fetch_high_corr_gene_exprs(request, analysis_id, gene1_id, gene2_id):
-    analysis =  Analysis.objects.filter(sha_hash=str(analysis_id))
-    if analysis.exists() is False:
-        raise Http404("Analysis Not Found")
+    analysis = get_object_or_404(Analysis, sha_hash=str(analysis_id))
     if analysis.first().primary_analysis_type != "Correlation":
         return JsonResponse({'error': f'{analysis_id} is not a correlation analysis'}, status=500)
     
@@ -131,11 +127,7 @@ def fetch_high_corr_gene_exprs(request, analysis_id, gene1_id, gene2_id):
     return JsonResponse(expression_scores)
 
 def check_de_finished(request, analysis_id):
-    analysis = Analysis.objects.filter(sha_hash=str(analysis_id)).first()
-
-    if analysis is None:
-        raise Http404("Analysis Not Found")
-    
+    analysis = get_object_or_404(Analysis, sha_hash=str(analysis_id))
     if analysis.primary_analysis_type == "Correlation":
         return JsonResponse({'error': analysis_id + " is not a Differential Expression Analysis."}, status=500)
 
@@ -152,11 +144,7 @@ def check_de_finished(request, analysis_id):
 # however, the DE will use it to check if the entire analysis (GSEA inclucded) is fully finished,
 # instead DE will use another function to check if the DE part has finished.
 def check_fully_downloaded(request, analysis_id):
-    analysis = Analysis.objects.filter(sha_hash=str(analysis_id)).first()
-
-    if analysis is None:
-        raise Http404("Analysis Not Found")
-
+    analysis = get_object_or_404(Analysis, sha_hash=str(analysis_id))
     if analysis.fully_downloaded is False and analysis.reason_for_failure == "":
         return JsonResponse({'completed': False, 'error': ''}, status=200)
 
@@ -171,19 +159,17 @@ def check_fully_downloaded(request, analysis_id):
 # as an extension to this, it might be good to create a directory for all 3 types of scripts, GDC, etc, containing 
 
 def download(request, analysis_id):
-    if Analysis.objects.filter(sha_hash=str(analysis_id)).exists() is False:
-        raise Http404("Analysis Not Found")
+    analysis = get_object_or_404(Analysis, sha_hash=str(analysis_id))
     
     display_gsea = request.GET.get('display_gsea')  # Defaults to 'false'
     display_gsea = display_gsea == "true"
 
-    analysis = Analysis.objects.filter(sha_hash=str(analysis_id)).first()
     analysis_type = "Correlation" if analysis.primary_analysis_type == "Correlation" else "Differential Expression"
     download_filename = "correlation_" if analysis_type == "Correlation" else "de_"
     # make download filename have a combination of some of the parameters
     download_filename += "_".join([analysis.script.lower(), str(analysis.project).lower()]) + "_"
 
-    gois = list(analysis.genes_of_interest.all().values_list(“name”, flat=True))
+    gois = list(analysis.genes_of_interest.all().values_list("name", flat=True))
 
     if analysis.composite_analysis_type == "Single":
         download_filename += gois[0]
@@ -269,7 +255,7 @@ def display_settings_page(request):
             curr_proj_text = analysis_form.cleaned_data.get('project')
             
             try:
-                project_obj = Projects.objects.filter(name=curr_proj_text).first()
+                project_obj = Projects.objects.filter(name=curr_proj_text, source=script_chosen).first()
                 project_str = str(project_obj)
             except:
                 raise Http404("Project " + curr_proj_text + " does not exist")
@@ -289,12 +275,12 @@ def display_settings_page(request):
 
             primary_analysis_type = "Correlation" if analysis_form.cleaned_data.get('do_correlation_analysis') is True else "DE" if analysis_form.cleaned_data.get('do_de_analysis') is True else None
 
-            if primary_analysis_type == "Correlation":
+            if primary_analysis_type == "DE":
                 curr_percentile = analysis_form.cleaned_data.get('percentile')
                 curr_rna_species = "mRNA" if analysis_form.cleaned_data.get('use_mirna') is False else "miRNA"
                 is_switch_stratum = analysis_form.cleaned_data.get('switch_stratum')
                 display_gsea = analysis_form.cleaned_data.get('display_gsea')
-            elif primary_analysis_type == "DE":
+            elif primary_analysis_type == "Correlation":
                 # only single genes can submit both types of analysis potentially
                 # submit it in a list of commands to execute
                 curr_goi_composite_analysis_type = "Single"
@@ -330,7 +316,8 @@ def display_settings_page(request):
                 newAnalysis.save()
                 for index, goi_obj in enumerate(all_gois):
                     AnalysisGenes.objects.create(gene=goi_obj, analysis=newAnalysis, order=index)
-                submit_command.apply_async((sha_hash), queue="script_queue", task_id=sha_hash)
+                print(type(sha_hash))
+                submit_command.apply_async((sha_hash,), queue="script_queue", task_id=sha_hash)
 
             analysis_query = {}
             analysis_query["analysis"] = str(sha_hash)

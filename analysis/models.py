@@ -11,7 +11,6 @@ class Genes(models.Model):
 class Projects(models.Model):
     name = models.TextField()
     source = models.TextField() # study source, either TCGA or GTEx
-    id = models.AutoField(primary_key=True)
     
     class Meta:
         unique_together = ('name', 'source')

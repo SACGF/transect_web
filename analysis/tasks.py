@@ -30,19 +30,23 @@ def delete_file(file_to_delete):
 # if composite_analysis_type == "Single" and curr_percentile is not 0, this trigger de_analysis
 @shared_task
 def submit_command(sha_hash):
-    selected_analysis = Analysis.objects.filter(sha_hash=analysis).first()
+    print("Received command")
+    selected_analysis = Analysis.objects.filter(sha_hash=sha_hash).first()
 
-    project = selected_analysis.project
+    print(selected_analysis.project.source)
+
+    project = selected_analysis.project.name
+    if selected_analysis.project.source == "GDC":
+        project = "TCGA-" + selected_analysis.project.name
+
     percentile = selected_analysis.percentile
     rna_species = selected_analysis.rna_species
     is_switch_stratum = selected_analysis.switch_stratum
     composite_analysis_type = selected_analysis.composite_analysis_type
-    post_analysis_sort_script = env('POST_ANALYSIS_SORT_SCRIPT')
     analysis_script_path = env('GDC_SCRIPT') if selected_analysis.script == "GDC" else \
                       (env('GTEX_SCRIPT') if selected_analysis.script == "GTEx" else env('RECOUNT_SCRIPT'))
     
-    all_gois = list(selected_analysis.genes_of_interest.all().values_list(“name”, flat=True))
-
+    all_gois = list(selected_analysis.genes_of_interest.all().values_list("name", flat=True))
     command = analysis_script_path + " -p " + project + " -g "
     # INSPECT! Change gene.split(",") to just gene
     
