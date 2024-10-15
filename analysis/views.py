@@ -334,8 +334,8 @@ def display_settings_page(request):
     return render(request, 'analysis/submission_page.html', {"analysis_form": analysis_form})
 
 def fetch(request, analysis):
-    filter_obj = Analysis.objects.filter(sha_hash=analysis).first()
-
+    filter_obj = get_object_or_404(Analysis, sha_hash=str(analysis))
+    
     gois = []
     for goi in filter_obj.genes_of_interest.all():
         gois.append(goi.name)

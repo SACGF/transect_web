@@ -126,6 +126,8 @@ def clean_database_and_analysis():
     for analysis in Analysis.objects.all():
         time_threshold = timezone.now() - timedelta(hours=24)
         # no need to delete folders individually as we have a signal that handles that
+        print(analysis)
+        print(analysis.modified)
         Analysis.objects.filter(modified__lt=time_threshold).delete()
 
     # remove databases without an output directory, vice-versa
@@ -136,24 +138,6 @@ def clean_database_and_analysis():
         if os.path.exists(out_path) is False or os.path.exists(out_path + ".zip") is False:
             logging.info("Removing Analysis: " + analysis.sha_hash + " because it is either missing an output directory or is not inside the Analysis database.")
             analysis.delete()
-
-    # now lets go through the files/folders themselves to see if there are any discrepencies
-    # this method works as a "first come first serve" method
-    # e.g. if the first item we got was the directory and there was a discrepency, it will
-    # delete its corresponding zip file as well and ignore it  
-    for item in os.listdir(env('OUTPUT_DIR')):
-        sha_hash = item.split(".zip")[0]
-        zip_path = os.path.join(env('OUTPUT_DIR'), sha_hash + ".zip")
-        unzipped_path = os.path.join(env('OUTPUT_DIR'), sha_hash)
-        gsea_zip_path = unzipped_path + "_no_gsea.zip"
-        
-        # simple "catch-all" method without having to write extensive conditional checks
-        if Analysis.objects.filter(sha_hash=sha_hash).exists() is False or os.path.exists(zip_path) is False or os.path.exists(unzipped_path) is False:
-            logging.info("Removing Analysis: " + sha_hash + " because it is either missing an output directory/zip file or is not inside the Analysis database.")
-            Analysis.objects.filter(sha_hash=sha_hash).delete()
-            delete_folder(unzipped_path)
-            delete_file(zip_path)
-            delete_file(gsea_zip_path)
 
 @celery.signals.task_failure.connect(sender=submit_command)
 def task_failure_handler(sender=None, headers=None, body=None, **kwargs):
