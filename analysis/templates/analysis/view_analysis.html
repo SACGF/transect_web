@@ -169,6 +169,7 @@
       <strong>Composite Analysis Choice: </strong> {{ composite_analysis_type }} </br>
       <strong>Percentile: </strong> {{ percentile }}% </br>
       <strong>RNA Species: </strong> {{ rna_species }} </br>
+      <strong>Stratum Switched: </strong> {{ is_switch_stratum }} </br>
       `
 
       document.getElementById("de_view_container").style.display = "block"
@@ -201,7 +202,7 @@
 
       document.getElementById("download_de").addEventListener('click', () => {
         try {
-          download_single_analysis(analysis)
+          download_single_analysis(analysis, '{{ display_gsea }}')
         } catch (exception) {
           final_message = exception
           error = true
@@ -210,40 +211,67 @@
       document.getElementById("de_volcano").src = de_url_volcano
       document.getElementById("de_mds").src = de_url_mds_plot
 
+      const webgestalt_path = "{{ MEDIA_URL }}/media/".concat(analysis).concat("/DE_Analysis/WebGestalt/")
+
+      document.getElementById("ds_down_reg").href = webgestalt_path.concat("Project_enrichDatabaseDS_DOWN_Reg/Report_enrichDatabaseDS_DOWN_Reg.html")
+      document.getElementById("ds_up_reg").href = webgestalt_path.concat("Project_enrichDatabaseDS_UP_Reg/Report_enrichDatabaseDS_UP_Reg.html")
+      document.getElementById("go_down_reg").href = webgestalt_path.concat("Project_enrichDatabaseGO_DOWN_Reg/Report_enrichDatabaseGO_DOWN_Reg.html")
+      document.getElementById("go_up_reg").href = webgestalt_path.concat("Project_enrichDatabaseGO_UP_Reg/Report_enrichDatabaseGO_UP_Reg.html")
+      document.getElementById("pw_down_reg").href = webgestalt_path.concat("Project_enrichDatabasePW_DOWN_Reg/Report_enrichDatabasePW_DOWN_Reg.html")
+      document.getElementById("pw_up_reg").href = webgestalt_path.concat("Project_enrichDatabasePW_UP_Reg/Report_enrichDatabasePW_UP_Reg.html")
+
+      //document.getElementById("de_webgestalt").src = webgestalt_path.concat("Project_enrichDatabaseDS_DOWN_Reg/Report_enrichDatabaseDS_DOWN_Reg.html")
+
+      let all_divs = []
+      all_divs.push("de_summary_div")
+      all_divs.push("de_volcano_div")
+      all_divs.push("de_mds_div")
+      all_divs.push("de_webgestalt_div")
+
+      if ('{{ display_gsea }}' === "True") {
+        all_divs.push("de_gsea_div")
+      }
+      console.log(all_divs)
+
+      function toggle_de_display(active_div, all_divs) {
+        for (let i = 0; i < all_divs.length; i++) {
+          if (all_divs[i] === active_div) {
+            document.getElementById(active_div).style.display = "block";
+          } else {
+            document.getElementById(all_divs[i]).style.display = "none";
+          }
+        }
+      }
+
       const toggle_de_summary = document.getElementById("toggle_de_summary")
       toggle_de_summary.addEventListener('click', () => {
-        document.getElementById("de_summary_div").style.display = "block";
-        document.getElementById("de_volcano_div").style.display = "none";
-        document.getElementById("de_mds_div").style.display = "none";
-        document.getElementById("de_gsea_div").style.display = "none";
+        toggle_de_display("de_summary_div", all_divs)
       })
 
       const toggle_de_volcano = document.getElementById("toggle_de_volcano")
       toggle_de_volcano.addEventListener('click', () => {
-        document.getElementById("de_summary_div").style.display = "none";
-        document.getElementById("de_volcano_div").style.display = "block";
-        document.getElementById("de_mds_div").style.display = "none";
-        document.getElementById("de_gsea_div").style.display = "none";
+        toggle_de_display("de_volcano_div", all_divs)
       })
 
       const toggle_de_mds = document.getElementById("toggle_de_mds")
       toggle_de_mds.addEventListener('click', () => {
-        document.getElementById("de_summary_div").style.display = "none";
-        document.getElementById("de_volcano_div").style.display = "none";
-        document.getElementById("de_mds_div").style.display = "block";
-        document.getElementById("de_gsea_div").style.display = "none";
+        toggle_de_display("de_mds_div", all_divs)
       })
 
-      const toggle_gsea_summary = document.getElementById("toggle_gsea_summary")
-      toggle_gsea_summary.addEventListener('click', () => {
-        document.getElementById("de_summary_div").style.display = "none";
-        document.getElementById("de_volcano_div").style.display = "none";
-        document.getElementById("de_mds_div").style.display = "none";
-        document.getElementById("de_gsea_div").style.display = "block";
-        // since the plot has a display of none at the start, the initial resize
-        // will not trigger, need to do it manually
-        setTimeout(()=> {window.dispatchEvent(new Event('resize'));}, 0.1);
+      const toggle_webgestalt_summary = document.getElementById("toggle_webgestalt_summary")
+      toggle_webgestalt_summary.addEventListener('click', () => {
+        toggle_de_display("de_webgestalt_div", all_divs)
       })
+
+      if ('{{ display_gsea }}' === "True") {
+        const toggle_gsea_summary = document.getElementById("toggle_gsea_summary")
+        toggle_gsea_summary.addEventListener('click', () => {
+          toggle_de_display("de_gsea_div", all_divs)
+          // since the plot has a display of none at the start, the initial resize
+          // will not trigger, need to do it manually
+          setTimeout(()=> {window.dispatchEvent(new Event('resize'));}, 0.1);
+        })
+      }
     }
 
     async function display_correlation_analysis_results(analysis) {
@@ -449,8 +477,11 @@
       }
     }
 
-    async function download_single_analysis(analysis) {
-      const url = "{% url 'analysis-download' analysis_id=analysis %}"
+    async function download_single_analysis(analysis, display_gsea=false) {
+      let url = "{% url 'analysis-download' analysis_id=analysis %}"
+      display_gsea = display_gsea === "True" ? true : false
+      url = url.concat("?display_gsea=").concat(display_gsea)
+      console.log(url)
       try {
         const response = await fetch(url)
         console.log(response)
@@ -521,9 +552,14 @@
       document.getElementById("view_loading_div").style.display = "none"
 
       // if DE, still need to wait for gsea
+      // add conditions here when checking if we want to have displayed or not
       if ('{{ analysis_type }}' === "DE") {
-        await wait_for_analysis('{{ analysis }}', false)
-        display_gsea_results('{{ analysis }}')
+        if ('{{ display_gsea }}' === "True") {
+          await wait_for_analysis('{{ analysis }}', false)
+          display_gsea_results('{{ analysis }}')
+        } else {
+          document.getElementById("download_de_div").style.display = "block"
+        }
       }
     }
 

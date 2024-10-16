@@ -4,6 +4,7 @@ from django.dispatch import receiver
 from transect_web.settings import env
 import os
 import shutil
+import time
 
 # defining a receiver function and what signal it connects to and the sender model
 @receiver(pre_delete, sender=Analysis)
@@ -14,7 +15,7 @@ def delete_associated_directory(sender, instance, **kwargs):
     except:
         pass
 
-    try:
+    if os.path.exists(analysisOutDir + ".zip"):
         os.remove(analysisOutDir + ".zip")
-    except:
-        pass
+    if os.path.exists(analysisOutDir + "_no_gsea.zip"):
+        os.remove(analysisOutDir + "_no_gsea.zip")

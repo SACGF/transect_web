@@ -68,12 +68,17 @@
                                 <div class="mt-3">{{ analysis_form.percentile }}</div>
                             </div>
                     </div>
-                    <div id="rna_species" class="card mt-3 mb-3 de_option">
-                        <div class="card-header">RNA Species to Analyse</div>
-                            <div class="card-body">
-                                {{ analysis_form.rna_species }}
-                                <div class="text-danger mt-3 submission_alert" id="rna_species_alert">
-                                    <strong class="mx-2">Error!</strong>
+                    <div id="optional_parameters" class="card mt-3 mb-3">
+                        <div class="card-header">Optional Parameters</div>
+                            <div class="card-body de_option">
+                                <div id="use_mirna_button_div">
+                                    {{ analysis_form.use_mirna }} {{ analysis_form.use_mirna.label_tag }}
+                                </div>
+                                <div id="switch_stratum_button_div">
+                                    {{ analysis_form.switch_stratum }} {{ analysis_form.switch_stratum.label_tag }}
+                                </div>
+                                <div id="display_gsea_button_div">
+                                    {{ analysis_form.display_gsea }} {{ analysis_form.display_gsea.label_tag }}
                                 </div>
                             </div>
                         </div>
@@ -105,8 +110,17 @@
         // analysis type choice
         const correlation_checkbox = document.getElementById("correlation_checkbox")
 
+        const optional_parameters = document.getElementById("optional_parameters")
+
         // rna species choice
-        const rna_species_choices = document.getElementById("rna_species_choices")
+        const use_mirna_checkbox = document.getElementById("use_mirna_checkbox")
+        mirna_checkbox_label = document.querySelector(`label[for="${use_mirna_checkbox.id}"]`)
+
+        // disabled at the start since no script option chosen
+        use_mirna_checkbox.disabled = true;
+        use_mirna_checkbox.checked = false;
+        use_mirna_checkbox.style.cursor = "not-allowed";
+        mirna_checkbox_label.style.cursor = "not-allowed";
 
         const script_choice = document.getElementById("script_choice")
 
@@ -114,7 +128,18 @@
             $("[name='project']").empty(); // in jquery, can fetch attribute in this manner
             // remember, we cannot use ID in conjunction with the forward widget in dal
             // as it will not work
-            rna_species_alert.style.display = 'none'
+
+            // also disable use_mirna_checkbox if not using GDC
+            if (script_choice.value === "GDC") {
+                use_mirna_checkbox.disabled = false;
+                use_mirna_checkbox.style.cursor = "default";
+                mirna_checkbox_label.style.cursor = "default";
+            } else {
+                use_mirna_checkbox.disabled = true;
+                use_mirna_checkbox.checked = false;
+                use_mirna_checkbox.style.cursor = "not-allowed";
+                mirna_checkbox_label.style.cursor = "not-allowed";
+            }
         })
 
         function trigger_de_checkbox() {
@@ -126,10 +151,10 @@
         de_checkbox.addEventListener("change", () => {trigger_de_checkbox()})
 
         // Disable the "Select an option" option in the rna_species dropdown
-        $("#rna_species_choices").change(function() {
-            $("option[value='']").prop("disabled", true);
-            rna_species_alert.style.display = 'none'
-        });
+        // NEED TO WORK OUT WHY I NEEDED THIS OPTION IN THE FIRST PLACE BEFORE I DELETE IT
+        // $("#rna_species_choices").change(function() {
+        //     $("option[value='']").prop("disabled", true);
+        // });
 
         const composite_analysis_choice = document.getElementById("composite_analysis_choice")
         composite_analysis_choice.addEventListener("change", change_goi_analysis)
@@ -227,18 +252,16 @@
             const myElements = document.querySelectorAll(".de_option");
             if (de_checkbox.checked) {
                 percentile_value.required = true;
-                rna_species_choices.required = true;
                 for (let i = 0; i < myElements.length; i++) {
                     myElements[i].style.display = "block";
                 }
             } else {
                 // bringing back default values
                 percentile_value.required = false;
-                rna_species_choices.required = false;
-                rna_species_alert.style.display = 'none'
-
                 percentile_textbox.value = ""
-                rna_species_choices.selectedIndex = 0
+                use_mirna_checkbox.checked = false;
+                document.getElementById("switch_stratum_checkbox").checked = false;
+
 
                 for (let i = 0; i < myElements.length; i++) {
                     myElements[i].style.display = "none"
@@ -247,11 +270,11 @@
         }
 
         $('#input_form').submit(function(e) {
-            if ($('.validate-checkbox:checked').length === 0) {
+            if ($('.analysis-type-checkbox:checked').length === 0) {
                 document.getElementById("analysis_type_alert").innerHTML = '<strong class="mx-2">Error!</strong> Please select an analysis type.'
                 document.getElementById("analysis_type_alert").style.display = "block";
                 e.preventDefault();
-            } else if  ($('.validate-checkbox:checked').length === 2) {
+            } else if  ($('.analysis-type-checkbox:checked').length === 2) {
                 document.getElementById("analysis_type_alert").innerHTML = '<strong class="mx-2">Error!</strong> Cannot select both analysis simultaneously.'
                 document.getElementById("analysis_type_alert").style.display = "block";
                 e.preventDefault();
@@ -267,13 +290,6 @@
             } else if ($('#gene_selected').val().length === 1 && (composite_analysis_choice.value === "Ratio")) {
                 goi_alert.innerHTML = '<strong class="mx-2">Error!</strong> Please enter 2 Genes.'
                 goi_alert.style.display = 'block'
-                e.preventDefault();
-            }
-
-            const rna_species_alert = document.getElementById('rna_species_alert')
-            if (de_checkbox.checked === true && ((script_choice.value === "GTEx" || script_choice.value === "RECOUNT3") && rna_species_choices.value !== "mRNA")) {
-                rna_species_alert.innerHTML = '<strong class="mx-2">Error!</strong>'.concat(script_choice.value).concat(" script does not support anything other than mRNA.")
-                rna_species_alert.style.display = 'block'
                 e.preventDefault();
             }
         });
