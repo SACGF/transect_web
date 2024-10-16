@@ -23,20 +23,23 @@
                 <form id="input_form" method="POST">
                     {% csrf_token %}
                     <div id="select_script" class="card mt-3">
-                        <div class="card-header">Script</div>
+                        <div class="card-header">Select Cohort Source Repository</div>
                         <div class="card-body">
                             <p>{{ analysis_form.script_type }}</p>
                         </div>
                     </div>
                     <div id="select_project" class="card mt-3">
-                        <div class="card-header">Project</div>
+                        <div class="card-header">Select Cancer or Tissue Type
+                            <a href="#" target="_blank" title="DB Info">
+                            <img src="{% static 'icons/info-circle.svg' %}" alt="DB Info" class="icon">
+                        </a></div>
                         <div class="card-body">
                             {{ analysis_form.project }}
                             {{ analysis_form.project.media }}
                         </div>
                     </div>
                     <div id="goi_settings" class="card mt-3">
-                        <div class="card-header">Genes of Interest</div>
+                        <div class="card-header">Select Analysis Mode and Gene(s) of Interest</div>
                             <div class="card-body">
                                 {{ analysis_form.composite_analysis_type }}
                                 {{ analysis_form.gene_selected }}
@@ -91,6 +94,9 @@
                         <input type="submit" id="submit_req" class="btn btn-primary mt-3 column">
                     </div>
                 </form>
+            </div>
+            <div class="text-center mt-3 mb-3">
+                <p>Need help? See the <a href="#" target="_blank">TRANSECT command line manual</a> for comprehensive details.</p>
             </div>
         </div>  
     </main>
