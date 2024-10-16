@@ -175,9 +175,9 @@
       document.getElementById("de_view_container").style.display = "block"
       console.log("Hi")
 
-      const de_url_base = "{{ MEDIA_URL }}/media/".concat(analysis).concat("/DE_Analysis/01-Stratification/").concat(gois.join("-"))
+      const de_url_base = "{{ MEDIA_URL }}/media/".concat(analysis).concat("/DE_Analysis/").concat(gois.join("-"))
 
-      const de_url_glimma_base = "{{ MEDIA_URL }}/media/".concat(analysis).concat("/DE_Analysis/02-DE/glimma-plots/").concat(gois.join("-"))
+      const de_url_glimma_base = "{{ MEDIA_URL }}/media/".concat(analysis).concat("/DE_Analysis/glimma-plots/").concat(gois.join("-"))
       const de_url_volcano = de_url_glimma_base.concat("-High_Vs_Low-Volcano.html")
       const de_url_mds_plot = de_url_glimma_base.concat("-MDS-Plot.html")
 
@@ -212,6 +212,13 @@
       document.getElementById("de_mds").src = de_url_mds_plot
 
       const webgestalt_path = "{{ MEDIA_URL }}/media/".concat(analysis).concat("/DE_Analysis/WebGestalt/")
+
+      document.getElementById("ds_down_reg").href = webgestalt_path.concat("Project_enrichDatabaseDS_DOWN_Reg/Report_enrichDatabaseDS_DOWN_Reg.html")
+      document.getElementById("ds_up_reg").href = webgestalt_path.concat("Project_enrichDatabaseDS_UP_Reg/Report_enrichDatabaseDS_UP_Reg.html")
+      document.getElementById("go_down_reg").href = webgestalt_path.concat("Project_enrichDatabaseGO_DOWN_Reg/Report_enrichDatabaseGO_DOWN_Reg.html")
+      document.getElementById("go_up_reg").href = webgestalt_path.concat("Project_enrichDatabaseGO_UP_Reg/Report_enrichDatabaseGO_UP_Reg.html")
+      document.getElementById("pw_down_reg").href = webgestalt_path.concat("Project_enrichDatabasePW_DOWN_Reg/Report_enrichDatabasePW_DOWN_Reg.html")
+      document.getElementById("pw_up_reg").href = webgestalt_path.concat("Project_enrichDatabasePW_UP_Reg/Report_enrichDatabasePW_UP_Reg.html")
 
       //document.getElementById("de_webgestalt").src = webgestalt_path.concat("Project_enrichDatabaseDS_DOWN_Reg/Report_enrichDatabaseDS_DOWN_Reg.html")
 
