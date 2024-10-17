@@ -50,20 +50,8 @@
                             </div>
                         </div>
                     </div>
-                    <span id="analysis_type_span">
-                        <div id="analysis_type" class="card mt-3">
-                            <div class="card-header">Analysis Type</div>
-                                <div class="card-body">
-                                    {{ analysis_form.do_correlation_analysis }} {{ analysis_form.do_correlation_analysis.label_tag }}
-                                    {{ analysis_form.do_de_analysis }} {{ analysis_form.do_de_analysis.label_tag }}
-                                    <div class="text-danger mt-3 submission_alert" id="analysis_type_alert">
-                                        <strong class="mx-2">Error!</strong> Please select an analysis type.
-                                    </div>
-                                </div>
-                        </div>
-                    </span>
-                    <div id="percentile_div" class="card mt-3 de_option">
-                        <div class="card-header">Percentile</div>
+                    <div id="percentile_div" class="card mt-3">
+                        <div class="card-header">5. Select stratification threshold</div>
                             <div class="card-body">
                                 {{ analysis_form.percentile.label_tag }}
                                 <div class="mt-3">{{ analysis_form.percentile }}</div>
@@ -71,7 +59,10 @@
                     </div>
                     <div id="optional_parameters" class="card mt-3 mb-3">
                         <div class="card-header">Optional Parameters</div>
-                            <div class="card-body de_option">
+                            <div class="card-body">
+                                <div id="perform_correlation_analysis">
+                                    {{ analysis_form.do_correlation_analysis }} {{ analysis_form.do_correlation_analysis.label_tag }}
+                                </div>
                                 <div id="use_mirna_button_div">
                                     {{ analysis_form.use_mirna }} {{ analysis_form.use_mirna.label_tag }}
                                 </div>
@@ -106,14 +97,28 @@
             $("[data-toggle=popover]").popover();
         });
 
-        //  <strong class="mx-2 row  justify-content-md-center">{{ analysis_form.errors.as_data.values }}!</strong>
-
         // analysis type choice
         const correlation_checkbox = document.getElementById("correlation_checkbox")
+        correlation_checkbox.addEventListener("change", () => {trigger_corr_checkbox()})
+        const percentile_value = document.getElementById("percentile_value")
+
+        // do not use required=True in Django, otherwise it will permanently want it to have a value
+        percentile_value.required = true;
+
+        function trigger_corr_checkbox() {
+            // alert(percentile_value.required)
+            if (correlation_checkbox.checked) {
+                percentile_value.required = false;
+            } else {
+                percentile_value.required = true;
+            }
+            // alert(percentile_value.required)
+        }
 
         const optional_parameters = document.getElementById("optional_parameters")
 
         // rna species choice
+        // also getting its respective label
         const use_mirna_checkbox = document.getElementById("use_mirna_checkbox")
         mirna_checkbox_label = document.querySelector(`label[for="${use_mirna_checkbox.id}"]`)
 
@@ -143,14 +148,6 @@
             }
         })
 
-        function trigger_de_checkbox() {
-            show_de_options();
-            document.getElementById("analysis_type_alert").style.display = "none";
-        }
-
-        const de_checkbox = document.getElementById("de_checkbox")
-        de_checkbox.addEventListener("change", () => {trigger_de_checkbox()})
-
         // Disable the "Select an option" option in the rna_species dropdown
         // NEED TO WORK OUT WHY I NEEDED THIS OPTION IN THE FIRST PLACE BEFORE I DELETE IT
         // $("#rna_species_choices").change(function() {
@@ -160,6 +157,7 @@
         const composite_analysis_choice = document.getElementById("composite_analysis_choice")
         composite_analysis_choice.addEventListener("change", change_goi_analysis)
 
+        // preventing additional genes being added depending on the length and composite_analysis_choice
         $('#gene_selected').on('select2:opening', function (e) {
             if (($('#gene_selected').val().length === 1 && composite_analysis_choice.value === "Single") ||
             ($('#gene_selected').val().length === 2 && composite_analysis_choice.value === "Ratio") ||
@@ -171,8 +169,11 @@
         })
         $('#gene_selected').on('change', function (e) {
             goi_alert.style.display = 'none'; 
-            console.log($('#gene_selected'))
             if ($('#gene_selected').val().length === 0) {
+                // The selected gene does not go away from the below invisible tag
+                // Hence, rea-adding the same genes in a different order will
+                // Result in the original order being displayed instead
+                // Hence have to remove manually to ensure this does not happen
                 $('#gene_selected')[0].getElementsByTagName("option")[0].remove()
             } else {
                 for (let i = 0; i < $('#gene_selected')[0].getElementsByTagName("option").length; i++ ) {
@@ -189,22 +190,7 @@
             $("option[value='']").prop("disabled", true);
         });
 
-        function enable_analysis_form() {
-            const analysis_type = document.getElementById('analysis_type')
-            analysis_type.style.pointerEvents = 'auto';
-            analysis_type.style.filter = "brightness(1)";
-            document.getElementById('analysis_type_span').style.cursor = "default";
-        }
-
-        function disable_analysis_form() {
-            const analysis_type = document.getElementById('analysis_type')
-            analysis_type.style.pointerEvents = 'none';
-            analysis_type.style.filter = "brightness(0.7)";
-            document.getElementById('analysis_type_span').style.cursor = "not-allowed";
-        }
-
-        // we should also make it such that choosing "Additive" or "ratio" analysis forcibly selects
-        // DE analysis and removes the "Analysis Type" section.
+        // ALSO DISABLE/ENVABLE CORRELATION ANALYSIS CHECKBOX
         function change_goi_analysis() {
             goi_alert.style.display = 'none'
             if (composite_analysis_choice.value === "Single") {
@@ -214,12 +200,7 @@
                     $('#gene_selected option:eq(1)').remove();
                 }
 
-                // same as the bottom when forcing the DE analysis, except we are reversing it here
-                de_checkbox.checked = false
-                trigger_de_checkbox()
-
-                // re-enabling changing analysis type form
-                enable_analysis_form()
+                correlation_checkbox.disabled = false
             } else {
                 if (composite_analysis_choice.value === "Ratio") {
                     // REMOVING EXCESS GOIS, KEEPING FIRST 2
@@ -235,54 +216,13 @@
                         $('#gene_selected option:eq(2)').remove();
                     }
                 }
-
-                // forcibly select DE analysis and unchecking correlation and prevent modifications to the Analysis section
                 
                 correlation_checkbox.checked = false
-                de_checkbox.checked = true
-                trigger_de_checkbox()
-
-                // disabling changing analysis type form
-                disable_analysis_form()
-            }
-        }
-
-        const percentile_textbox = document.getElementById("percentile_value")
-
-        function show_de_options() {
-            const myElements = document.querySelectorAll(".de_option");
-            if (de_checkbox.checked) {
-                percentile_value.required = true;
-                for (let i = 0; i < myElements.length; i++) {
-                    myElements[i].style.display = "block";
-                }
-            } else {
-                // bringing back default values
-                percentile_value.required = false;
-                percentile_textbox.value = ""
-                use_mirna_checkbox.checked = false;
-                document.getElementById("switch_stratum_checkbox").checked = false;
-
-
-                for (let i = 0; i < myElements.length; i++) {
-                    myElements[i].style.display = "none"
-                }
+                correlation_checkbox.disabled = true
             }
         }
 
         $('#input_form').submit(function(e) {
-            if ($('.analysis-type-checkbox:checked').length === 0) {
-                document.getElementById("analysis_type_alert").innerHTML = '<strong class="mx-2">Error!</strong> Please select an analysis type.'
-                document.getElementById("analysis_type_alert").style.display = "block";
-                e.preventDefault();
-            } else if  ($('.analysis-type-checkbox:checked').length === 2) {
-                document.getElementById("analysis_type_alert").innerHTML = '<strong class="mx-2">Error!</strong> Cannot select both analysis simultaneously.'
-                document.getElementById("analysis_type_alert").style.display = "block";
-                e.preventDefault();
-            } else {
-                document.getElementById("analysis_type_alert").style.display = "none";
-            }
-
             const goi_alert = document.getElementById('goi_alert')
             if ($('#gene_selected').val().length === 1 && (composite_analysis_choice.value === "Additive")) {
                 goi_alert.innerHTML = '<strong class="mx-2">Error!</strong> Please enter at least 2 Genes.'
@@ -292,6 +232,9 @@
                 goi_alert.innerHTML = '<strong class="mx-2">Error!</strong> Please enter 2 Genes.'
                 goi_alert.style.display = 'block'
                 e.preventDefault();
+            } else if (correlation_checkbox.checked === true) {
+                e.preventDefault()
+                setTimeout(()=> {console.log("YES"); this.submit()}, 3000);
             }
         });
     </script>
