@@ -36,7 +36,7 @@ def submit_command(sha_hash):
     print(selected_analysis.project.source)
 
     project = selected_analysis.project.name
-    if selected_analysis.project.source == "GDC":
+    if selected_analysis.project.source == "GDC" and selected_analysis.project.is_tcga is True:
         project = "TCGA-" + selected_analysis.project.name
 
     percentile = selected_analysis.percentile

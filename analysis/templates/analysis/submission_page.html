@@ -29,9 +29,10 @@
                         </div>
                     </div>
                     <div id="select_project" class="card mt-3">
-                        <div class="card-header">Select Cancer or Tissue Type
+                        <div class="card-header">
+                            <p style="display: inline;">Select Cancer or Tissue Type</p>
                             <a href="#" target="_blank" title="DB Info">
-                            <img src="{% static 'icons/info-circle.svg' %}" alt="DB Info" class="icon">
+                            <img src="{% static 'icons/info-circle.svg' %}" alt="DB Info" class="icon mb-1">
                         </a></div>
                         <div class="card-body">
                             {{ analysis_form.project }}
@@ -96,7 +97,7 @@
                 </form>
             </div>
             <div class="text-center mt-3 mb-3">
-                <p>Need help? See the <a href="#" target="_blank">TRANSECT command line manual</a> for comprehensive details.</p>
+                <p>Need help? See the <a href="{% static 'manual/TRANSECT_manual.pdf' %}" target="_blank">TRANSECT command line manual</a> for comprehensive details.</p>
             </div>
         </div>  
     </main>
