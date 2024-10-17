@@ -72,14 +72,8 @@ class AnalysisForm(forms.Form):
                                                  label="Correlation Analysis",
                                                  widget=forms.CheckboxInput(attrs={'id': 'correlation_checkbox', 'class': "analysis-type-checkbox"}))
     
-    do_de_analysis = forms.BooleanField(required=False,
-                                          label="Differential Expression Analysis",
-                                          widget=forms.CheckboxInput(attrs={'id': 'de_checkbox', 'class': "analysis-type-checkbox"}))
-
     percentile = forms.IntegerField(required=False,
-                                   label="This program will compare the expressions of " + \
-                                         "samples with a gene expression less than the percentile with the expression " + \
-                                         "of samples greater than 100 - percentile.",
+                                   label="Percentile cutoff used as a threshold for low and high stratum membership. Must be integer between 2 - 25.",
                                    widget=forms.NumberInput(attrs={"id": "percentile_value", 
                                                                    'placeholder': "Type Percentile Here ...",
                                                                    'class': "form-control col-md-2",

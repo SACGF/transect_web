@@ -275,7 +275,7 @@ def display_settings_page(request):
 
             curr_goi_composite_analysis_type = analysis_form.cleaned_data.get('composite_analysis_type')
 
-            primary_analysis_type = "Correlation" if analysis_form.cleaned_data.get('do_correlation_analysis') is True else "DE" if analysis_form.cleaned_data.get('do_de_analysis') is True else None
+            primary_analysis_type = "Correlation" if analysis_form.cleaned_data.get('do_correlation_analysis') is True else "DE"
 
             if primary_analysis_type == "DE":
                 curr_percentile = analysis_form.cleaned_data.get('percentile')
@@ -324,7 +324,7 @@ def display_settings_page(request):
             analysis_query = {}
             analysis_query["analysis"] = str(sha_hash)
             analysis_url = reverse('analysis-fetch', kwargs=analysis_query)
-            if analysis_form.cleaned_data.get('do_de_analysis') == True:
+            if primary_analysis_type == "DE":
                 analysis_url += "?display_gsea=" + str(display_gsea)
             return redirect(analysis_url)
 
