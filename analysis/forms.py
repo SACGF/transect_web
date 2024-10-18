@@ -69,7 +69,7 @@ class AnalysisForm(forms.Form):
                                                                       }))
 
     do_correlation_analysis = forms.BooleanField(required=False,
-                                                 label="Correlation Analysis",
+                                                 label="Run correlation analysis (only valid with single analysis mode, will also ignore stratification threshold and any other optional parameter)",
                                                  widget=forms.CheckboxInput(attrs={'id': 'correlation_checkbox', 'class': "analysis-type-checkbox"}))
     
     percentile = forms.IntegerField(required=False,
@@ -88,5 +88,5 @@ class AnalysisForm(forms.Form):
                                widget=forms.CheckboxInput(attrs={'id': 'switch_stratum_checkbox'}))
     
     display_gsea = forms.BooleanField(required=False,
-                     label="Display GSEA Results",
+                     label="Run GSEA analysis (requires approx. 10-15 minutes to complete)",
                      widget=forms.CheckboxInput(attrs={'id': 'display_gsea_checkbox'}))

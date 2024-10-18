@@ -31,7 +31,7 @@
                     <div id="select_project" class="card mt-3">
                         <div class="card-header">
                             <p style="display: inline;">Select Cancer or Tissue Type</p>
-                            <a href="#" target="_blank" title="DB Info">
+                            <a href="{% static 'manual/All_Study_Abbreviations.pdf' %}" target="_blank" title="DB Info">
                             <img src="{% static 'icons/info-circle.svg' %}" alt="DB Info" class="icon mb-1">
                         </a></div>
                         <div class="card-body">
@@ -125,8 +125,6 @@
         // disabled at the start since no script option chosen
         use_mirna_checkbox.disabled = true;
         use_mirna_checkbox.checked = false;
-        use_mirna_checkbox.style.cursor = "not-allowed";
-        mirna_checkbox_label.style.cursor = "not-allowed";
 
         const script_choice = document.getElementById("script_choice")
 
@@ -143,8 +141,6 @@
             } else {
                 use_mirna_checkbox.disabled = true;
                 use_mirna_checkbox.checked = false;
-                use_mirna_checkbox.style.cursor = "not-allowed";
-                mirna_checkbox_label.style.cursor = "not-allowed";
             }
         })
 
@@ -201,6 +197,7 @@
                 }
 
                 correlation_checkbox.disabled = false
+                trigger_corr_checkbox() // so we can make percentile required/not required
             } else {
                 if (composite_analysis_choice.value === "Ratio") {
                     // REMOVING EXCESS GOIS, KEEPING FIRST 2
@@ -218,6 +215,7 @@
                 }
                 
                 correlation_checkbox.checked = false
+                trigger_corr_checkbox()
                 correlation_checkbox.disabled = true
             }
         }
@@ -232,9 +230,6 @@
                 goi_alert.innerHTML = '<strong class="mx-2">Error!</strong> Please enter 2 Genes.'
                 goi_alert.style.display = 'block'
                 e.preventDefault();
-            } else if (correlation_checkbox.checked === true) {
-                e.preventDefault()
-                setTimeout(()=> {console.log("YES"); this.submit()}, 3000);
             }
         });
     </script>

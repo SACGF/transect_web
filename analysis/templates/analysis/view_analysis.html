@@ -117,7 +117,6 @@
         // document.getElementById("de_gsea_summary_image").src = gsea_url_base.concat("/").concat(gois.join("-")).concat("_Strat_Vs_Curated.html")
           
         const gsea_curated_plotly_data = json_response.gsea_curated_plotly_data
-        console.log(gsea_curated_plotly_data.layout)
         gsea_curated_plotly_data.layout.yaxis.tickformatwidth=50
         const config = {responsive: true} // size of graph automatically changes when size of view changes
         // Create the plot
@@ -173,7 +172,6 @@
       `
 
       document.getElementById("de_view_container").style.display = "block"
-      console.log("Hi")
 
       const de_url_base = "{{ MEDIA_URL }}/media/".concat(analysis).concat("/DE_Analysis/").concat(gois.join("-"))
 
@@ -231,7 +229,6 @@
       if ('{{ display_gsea }}' === "True") {
         all_divs.push("de_gsea_div")
       }
-      console.log(all_divs)
 
       function toggle_de_display(active_div, all_divs) {
         for (let i = 0; i < all_divs.length; i++) {
@@ -440,7 +437,6 @@
 
             //modal_download.addEventListener('click', () => {
             //  const plotHtml = Plotly.toHTML('modal_graph')
-            //  console.log(plotHtml)
             //  //let dummyElement = document.createElement("a");
             //  //dummyElement.href = modal_download.href // Replace "path_to_your_file" with the URL or file path you want to download
             //  //dummyElement.download = dummyElement.href.split("/")[dummyElement.href.split("/").length - 1]; // Replace "filename" with the desired name of the downloaded file
@@ -481,10 +477,8 @@
       let url = "{% url 'analysis-download' analysis_id=analysis %}"
       display_gsea = display_gsea === "True" ? true : false
       url = url.concat("?display_gsea=").concat(display_gsea)
-      console.log(url)
       try {
         const response = await fetch(url)
-        console.log(response)
         if (response.status !== 200) {
             throw new Error(` ${response.status} - ${response.error}`)
         }
