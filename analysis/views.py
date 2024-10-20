@@ -136,7 +136,7 @@ def check_de_finished(request, analysis_id):
     # check to see if the _no_gsea folder exists, if so, then that signals the completion of the DE step
     # potentially also check if the GSEA folder also doesn't exist, if it doesn't after the gsea
     # step is initiated, return "GSEA failed"
-    if os.path.exists(os.path.join(env('OUTPUT_DIR'), str(analysis_id), "_no_gsea.zip")) is False:
+    if os.path.exists(os.path.join(env('OUTPUT_DIR'), str(analysis_id) + "_no_gsea.zip")) is False:
         if analysis.reason_for_failure != "":
             return JsonResponse({'error': 'Analysis Failed. ' + analysis.reason_for_failure}, status=500)
         else:
