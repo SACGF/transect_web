@@ -133,8 +133,10 @@ def check_de_finished(request, analysis_id):
     if analysis.primary_analysis_type == "Correlation":
         return JsonResponse({'error': analysis_id + " is not a Differential Expression Analysis."}, status=500)
 
-    # check to see if the GSEA folder exists, if so, then that signals the completion of the DE step
-    if os.path.exists(os.path.join(env('OUTPUT_DIR'), str(analysis_id), "GSEA")) is False:
+    # check to see if the _no_gsea folder exists, if so, then that signals the completion of the DE step
+    # potentially also check if the GSEA folder also doesn't exist, if it doesn't after the gsea
+    # step is initiated, return "GSEA failed"
+    if os.path.exists(os.path.join(env('OUTPUT_DIR'), str(analysis_id), "_no_gsea.zip")) is False:
         if analysis.reason_for_failure != "":
             return JsonResponse({'error': 'Analysis Failed. ' + analysis.reason_for_failure}, status=500)
         else:
