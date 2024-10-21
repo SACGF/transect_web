@@ -11,7 +11,14 @@ class Genes(models.Model):
 class Projects(models.Model):
     name = models.TextField()
     source = models.TextField() # study source, either TCGA or GTEx
+    id = models.TextField(primary_key=True)
     is_tcga = models.BooleanField(default=False)
+
+    def save(self, *args, **kwargs):
+        # Combine field1 and field2 to generate a unique id
+        # this will make it easier to search for in DAL
+        self.id = f"{self.name}_{self.source}"
+        super(Projects, self).save(*args, **kwargs)
     
     class Meta:
         unique_together = ('name', 'source')
