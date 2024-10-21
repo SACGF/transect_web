@@ -83,7 +83,10 @@
                                 {% endfor %}
                             {% endfor %}
                         {% endif %}
-                        <input type="submit" id="submit_req" class="btn btn-primary mt-3 column">
+                        <div id="submission_button_container" class="d-flex column mt-3 justify-content-md-center">
+                            <input type="submit" id="submit_req" class="btn btn-primary me-3">
+                            <input type="button" value="Demo" id="demo_button" class="btn btn-secondary ms-3" style="width: 200px;">
+                        </div>
                     </div>
                 </form>
             </div>
@@ -101,6 +104,8 @@
         const correlation_checkbox = document.getElementById("correlation_checkbox")
         correlation_checkbox.addEventListener("change", () => {trigger_corr_checkbox()})
         const percentile_value = document.getElementById("percentile_value")
+
+        const demo_button = document.getElementById("demo_button")
 
         // do not use required=True in Django, otherwise it will permanently want it to have a value
         percentile_value.required = true;
@@ -232,6 +237,64 @@
                 e.preventDefault();
             }
         });
+
+        // demo button
+        demo_button.addEventListener("click", async () => {
+            script_choice.value = "GDC"
+            
+            // will need to trigger cleaning function as well
+            composite_analysis_choice.value = "Single"
+
+            // clearing gois
+            for (let i = 0; i < $('#gene_selected')[0].getElementsByTagName("option").length - 1; i++) {
+                $('#gene_selected')[0].getElementsByTagName("option")[0].remove()
+            }
+
+            // programatically bypassing the server submission, etc
+            // double check below in the morning tomorrow
+            const inputElement = $('#id_project');
+            const newOption = new Option("BRCA", "BRCA", true, true);
+            newOption.value="168" // the option we add needs to match the correct value 
+            // ID IS MORE IMPORTANT THAN NAME, AS THAT IS WHAT ACTUALLY WILL CORRESPOND TO THE OPTION
+            // id corresponds to the corresponding id in the projects model
+            inputElement.append(newOption);
+            //inputElement.val("BRCA").trigger('change');
+
+
+            //inputElement.select2('open');
+
+            // Now that Select2 is open, we need to find the search field *inside* this specific instance of Select2
+            //const select2Container = inputElement.data('select2').$dropdown;  // Access the current Select2 dropdown container
+            //const searchField = select2Container.find('.select2-search__field');
+
+            //searchField.val("BRCA");
+            //searchField.trigger('input');
+
+            //const firstResult = select2Container.find('.select2-results__option--highlighted');
+            //firstResult.trigger('mouseup');
+            //$('#id_project').value = 'BRCA'
+
+            //const inputEvent = new Event('input', { bubbles: true });
+            //$('#gene_selected').trigger('input')
+            // $('#gene_selected').trigger('keyup')
+
+            // explanation of the below here: https://stackoverflow.com/questions/63127399/how-to-set-the-value-of-a-django-autocomplete-light-field-dynamically-using-jque
+            
+            // $('#autocomplete-field').val("ZEB1").trigger('change');
+
+            
+            // new_option = new Option("ZEB1", "zeb1_elem", false, false);
+            // $('#gene_selected').append(new_option)
+            // $('#gene_selected').val("zeb1_elem").trigger('change')
+            
+
+            // $('#gene_selected')[0].getElementsByTagName("option")[0].value = "ZEB1"
+
+            percentile_value.value = 2
+
+            
+        })
+
     </script>
   </body>
 </html>
