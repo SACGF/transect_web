@@ -246,27 +246,30 @@
             composite_analysis_choice.value = "Single"
 
             // programatically bypassing the server submission, etc
-            // for the value, it needs to match the ID of the item inside
-            // the search model (otherwise will pull out a different one)
-            // still need to implement a cleaning function
-            const inputElement = $('#id_project');
-            const newOption = new Option("BRCA", "BRCA_GDC", false, true);
-            inputElement.append(newOption);
+            // for the value, it needs to match the ID of the item inside the search model
+            // need to clear all added options and also
 
-            // clearing gois
-            for (let i = 0; i < $('#gene_selected')[0].getElementsByTagName("option").length - 1; i++) {
-                $('#gene_selected')[0].getElementsByTagName("option")[0].remove()
+            const id_project = $('#id_project');
+            for (let i = 0; i < id_project[0].getElementsByTagName("option").length; i++) {
+                id_project[0].getElementsByTagName("option")[0].remove()
+                $('#id_project option:eq(0)').remove();
             }
 
-            // for this one, requirements are much looser as all you need to do is have the value
-            // (second param) match the actual dal value for ZEB1 (also ID is not used)
+            const newOption = new Option("PRAD", "PRAD_GDC", false, true);
+            id_project.append(newOption);
+
+            // clearing gois
+            const gene_selected = $('#gene_selected')
+            for (let i = 0; i < gene_selected[0].getElementsByTagName("option").length; i++) {
+                gene_selected[0].getElementsByTagName("option")[0].remove()
+                $('#gene_selected option:eq(0)').remove();
+            }
+
             new_option = new Option("ZEB1", "ZEB1", false, false);
-            $('#gene_selected').append(new_option)
-            $('#gene_selected').val("ZEB1").trigger('change')
+            gene_selected.append(new_option)
+            gene_selected.val("ZEB1").trigger('change')
             
             percentile_value.value = 2
-
-            
         })
 
     </script>

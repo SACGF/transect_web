@@ -6,6 +6,7 @@ urlpatterns = [
     path('provide_correlation_comparisons/<analysis_id>', views.provide_correlation_comparisons, name='provide-correlation-comparisons'),
     path('download/<analysis_id>', views.download, name='analysis-download'),
     path('check_fully_downloaded/<analysis_id>', views.check_fully_downloaded, name='check-fully-downloaded'),
+    path('get_webgestalt_plots/<analysis_id>', views.get_webgestalt_plots, name='get-webgestalt-plots'),
     path('check_de_finished/<analysis_id>', views.check_de_finished, name='check-de-finished'),
     path('submit', views.display_settings_page, name='analysis-submit'),
     path('fetch/<analysis>/', views.fetch, name='analysis-fetch'),

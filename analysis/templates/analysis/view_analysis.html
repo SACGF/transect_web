@@ -211,14 +211,57 @@
 
       const webgestalt_path = "{{ MEDIA_URL }}/media/".concat(analysis).concat("/DE_Analysis/WebGestalt/")
 
-      document.getElementById("ds_down_reg").href = webgestalt_path.concat("Project_enrichDatabaseDS_DOWN_Reg/Report_enrichDatabaseDS_DOWN_Reg.html")
-      document.getElementById("ds_up_reg").href = webgestalt_path.concat("Project_enrichDatabaseDS_UP_Reg/Report_enrichDatabaseDS_UP_Reg.html")
-      document.getElementById("go_down_reg").href = webgestalt_path.concat("Project_enrichDatabaseGO_DOWN_Reg/Report_enrichDatabaseGO_DOWN_Reg.html")
-      document.getElementById("go_up_reg").href = webgestalt_path.concat("Project_enrichDatabaseGO_UP_Reg/Report_enrichDatabaseGO_UP_Reg.html")
-      document.getElementById("pw_down_reg").href = webgestalt_path.concat("Project_enrichDatabasePW_DOWN_Reg/Report_enrichDatabasePW_DOWN_Reg.html")
-      document.getElementById("pw_up_reg").href = webgestalt_path.concat("Project_enrichDatabasePW_UP_Reg/Report_enrichDatabasePW_UP_Reg.html")
+      // <div class="d-flex flex-column align-items-center">
+      //     <h4 id="strat_boxplot_image_title" class="mt-3"></h4>
+      //     <div id="strat_boxplot_div" style="height: 800px; width: 100%;">
+      //         <iframe id="strat_boxplot_image" class="iframe_div"></iframe>
+      //     </div>
+      // </div>
 
-      //document.getElementById("de_webgestalt").src = webgestalt_path.concat("Project_enrichDatabaseDS_DOWN_Reg/Report_enrichDatabaseDS_DOWN_Reg.html")
+      // display webgestalt plots (if they are there)
+      // EDIT HERE
+      const webgestalt_json_response = await fetch_response("{% url 'get-webgestalt-plots' analysis_id=analysis %}")
+      const de_webgestalt_plots_div = document.getElementById("de_webgestalt_plots_div")
+      if (webgestalt_json_response.webgestalt_plots_to_display.length === 0) {
+        const nothing_div = document.createElement("div");
+        nothing_div.className = "d-flex flex-column align-items-center mt-3 mb-3"
+        nothing_div.innerHTML = "No WebGestalt plots Were found"
+        de_webgestalt_plots_div.appendChild(nothing_div)
+      } else {
+        for (let i = 0; i < webgestalt_json_response.webgestalt_plots_to_display.length; i++) {
+          let curr_webgestalt_item = webgestalt_json_response.webgestalt_plots_to_display[i]
+
+          // main plot div
+          const curr_webge_item = document.createElement("div");
+          curr_webge_item.className = "d-flex flex-column align-items-center mt-3 mb-5"
+
+          // title
+          const curr_webge_plot_header = document.createElement("h4");
+          curr_webge_plot_header.className = "mt-3"
+          curr_webge_plot_header.id = curr_webgestalt_item.concat("_image_title")
+          curr_webge_plot_header.innerHTML = curr_webgestalt_item
+          curr_webge_plot_header.style.textDecoration = "underline"
+
+          curr_webge_item.appendChild(curr_webge_plot_header)
+
+          // plot div
+          const curr_webge_plot_div = document.createElement("div");
+          curr_webge_plot_div.id =  curr_webgestalt_item.concat("_plot_div")
+          curr_webge_plot_div.style = "height: 400px; width: 100%;"
+
+          // iframe
+          const curr_webge_iframe = document.createElement("iframe");
+          curr_webge_iframe.id = curr_webgestalt_item.concat("_image")
+          curr_webge_iframe.className = "iframe_div"
+          curr_webge_iframe.src = "{{ MEDIA_URL }}/media/".concat(analysis).concat("/DE_Analysis/WebGestalt/Project_enrichDatabase").concat(curr_webgestalt_item).concat("/Summary_enrichDatabase").concat(curr_webgestalt_item).concat(".html")
+
+          curr_webge_plot_div.appendChild(curr_webge_iframe)
+          curr_webge_item.appendChild(curr_webge_plot_div)
+
+          de_webgestalt_plots_div.appendChild(curr_webge_item)
+        }
+      }
+        
 
       let all_divs = []
       all_divs.push("de_summary_div")

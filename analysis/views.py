@@ -128,6 +128,18 @@ def fetch_high_corr_gene_exprs(request, analysis_id, gene1_id, gene2_id):
 
     return JsonResponse(expression_scores)
 
+def get_webgestalt_plots(request, analysis_id):
+    analysis = get_object_or_404(Analysis, sha_hash=str(analysis_id))
+    if analysis.primary_analysis_type == "Correlation":
+        return JsonResponse({'error': analysis_id + " is not a Differential Expression Analysis."}, status=500)
+
+    webgestalt_plots_to_display = []
+    for webgestalt_plot in ["GO_UP_Reg", "GO_DOWN_Reg", "DS_UP_Reg", "DS_DOWN_Reg", "PW_UP_Reg", "PW_DOWN_Reg"]:
+        if os.path.exists(os.path.join(env('OUTPUT_DIR'), str(analysis_id), "DE_Analysis", "WebGestalt", "Project_enrichDatabase" + webgestalt_plot, "Summary_enrichDatabase" + webgestalt_plot + ".html")):
+            webgestalt_plots_to_display.append(webgestalt_plot)
+
+    return JsonResponse({'webgestalt_plots_to_display': webgestalt_plots_to_display}, status=200)
+
 def check_de_finished(request, analysis_id):
     analysis = get_object_or_404(Analysis, sha_hash=str(analysis_id))
     if analysis.primary_analysis_type == "Correlation":
