@@ -323,6 +323,17 @@ def display_settings_page(request):
 
             if not created:
                 if newAnalysis.reason_for_failure != "":
+                    # when re-rendering the gene_selected field, the page appears to rearrange
+                    # the gene positions to be alphabetical (not sure why), 
+                    # as a simple fix, delete the gois 
+                    post_data = request.POST.copy()
+                    post_data.setlist('gene_selected', [])  # Clear selected options
+                    analysis_form = AnalysisForm(post_data)  # Re-create the form with modified data
+
+                    # doing the above will add the "This Field is Required" error, since it will be empty,
+                    # need to delete it
+                    # also put my custom error after because the error above will overwrite it
+                    del analysis_form.errors['gene_selected']
                     analysis_form.add_error(None, newAnalysis.reason_for_failure) # first attribute is field
                     return render(request, 'analysis/submission_page.html', {"analysis_form": analysis_form})
                 else:

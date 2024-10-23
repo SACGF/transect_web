@@ -51,7 +51,7 @@
                         </div>
                     </div>
                     <div id="percentile_div" class="card mt-3">
-                        <div class="card-header">5. Select stratification threshold</div>
+                        <div class="card-header">Select stratification threshold</div>
                             <div class="card-body">
                                 {{ analysis_form.percentile.label_tag }}
                                 <div class="mt-3">{{ analysis_form.percentile }}</div>
@@ -270,6 +270,15 @@
             gene_selected.val("ZEB1").trigger('change')
             
             percentile_value.value = 2
+
+            correlation_checkbox.checked = false
+            use_mirna_checkbox.checked = false;
+
+            const switch_stratum_checkbox = document.getElementById("switch_stratum_checkbox")
+            switch_stratum_checkbox.checked = false
+
+            const display_gsea_checkbox = document.getElementById("display_gsea_checkbox")
+            display_gsea_checkbox.checked = true;
         })
 
     </script>

@@ -239,8 +239,16 @@
           const curr_webge_plot_header = document.createElement("h4");
           curr_webge_plot_header.className = "mt-3"
           curr_webge_plot_header.id = curr_webgestalt_item.concat("_image_title")
-          curr_webge_plot_header.innerHTML = curr_webgestalt_item
           curr_webge_plot_header.style.textDecoration = "underline"
+
+          const curr_webge_index = document.createElement("a");
+          curr_webge_index.id = curr_webgestalt_item.concat("_index_link")
+          curr_webge_index.innerHTML = curr_webgestalt_item
+          curr_webge_index.href = "{{ MEDIA_URL }}/media/".concat(analysis).concat("/DE_Analysis/WebGestalt/Project_enrichDatabase").concat(curr_webgestalt_item).concat("/Report_enrichDatabase").concat(curr_webgestalt_item).concat(".html")
+          curr_webge_index.target = "_blank" 
+          curr_webge_index.rel = "noopener noreferrer"
+          
+          curr_webge_plot_header.appendChild(curr_webge_index)
 
           curr_webge_item.appendChild(curr_webge_plot_header)
 

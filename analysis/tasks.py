@@ -130,8 +130,6 @@ def clean_database_and_analysis():
         # hash id of demo case, never delete this
         if analysis.sha_hash == "4684d5ebb2cc6f149da60b9e59055087dbeafe1d":
             continue
-        print(analysis)
-        print(analysis.modified)
         Analysis.objects.filter(modified__lt=time_threshold).delete()
 
     # remove databases without an output directory, vice-versa
