@@ -111,21 +111,16 @@
         percentile_value.required = true;
 
         function trigger_corr_checkbox() {
-            // alert(percentile_value.required)
             if (correlation_checkbox.checked) {
                 percentile_value.required = false;
             } else {
                 percentile_value.required = true;
             }
-            // alert(percentile_value.required)
         }
-
-        const optional_parameters = document.getElementById("optional_parameters")
 
         // rna species choice
         // also getting its respective label
         const use_mirna_checkbox = document.getElementById("use_mirna_checkbox")
-        mirna_checkbox_label = document.querySelector(`label[for="${use_mirna_checkbox.id}"]`)
 
         // disabled at the start since no script option chosen
         use_mirna_checkbox.disabled = true;
@@ -141,19 +136,11 @@
             // also disable use_mirna_checkbox if not using GDC
             if (script_choice.value === "GDC") {
                 use_mirna_checkbox.disabled = false;
-                use_mirna_checkbox.style.cursor = "default";
-                mirna_checkbox_label.style.cursor = "default";
             } else {
                 use_mirna_checkbox.disabled = true;
                 use_mirna_checkbox.checked = false;
             }
         })
-
-        // Disable the "Select an option" option in the rna_species dropdown
-        // NEED TO WORK OUT WHY I NEEDED THIS OPTION IN THE FIRST PLACE BEFORE I DELETE IT
-        // $("#rna_species_choices").change(function() {
-        //     $("option[value='']").prop("disabled", true);
-        // });
 
         const composite_analysis_choice = document.getElementById("composite_analysis_choice")
         composite_analysis_choice.addEventListener("change", change_goi_analysis)
@@ -240,10 +227,17 @@
 
         // demo button
         demo_button.addEventListener("click", async () => {
+            // re-enable mirna checkbox
             script_choice.value = "GDC"
+            use_mirna_checkbox.disabled = false
+            use_mirna_checkbox.checked = false
             
             // will need to trigger cleaning function as well
+            // re-enable correlation checkbox and make percentile value required again
             composite_analysis_choice.value = "Single"
+            correlation_checkbox.disabled = false
+            correlation_checkbox.checked = false
+            trigger_corr_checkbox() // to make percentile value required since correlation_checkbox is not ticked
 
             // programatically bypassing the server submission, etc
             // for the value, it needs to match the ID of the item inside the search model
@@ -270,9 +264,6 @@
             gene_selected.val("ZEB1").trigger('change')
             
             percentile_value.value = 2
-
-            correlation_checkbox.checked = false
-            use_mirna_checkbox.checked = false;
 
             const switch_stratum_checkbox = document.getElementById("switch_stratum_checkbox")
             switch_stratum_checkbox.checked = false

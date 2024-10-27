@@ -58,6 +58,13 @@
     </div>
   </body>
   <script>
+
+    // enable tooltips
+    let tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    let tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+      return new bootstrap.Tooltip(tooltipTriggerEl)
+    })
+
     // if having issues with the negative values in plotly: https://github.com/plotly/plotly.js/issues/5327
     // const modal_download = document.getElementById("modal_download")
     const image_modal = document.getElementById("image_modal")

@@ -1,4 +1,5 @@
 <div id="de_view_container" style="width: 100%; height: 100%; display: none;">
+    {% load static %} 
     <h2 class="ml-3 mt-3 d-flex align-items-center justify-content-center" id="results_header" style="display: none;"></h2>
     <div class="mt-3 d-flex justify-content-center">
         <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
@@ -20,10 +21,9 @@
             {% endif %}
         </div>
     </div>
-
     <div class="de_results">
         <div id="de_summary_div">
-            <h3 class="d-flex justify-content-center mt-3">DE Summary</h3>
+            <h3 class="d-flex justify-content-center mt-3">DE Summary <img class="img-fluid ms-2" data-bs-toggle="tooltip" title="You can hover over the bars/points to see more information." src="{% static 'icons/question-circle.svg' %}"></h3> 
             <div id="de_summary_plots" class="card mt-3">
                 <div class="card-header">DE Summary Plots</div>
                 <div>
@@ -49,21 +49,21 @@
             </div>
         </div>
         <div id="de_mds_div" style="overflow: hidden; display: none;">
-            <h3 class="d-flex justify-content-center mt-3">MDS Plot</h3>
+            <h3 class="d-flex justify-content-center mt-3">MDS Plot <img class="img-fluid ms-2" data-bs-toggle="tooltip" data-bs-html="true" title="<ul><li>On the MDS plot, hover over the points to see more information about the sample. You can also click on the point to highlight it in the table at the bottom.</li><li>Click on the bars on the variance barchart to compare the samples acrosss different dimensions.</li><li>To open the table at the bottom, click on the table header.</li></ul>" src="{% static 'icons/question-circle.svg' %}"></h3>
             <div class="card mt-3" style="height: 800px;">
                 <div class="card-header">DE MDS Plot</div>
                 <iframe id="de_mds" class="iframe_div"></iframe>
             </div>
         </div>
         <div id="de_volcano_div" style="overflow: hidden; display: none;">
-            <h3 class="d-flex justify-content-center mt-3">Volcano Plot</h3>
+            <h3 class="d-flex justify-content-center mt-3">Volcano Plot <img class="img-fluid ms-2" data-bs-toggle="tooltip" data-bs-html="true" title="<ul><li>Click on any gene on the High_Vs_Low plot to see its expressions compared between the high/low cohort.</li><li>There is a table at the bottom which contains the DE summary for every gene. To open it, click on the table headers. You can click on any row to see its gene expressions when compared between the high/low cohort.</li></ul>" src="{% static 'icons/question-circle.svg' %}"></h3>
             <div class="card mt-3" style="height: 800px;">
                 <div class="card-header">DE Volcano Plot</div>
                 <iframe id="de_volcano" class="iframe_div"></iframe>
             </div>
         </div>
         <div id="de_webgestalt_div" style="overflow: hidden; display: none;">
-            <h3 class="d-flex justify-content-center mt-3">WebGestalt</h3>
+            <h3 class="d-flex justify-content-center mt-3">WebGestalt <img class="img-fluid ms-2" data-bs-toggle="tooltip" data-bs-html="true" title="<ul><li>Click on any plot title to see its full WebGestalt summary.</li><li>Hover on the bars to see more information about the pathway.</li></ul>" src="{% static 'icons/question-circle.svg' %}"></h3>
             <div class="card mt-3">
                 <div class="card-header">DE WebGestalt</div>
                 <div id="de_webgestalt_plots_div">
@@ -85,7 +85,7 @@
                 </div>
             </div>
             <div id="gsea_content" class="ml-3 mt-3 justify-content-md-center" style="display: none;">
-                <h3 class="d-flex justify-content-center mt-3">GSEA Summary</h3>
+                <h3 class="d-flex justify-content-center mt-3">GSEA Summary <img class="img-fluid ms-2" data-bs-toggle="tooltip" data-bs-html="true" title="<ul><li>Hover over the bars to see more information about the pathway.</li><li>Click on the bar to see the full GSEA summary for that pathway.</li><li>There are links at the bottom of the page that take you to the Hallmark/Curated GSEA reports.</li></ul>" src="{% static 'icons/question-circle.svg' %}"></h3>
                 <div class="card mt-3">
                     <div class="card-header">DE GSEA Plot</div>
                     <div id="de_gsea_summary_div" style="height: 800px; width: 100%;">

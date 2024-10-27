@@ -1,7 +1,8 @@
 <div id="correlation_view_container" style="display: none;">
+    {% load static %} 
     <h2 class="ml-3 mt-3 d-flex align-items-center justify-content-center" id="results_header" style="display: none;"></h2>
     <div id="correlation_volcano_card" class="card mt-3">
-        <div class="card-header">Volcano Plot</div>
+        <div class="card-header">Volcano Plot <img class="img-fluid ms-2 mb-1" data-bs-toggle="tooltip" title="You can hover over the points to see a more detailed gene correlation summary for that gene." src="{% static 'icons/question-circle.svg' %}"></div>
         <div class="card-body d-flex align-items-center justify-content-center">
             <div id="correlation_volcano_div" style="height: 800px; width: 100%;">
                 <iframe id="correlation_volcano_graph" class="iframe_div"></iframe>
@@ -9,7 +10,7 @@
         </div>
     </div>
     <div id="correlation_tsv_card" class="card mt-3">
-        <div class="card-header">Correlation Table</div>
+        <div class="card-header">Correlation Table <img class="img-fluid ms-2 mb-1" data-bs-toggle="tooltip" title="If there is a small graph icon next to the gene name, you can click on it to see the expression scatterplot between that gene and your gene of interest. On that plot, you can also hover over the points to see the gene expressions for that patient." src="{% static 'icons/question-circle.svg' %}"></div>
         <div class="card-body">
             <table id="correlation_comparison_table" class="table table-bordered table-striped">
                 <thead>
