@@ -267,7 +267,7 @@
           // iframe
           const curr_webge_iframe = document.createElement("iframe");
           curr_webge_iframe.id = curr_webgestalt_item.concat("_image")
-          curr_webge_iframe.className = "iframe_div"
+          curr_webge_iframe.className = "iframe_div de_webgestalt_iframe"
           curr_webge_iframe.src = "{{ MEDIA_URL }}/media/".concat(analysis).concat("/DE_Analysis/WebGestalt/Project_enrichDatabase").concat(curr_webgestalt_item).concat("/Summary_enrichDatabase").concat(curr_webgestalt_item).concat(".html")
 
           curr_webge_plot_div.appendChild(curr_webge_iframe)
@@ -316,6 +316,12 @@
       const toggle_webgestalt_summary = document.getElementById("toggle_webgestalt_summary")
       toggle_webgestalt_summary.addEventListener('click', () => {
         toggle_de_display("de_webgestalt_div", all_divs)
+        const webgestalt_iframes = document.querySelectorAll('iframe.de_webgestalt_iframe');
+
+        // Loop through each iframe and reload it
+        webgestalt_iframes.forEach(webgestalt_iframe => {
+          webgestalt_iframe.contentWindow.location.reload();
+        });
       })
 
       if ('{{ display_gsea }}' === "True") {
