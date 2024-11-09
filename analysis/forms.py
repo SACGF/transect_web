@@ -46,6 +46,7 @@ class AnalysisForm(forms.Form):
     gene_selected = forms.ModelMultipleChoiceField(queryset=Genes.objects.all(),
                                          required=True,
                                          widget=autocomplete.ModelSelect2Multiple(url='genes-autocomplete',
+                                                             forward=("script_type", "use_mirna", ),  
                                                              attrs={'data-placeholder': 'Genes ...',
                                                                     'data-minimum-input-length': 2,
                                                                     'id': 'gene_selected', 

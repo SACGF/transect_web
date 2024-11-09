@@ -123,14 +123,10 @@ def submit_command(sha_hash):
 @shared_task(queue='script_queue')
 def clean_database_and_analysis():
     # removes items that were last accessed more than 24 hours ago
-    for analysis in Analysis.objects.all():
-        time_threshold = timezone.now() - timedelta(hours=24)
-        # no need to delete folders individually as we have a signal that handles that
-        
-        # hash id of demo case, never delete this
-        if analysis.sha_hash == "4684d5ebb2cc6f149da60b9e59055087dbeafe1d":
-            continue
-        Analysis.objects.filter(modified__lt=time_threshold).delete()
+    # no need to delete folders individually as we have a signal that handles that
+    # hash id of demo case, never delete this: 4684d5ebb2cc6f149da60b9e59055087dbeafe1d
+    time_threshold = timezone.now() - timedelta(hours=24)
+    Analysis.objects.filter(modified__lt=time_threshold).exclude(sha_hash="4684d5ebb2cc6f149da60b9e59055087dbeafe1d").delete()
 
     # remove databases without an output directory, vice-versa
     # if a database lacks an associated .zip or general output directory then delete it

@@ -64,8 +64,6 @@ def provide_correlation_comparisons(request, analysis_id):
     if analysis.primary_analysis_type != "Correlation":
         return JsonResponse({'error': f'{analysis_id} is not a correlation analysis'}, status=500)
     
-    print("YES")
-
     # its better to put items that exist at the front of the table and then return an index indicating
     # the last item that has a plot
     # to enable this solution, we will prepend items that have a plot to the start of the table_items list
@@ -236,6 +234,14 @@ class GenesAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
         qs = Genes.objects.all()
 
+        script_type = self.forwarded.get('script_type')
+        use_mirna = self.forwarded.get('use_mirna')
+
+        if script_type == "GDC" and use_mirna is True: # safety check, though it should be impossible to check use_mirna if you have not selected GDC
+            qs = qs.filter(name__istartswith="hsa-miR-")
+        else:
+            qs = qs.exclude(name__istartswith="hsa-miR-")
+
         if self.q:
             qs = qs.filter(name__istartswith=self.q) # i at the start of contains indicates case insensitivity
             # good idea to sort by length of items, with shorter genes being brought up first
@@ -256,6 +262,7 @@ class ProjectsAutocomplete(autocomplete.Select2QuerySetView):
             qs = qs.filter(name__istartswith=self.q)
             # since project names are more complex, we cannot simply filter by only GTEx or GDC
             qs = qs.filter(source=script_type)
+            # finally, if GDC, filter depending on whether miRNA selected or not
 
         return qs
 
@@ -375,7 +382,7 @@ def fetch(request, analysis):
                         'is_switch_stratum': filter_obj.switch_stratum,
                         'analysis_type': filter_obj.primary_analysis_type, 
                         'composite_analysis_type': filter_obj.composite_analysis_type,
-                        'expected_time': "1 minute for just the DE part" if filter_obj.primary_analysis_type == "DE" else "5 minutes"
+                        'expected_time': "3 minutes for just the DE part" if filter_obj.primary_analysis_type == "DE" else "5 minutes"
                     }
     
     if filter_obj.primary_analysis_type != "Correlation":
