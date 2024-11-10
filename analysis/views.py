@@ -232,15 +232,13 @@ def download(request, analysis_id):
 
 class GenesAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
-        qs = Genes.objects.all()
-
         script_type = self.forwarded.get('script_type')
         use_mirna = self.forwarded.get('use_mirna')
 
         if script_type == "GDC" and use_mirna is True: # safety check, though it should be impossible to check use_mirna if you have not selected GDC
-            qs = qs.filter(name__istartswith="hsa-")
+            qs = Genes.objects.filter(name__istartswith="hsa-")
         else:
-            qs = qs.exclude(name__istartswith="hsa-")
+            qs = Genes.objects.exclude(name__istartswith="hsa-")
 
         if self.q:
             qs = qs.filter(name__istartswith=self.q) # i at the start of contains indicates case insensitivity

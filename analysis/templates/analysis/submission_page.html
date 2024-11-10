@@ -118,6 +118,14 @@
             }
         }
 
+        function delete_all_gois() {
+            const gene_selected = $('#gene_selected')
+            for (let i = 0; i < gene_selected[0].getElementsByTagName("option").length; i++) {
+                gene_selected[0].getElementsByTagName("option")[0].remove()
+                $('#gene_selected option:eq(0)').remove();
+            }
+        }
+
         // rna species choice
         // also getting its respective label
         const use_mirna_checkbox = document.getElementById("use_mirna_checkbox")
@@ -125,6 +133,9 @@
         // disabled at the start since no script option chosen
         use_mirna_checkbox.disabled = true;
         use_mirna_checkbox.checked = false;
+
+        // clear gois whenever use_mirna_checkbox is clicked
+        use_mirna_checkbox.addEventListener("change", () => { delete_all_gois() })
 
         const script_choice = document.getElementById("script_choice")
 
@@ -137,6 +148,10 @@
             if (script_choice.value === "GDC") {
                 use_mirna_checkbox.disabled = false;
             } else {
+                // add an additional check here, to see if the use_mirna_checkbox was checked, if so, remove the gois
+                if (use_mirna_checkbox.checked === true) {
+                    delete_all_gois()
+                }
                 use_mirna_checkbox.disabled = true;
                 use_mirna_checkbox.checked = false;
             }
@@ -253,11 +268,7 @@
             id_project.append(newOption);
 
             // clearing gois
-            const gene_selected = $('#gene_selected')
-            for (let i = 0; i < gene_selected[0].getElementsByTagName("option").length; i++) {
-                gene_selected[0].getElementsByTagName("option")[0].remove()
-                $('#gene_selected option:eq(0)').remove();
-            }
+            delete_all_gois()
 
             new_option = new Option("ZEB1", "ZEB1", false, false);
             gene_selected.append(new_option)
