@@ -268,8 +268,6 @@
           const curr_webge_iframe = document.createElement("iframe");
           curr_webge_iframe.id = curr_webgestalt_item.concat("_image")
           curr_webge_iframe.className = "iframe_div de_webgestalt_iframe"
-          curr_webge_iframe.src = "{{ MEDIA_URL }}/media/".concat(analysis).concat("/DE_Analysis/WebGestalt/Project_enrichDatabase").concat(curr_webgestalt_item).concat("/Summary_enrichDatabase").concat(curr_webgestalt_item).concat(".html")
-          curr_webge_iframe.onload = function() { curr_webge_iframe.contentWindow.location.reload(); curr_webge_iframe.onload = null;};
 
           curr_webge_plot_div.appendChild(curr_webge_iframe)
           curr_webge_item.appendChild(curr_webge_plot_div)
@@ -317,6 +315,13 @@
       const toggle_webgestalt_summary = document.getElementById("toggle_webgestalt_summary")
       toggle_webgestalt_summary.addEventListener('click', () => {
         toggle_de_display("de_webgestalt_div", all_divs)
+        const webgestalt_iframes = document.querySelectorAll(".de_webgestalt_iframe")
+        webgestalt_iframes.forEach((webgestalt_iframe) => {
+          if (!webgestalt_iframe.getAttribute("src")) {
+            const curr_webgestalt_item =  webgestalt_iframe.id.replace("_image", "")
+            webgestalt_iframe.src = "{{ MEDIA_URL }}/media/".concat('{{ analysis }}').concat("/DE_Analysis/WebGestalt/Project_enrichDatabase").concat(curr_webgestalt_item).concat("/Summary_enrichDatabase").concat(curr_webgestalt_item).concat(".html")
+          }
+        })
       })
 
       if ('{{ display_gsea }}' === "True") {
