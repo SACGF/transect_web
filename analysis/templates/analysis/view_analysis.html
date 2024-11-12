@@ -149,9 +149,13 @@
           window.open(gsea_url_base.concat("/").concat(json_response.curated_report_root).concat("/").concat(pathway).concat(".html"), '_blank');
         });
 
-        // EDIT HERE NOW
+        // do not throw error, simply inform the user that the analysis has failed
       } catch (exception) {
-        throw new Error(exception)
+        const gsea_reports = document.getElementById("gsea_reports");
+        gsea_reports.remove();
+        const gsea_summary_plot = document.getElementById("de_gsea_summary_image")
+        gsea_summary_plot.className = "d-flex flex-column align-items-center mt-3 mb-3"
+        gsea_summary_plot.innerHTML = "GSEA step failed."
       }
 
       const gsea_content = document.getElementById("gsea_content")
@@ -540,6 +544,8 @@
     async function download_single_analysis(analysis, display_gsea=false) {
       let url = "{% url 'analysis-download' analysis_id=analysis %}"
       display_gsea = display_gsea === "True" ? true : false
+      // if GSEA failed, fetch non GSEA version
+      if (display_gsea && !document.getElementById("gsea_reports")) display_gsea = false
       url = url.concat("?display_gsea=").concat(display_gsea)
       try {
         const response = await fetch(url)
