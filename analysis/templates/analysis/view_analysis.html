@@ -119,36 +119,51 @@
       try {
         const json_response = await fetch_response("{% url 'fetch-gsea-summary' analysis_id=analysis %}")
 
-        document.getElementById("gsea_hallmark_report").href = gsea_url_base.concat("/").concat(json_response.hallmark_report_root).concat("/index.html")
-        document.getElementById("gsea_curated_report").href = gsea_url_base.concat("/").concat(json_response.curated_report_root).concat("/index.html")
+        if ('{{ rna_species }}' === "mRNA") {
+          document.getElementById("gsea_hallmark_report").href = gsea_url_base.concat("/").concat(json_response.hallmark_report_root).concat("/index.html")
+          document.getElementById("gsea_curated_report").href = gsea_url_base.concat("/").concat(json_response.curated_report_root).concat("/index.html")
+        } else {
+          document.getElementById("gsea_mirna_inhouse_targetscan_report").href = gsea_url_base.concat("/").concat(json_response.inhouse_targetscan_report_root).concat("/index.html")
+        }
         // document.getElementById("de_gsea_summary_image").src = gsea_url_base.concat("/").concat(gois.join("-")).concat("_Strat_Vs_Curated.html")
-          
-        const gsea_curated_plotly_data = json_response.gsea_curated_plotly_data
-        gsea_curated_plotly_data.layout.yaxis.tickformatwidth=50
-        const config = {responsive: true} // size of graph automatically changes when size of view changes
-        // Create the plot
-        Plotly.newPlot('de_gsea_summary_image', gsea_curated_plotly_data.data, gsea_curated_plotly_data.layout, config);
-        setTimeout(()=> {window.dispatchEvent(new Event('resize'));}, 0.1);
+        
+        if ("gsea_plotly_data" in json_response) {
+          const gsea_plotly_data = json_response.gsea_plotly_data
+          gsea_plotly_data.layout.yaxis.tickformatwidth=50
+          const config = {responsive: true} // size of graph automatically changes when size of view changes
+          // Create the plot
+          Plotly.newPlot('de_gsea_summary_image', gsea_plotly_data.data, gsea_plotly_data.layout, config);
+          setTimeout(()=> {window.dispatchEvent(new Event('resize'));}, 0.1);
 
-        // in the plot there are 2 separate data arrays supplied for the bars
-        // first one is for the positive values, second one is for the negative value
-        // in the data when the points are combined, eg. the ticktext attribute
-        // the negative stuff is displayed first and correspond to the order of
-        // the y-labels in the plot from bottom to top
-        // therefore we need to know how many negative items there are, so we
-        // can correctly get the index of the positive items to fetch the correct
-        // name from ticktext
+          // in the plot there are 2 separate data arrays supplied for the bars
+          // first one is for the positive values, second one is for the negative value
+          // in the data when the points are combined, eg. the ticktext attribute
+          // the negative stuff is displayed first and correspond to the order of
+          // the y-labels in the plot from bottom to top
+          // therefore we need to know how many negative items there are, so we
+          // can correctly get the index of the positive items to fetch the correct
+          // name from ticktext
 
-        const gsea_summary_plot = document.getElementById("de_gsea_summary_image")
-        let num_negative_offset = 0
-        if (gsea_summary_plot.data.length === 2) num_negative_offset = gsea_summary_plot.data[1].x.length // second array contains the negative stuff
+          const gsea_summary_plot = document.getElementById("de_gsea_summary_image")
+          let num_negative_offset = 0
+          if (gsea_summary_plot.data.length === 2) num_negative_offset = gsea_summary_plot.data[1].x.length // second array contains the negative stuff
 
-        gsea_summary_plot.on('plotly_click', function(data){
-          let pointIndex = data.points[0].pointIndex 
-          pointIndex = data.points[0].x > 0 ? pointIndex + num_negative_offset : pointIndex
-          const pathway = data.points[0].yaxis.ticktext[pointIndex]
-          window.open(gsea_url_base.concat("/").concat(json_response.curated_report_root).concat("/").concat(pathway).concat(".html"), '_blank');
-        });
+          gsea_summary_plot.on('plotly_click', function(data){
+            let pointIndex = data.points[0].pointIndex 
+            pointIndex = data.points[0].x > 0 ? pointIndex + num_negative_offset : pointIndex
+            const pathway = data.points[0].yaxis.ticktext[pointIndex]
+            console.log(data.points)
+            if ('{{ rna_species }}' === "mRNA") {
+              window.open(gsea_url_base.concat("/").concat(json_response.curated_report_root).concat("/").concat(pathway).concat(".html"), '_blank');
+            } else {
+              window.open(gsea_url_base.concat("/").concat(json_response.inhouse_targetscan_report_root).concat("/").concat(pathway).concat(".html"), '_blank');
+            }
+          });
+        } else {
+          const gsea_summary_plot = document.getElementById("de_gsea_summary_image")
+          gsea_summary_plot.className = "d-flex flex-column align-items-center mt-3 mb-3"
+          gsea_summary_plot.innerHTML = "Main GSEA plot not found."
+        }
 
         // do not throw error, simply inform the user that the analysis has failed
       } catch (exception) {

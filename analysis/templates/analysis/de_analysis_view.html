@@ -92,8 +92,12 @@
                         <div id="de_gsea_summary_image" style="width: 100%; height: 100%"></div>
                     </div>
                     <div id="gsea_reports" class="ml-3 mt-3 mb-3 d-flex justify-content-around" style="width: 100%;">
-                        <a href="" id="gsea_hallmark_report" target="_blank" rel="noopener noreferrer">GSEA Hallmark Report</a>
-                        <a href="" id="gsea_curated_report" target="_blank" rel="noopener noreferrer">GSEA Curated Report</a>
+                        {% if rna_species == "mRNA" %}
+                            <a href="" id="gsea_hallmark_report" target="_blank" rel="noopener noreferrer">GSEA Hallmark Report</a>
+                            <a href="" id="gsea_curated_report" target="_blank" rel="noopener noreferrer">GSEA Curated Report</a>
+                        {% elif rna_species == "miRNA" %}
+                            <a href="" id="gsea_mirna_inhouse_targetscan_report" target="_blank" rel="noopener noreferrer">GSEA Inhouse Target Scan Report</a>
+                        {% endif %}
                     </div>
                 </div>
             </div>

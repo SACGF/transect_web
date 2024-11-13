@@ -36,26 +36,46 @@ def FetchGseaSummary(request, analysis_id):
     gois = list(analysis.genes_of_interest.all().values_list("name", flat=True))
 
     GSEA_path = os.path.join(env('OUTPUT_DIR'), str(analysis_id), "GSEA")
-    GSEA_summary = os.path.join(GSEA_path, "-".join(gois) + "_Strat_Vs_Curated.html")
-    if os.path.exists(GSEA_path) is False or os.path.exists(GSEA_summary) is False:
-        return JsonResponse({'error': f'{analysis_id} does not contain sufficient data '}, status=500)
 
-    hallmark_report_root = ""
-    curated_report_root = ""
-    gsea_curated_plotly_data = ""
+    rna_species = analysis.rna_species
+    
+    if rna_species == "mRNA":
+        GSEA_summary = os.path.join(GSEA_path, "-".join(gois) + "_Strat_Vs_Curated.html")
+        if os.path.exists(GSEA_path) is False or os.path.exists(GSEA_summary) is False:
+            return JsonResponse({'error': f'{analysis_id} does not contain sufficient data '}, status=500)
+
+    gsea_response = {}
+    gsea_response["error"] = ""
+
+    print(rna_species)
 
     # now lets fetch the reports
     for item in os.listdir(os.path.join(env('OUTPUT_DIR'), str(analysis_id), "GSEA")):
-        if "Strat_Vs_Curated.GseaPreranked" in item:
-            curated_report_root = item
-        elif "Strat_Vs_Hallmark.GseaPreranked" in item:
-            hallmark_report_root = item
-        elif "Strat_Vs_Curated.json" in item:
-            gsea_curated_data_file = os.path.join(env('OUTPUT_DIR'), str(analysis_id), "GSEA", item)
-            with open(gsea_curated_data_file, "r") as f:
-                gsea_curated_plotly_data = json.load(f)
+        if rna_species == "mRNA":
+            if "Strat_Vs_Curated.GseaPreranked" in item:
+                gsea_response["curated_report_root"] = item
+            elif "Strat_Vs_Hallmark.GseaPreranked" in item:
+                gsea_response["hallmark_report_root"] = item
+            elif "Strat_Vs_Curated.json" in item:
+                gsea_curated_data_file = os.path.join(env('OUTPUT_DIR'), str(analysis_id), "GSEA", item)
+                with open(gsea_curated_data_file, "r") as f:
+                    gsea_plotly_data = json.load(f)
+                    gsea_response["gsea_plotly_data"] = gsea_plotly_data
+        elif rna_species == "miRNA":
+            if "Strat_Vs_Inhouse-TargetScan.GseaPreranked" in item:
+                gsea_response["inhouse_targetscan_report_root"] = item
+            elif "Strat_Vs_Inhouse-TargetScan.json" in item:
+                gsea_inhouse_data_file = os.path.join(env('OUTPUT_DIR'), str(analysis_id), "GSEA", item)
+                with open(gsea_inhouse_data_file, "r") as f:
+                    gsea_plotly_data = json.load(f)
+                    gsea_response["gsea_plotly_data"] = gsea_plotly_data
 
-    return JsonResponse({'error': "", "hallmark_report_root": hallmark_report_root, "curated_report_root": curated_report_root, "gsea_curated_plotly_data": gsea_curated_plotly_data}, status=200)
+    # better to check if nothing was found in the GSEA folder
+    if rna_species == "miRNA" and len(gsea_response.keys()) == 0:
+        return JsonResponse({'error': f'{analysis_id} does not contain sufficient data '}, status=500)
+
+    print(gsea_response)
+    return JsonResponse(gsea_response, status=200)
 
 # needs to be changed to support better pagination
 # current method will be too memory intensive as it loads everything
