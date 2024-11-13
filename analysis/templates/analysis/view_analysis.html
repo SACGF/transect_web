@@ -140,11 +140,12 @@
         // name from ticktext
 
         const gsea_summary_plot = document.getElementById("de_gsea_summary_image")
-        const num_negative = gsea_summary_plot.data[1].x.length // second array contains the negative stuff
-          
+        let num_negative_offset = 0
+        if (gsea_summary_plot.data.length === 2) num_negative_offset = gsea_summary_plot.data[1].x.length // second array contains the negative stuff
+
         gsea_summary_plot.on('plotly_click', function(data){
           let pointIndex = data.points[0].pointIndex 
-          pointIndex = data.points[0].x > 0 ? pointIndex + num_negative : pointIndex
+          pointIndex = data.points[0].x > 0 ? pointIndex + num_negative_offset : pointIndex
           const pathway = data.points[0].yaxis.ticktext[pointIndex]
           window.open(gsea_url_base.concat("/").concat(json_response.curated_report_root).concat("/").concat(pathway).concat(".html"), '_blank');
         });
