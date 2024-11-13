@@ -47,8 +47,6 @@ def FetchGseaSummary(request, analysis_id):
     gsea_response = {}
     gsea_response["error"] = ""
 
-    print(rna_species)
-
     # now lets fetch the reports
     for item in os.listdir(os.path.join(env('OUTPUT_DIR'), str(analysis_id), "GSEA")):
         if rna_species == "mRNA":
@@ -71,10 +69,9 @@ def FetchGseaSummary(request, analysis_id):
                     gsea_response["gsea_plotly_data"] = gsea_plotly_data
 
     # better to check if nothing was found in the GSEA folder
-    if rna_species == "miRNA" and len(gsea_response.keys()) == 0:
+    if rna_species == "miRNA" and len(gsea_response.keys()) == 1:
         return JsonResponse({'error': f'{analysis_id} does not contain sufficient data '}, status=500)
 
-    print(gsea_response)
     return JsonResponse(gsea_response, status=200)
 
 # needs to be changed to support better pagination

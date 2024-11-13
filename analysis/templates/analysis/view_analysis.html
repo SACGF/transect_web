@@ -152,7 +152,6 @@
             let pointIndex = data.points[0].pointIndex 
             pointIndex = data.points[0].x > 0 ? pointIndex + num_negative_offset : pointIndex
             const pathway = data.points[0].yaxis.ticktext[pointIndex]
-            console.log(data.points)
             if ('{{ rna_species }}' === "mRNA") {
               window.open(gsea_url_base.concat("/").concat(json_response.curated_report_root).concat("/").concat(pathway).concat(".html"), '_blank');
             } else {
