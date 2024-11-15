@@ -14,5 +14,6 @@ urlpatterns = [
     path('projects_autocomplete', views.ProjectsAutocomplete.as_view(), name='projects-autocomplete'),
     path('fetch_gsea_summary/<analysis_id>', views.FetchGseaSummary, name='fetch-gsea-summary'),
     path('fetch_high_corr_gene_exprs/<analysis_id>/<gene1_id>/<gene2_id>', views.fetch_high_corr_gene_exprs, name='fetch-high-corr-gene-exprs'),
+    path('manual', views.view_manual, name='analysis-view-manual'),
 ]
 

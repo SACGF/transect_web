@@ -24,6 +24,9 @@ import numpy as np
 import math
 from transect_web.settings import env
 
+def view_manual(request):
+    return render(request, 'analysis/TRANSECT_manual.html')
+
 # also fetches root folder name of the GSEA curated/hallmark reports
 # this is because these folders contains a number at the end
 # that appears to be procedurally generated
