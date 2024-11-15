@@ -1,0 +1,772 @@
+<!doctype html>
+<html>
+<head>
+{% load static %}  
+<meta charset='UTF-8'><meta name='viewport' content='width=device-width initial-scale=1'>
+
+<link href='https://fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,700,400&subset=latin,latin-ext' rel='stylesheet' type='text/css' /><style type='text/css'>html {overflow-x: initial !important;}:root { --bg-color: #ffffff; --text-color: #333333; --select-text-bg-color: #B5D6FC; --select-text-font-color: auto; --monospace: "Lucida Console",Consolas,"Courier",monospace; --title-bar-height: 20px; }
+.mac-os-11 { --title-bar-height: 28px; }
+html { font-size: 14px; background-color: var(--bg-color); color: var(--text-color); font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+h1, h2, h3, h4, h5 { white-space: pre-wrap; }
+body { margin: 0px; padding: 0px; height: auto; inset: 0px; font-size: 1rem; line-height: 1.42857; overflow-x: hidden; background: inherit; }
+iframe { margin: auto; }
+a.url { word-break: break-all; }
+a:active, a:hover { outline: 0px; }
+.in-text-selection, ::selection { text-shadow: none; background: var(--select-text-bg-color); color: var(--select-text-font-color); }
+#write { margin: 0px auto; height: auto; width: inherit; word-break: normal; overflow-wrap: break-word; position: relative; white-space: normal; overflow-x: visible; padding-top: 36px; }
+#write.first-line-indent p { text-indent: 2em; }
+#write.first-line-indent li p, #write.first-line-indent p * { text-indent: 0px; }
+#write.first-line-indent li { margin-left: 2em; }
+.for-image #write { padding-left: 8px; padding-right: 8px; }
+body.typora-export { padding-left: 30px; padding-right: 30px; }
+.typora-export .footnote-line, .typora-export li, .typora-export p { white-space: pre-wrap; }
+.typora-export .task-list-item input { pointer-events: none; }
+@media screen and (max-width: 500px) {
+  body.typora-export { padding-left: 0px; padding-right: 0px; }
+  #write { padding-left: 20px; padding-right: 20px; }
+}
+#write li > figure:last-child { margin-bottom: 0.5rem; }
+#write ol, #write ul { position: relative; }
+img { max-width: 100%; vertical-align: middle; image-orientation: from-image; }
+button, input, select, textarea { color: inherit; font: inherit; }
+input[type="checkbox"], input[type="radio"] { line-height: normal; padding: 0px; }
+*, ::after, ::before { box-sizing: border-box; }
+#write h1, #write h2, #write h3, #write h4, #write h5, #write h6, #write p, #write pre { width: inherit; }
+#write h1, #write h2, #write h3, #write h4, #write h5, #write h6, #write p { position: relative; }
+p { line-height: inherit; }
+h1, h2, h3, h4, h5, h6 { break-after: avoid-page; break-inside: avoid; orphans: 4; }
+p { orphans: 4; }
+h1 { font-size: 2rem; }
+h2 { font-size: 1.8rem; }
+h3 { font-size: 1.6rem; }
+h4 { font-size: 1.4rem; }
+h5 { font-size: 1.2rem; }
+h6 { font-size: 1rem; }
+.md-math-block, .md-rawblock, h1, h2, h3, h4, h5, h6, p { margin-top: 1rem; margin-bottom: 1rem; }
+.hidden { display: none; }
+.md-blockmeta { color: rgb(204, 204, 204); font-weight: 700; font-style: italic; }
+a { cursor: pointer; }
+sup.md-footnote { padding: 2px 4px; background-color: rgba(238, 238, 238, 0.7); color: rgb(85, 85, 85); border-radius: 4px; cursor: pointer; }
+sup.md-footnote a, sup.md-footnote a:hover { color: inherit; text-transform: inherit; text-decoration: inherit; }
+#write input[type="checkbox"] { cursor: pointer; width: inherit; height: inherit; }
+figure { overflow-x: auto; margin: 1.2em 0px; max-width: calc(100% + 16px); padding: 0px; }
+figure > table { margin: 0px; }
+thead, tr { break-inside: avoid; break-after: auto; }
+thead { display: table-header-group; }
+table { border-collapse: collapse; border-spacing: 0px; width: 100%; overflow: auto; break-inside: auto; text-align: left; }
+table.md-table td { min-width: 32px; }
+.CodeMirror-gutters { border-right: 0px; background-color: inherit; }
+.CodeMirror-linenumber { user-select: none; }
+.CodeMirror { text-align: left; }
+.CodeMirror-placeholder { opacity: 0.3; }
+.CodeMirror pre { padding: 0px 4px; }
+.CodeMirror-lines { padding: 0px; }
+div.hr:focus { cursor: none; }
+#write pre { white-space: pre-wrap; }
+#write.fences-no-line-wrapping pre { white-space: pre; }
+#write pre.ty-contain-cm { white-space: normal; }
+.CodeMirror-gutters { margin-right: 4px; }
+.md-fences { font-size: 0.9rem; display: block; break-inside: avoid; text-align: left; overflow: visible; white-space: pre; background: inherit; position: relative !important; }
+.md-fences-adv-panel { width: 100%; margin-top: 10px; text-align: center; padding-top: 0px; padding-bottom: 8px; overflow-x: auto; }
+#write .md-fences.mock-cm { white-space: pre-wrap; }
+.md-fences.md-fences-with-lineno { padding-left: 0px; }
+#write.fences-no-line-wrapping .md-fences.mock-cm { white-space: pre; overflow-x: auto; }
+.md-fences.mock-cm.md-fences-with-lineno { padding-left: 8px; }
+.CodeMirror-line, twitterwidget { break-inside: avoid; }
+svg { break-inside: avoid; }
+.footnotes { opacity: 0.8; font-size: 0.9rem; margin-top: 1em; margin-bottom: 1em; }
+.footnotes + .footnotes { margin-top: 0px; }
+.md-reset { margin: 0px; padding: 0px; border: 0px; outline: 0px; vertical-align: top; background: 0px 0px; text-decoration: none; text-shadow: none; float: none; position: static; width: auto; height: auto; white-space: nowrap; cursor: inherit; -webkit-tap-highlight-color: transparent; line-height: normal; font-weight: 400; text-align: left; box-sizing: content-box; direction: ltr; }
+li div { padding-top: 0px; }
+blockquote { margin: 1rem 0px; }
+li .mathjax-block, li p { margin: 0.5rem 0px; }
+li blockquote { margin: 1rem 0px; }
+li { margin: 0px; position: relative; }
+blockquote > :last-child { margin-bottom: 0px; }
+blockquote > :first-child, li > :first-child { margin-top: 0px; }
+.footnotes-area { color: rgb(136, 136, 136); margin-top: 0.714rem; padding-bottom: 0.143rem; white-space: normal; }
+#write .footnote-line { white-space: pre-wrap; }
+@media print {
+  body, html { border: 1px solid transparent; height: 99%; break-after: avoid; break-before: avoid; font-variant-ligatures: no-common-ligatures; }
+  #write { margin-top: 0px; border-color: transparent !important; padding-top: 0px !important; padding-bottom: 0px !important; }
+  .typora-export * { -webkit-print-color-adjust: exact; }
+  .typora-export #write { break-after: avoid; }
+  .typora-export #write::after { height: 0px; }
+  .is-mac table { break-inside: avoid; }
+  #write > p:nth-child(1) { margin-top: 0px; }
+  .typora-export-show-outline .typora-export-sidebar { display: none; }
+  figure { overflow-x: visible; }
+}
+.footnote-line { margin-top: 0.714em; font-size: 0.7em; }
+a img, img a { cursor: pointer; }
+pre.md-meta-block { font-size: 0.8rem; min-height: 0.8rem; white-space: pre-wrap; background: rgb(204, 204, 204); display: block; overflow-x: hidden; }
+p > .md-image:only-child:not(.md-img-error) img, p > img:only-child { display: block; margin: auto; }
+#write.first-line-indent p > .md-image:only-child:not(.md-img-error) img { left: -2em; position: relative; }
+p > .md-image:only-child { display: inline-block; width: 100%; }
+#write .MathJax_Display { margin: 0.8em 0px 0px; }
+.md-math-block { width: 100%; }
+.md-math-block:not(:empty)::after { display: none; }
+.MathJax_ref { fill: currentcolor; }
+[contenteditable="true"]:active, [contenteditable="true"]:focus, [contenteditable="false"]:active, [contenteditable="false"]:focus { outline: 0px; box-shadow: none; }
+.md-task-list-item { position: relative; list-style-type: none; }
+.task-list-item.md-task-list-item { padding-left: 0px; }
+.md-task-list-item > input { position: absolute; top: 0px; left: 0px; margin-left: -1.2em; margin-top: calc(1em - 10px); border: none; }
+.math { font-size: 1rem; }
+.md-toc { min-height: 3.58rem; position: relative; font-size: 0.9rem; border-radius: 10px; }
+.md-toc-content { position: relative; margin-left: 0px; }
+.md-toc-content::after, .md-toc::after { display: none; }
+.md-toc-item { display: block; color: rgb(65, 131, 196); }
+.md-toc-item a { text-decoration: none; }
+.md-toc-inner:hover { text-decoration: underline; }
+.md-toc-inner { display: inline-block; cursor: pointer; }
+.md-toc-h1 .md-toc-inner { margin-left: 0px; font-weight: 700; }
+.md-toc-h2 .md-toc-inner { margin-left: 2em; }
+.md-toc-h3 .md-toc-inner { margin-left: 4em; }
+.md-toc-h4 .md-toc-inner { margin-left: 6em; }
+.md-toc-h5 .md-toc-inner { margin-left: 8em; }
+.md-toc-h6 .md-toc-inner { margin-left: 10em; }
+@media screen and (max-width: 48em) {
+  .md-toc-h3 .md-toc-inner { margin-left: 3.5em; }
+  .md-toc-h4 .md-toc-inner { margin-left: 5em; }
+  .md-toc-h5 .md-toc-inner { margin-left: 6.5em; }
+  .md-toc-h6 .md-toc-inner { margin-left: 8em; }
+}
+a.md-toc-inner { font-size: inherit; font-style: inherit; font-weight: inherit; line-height: inherit; }
+.footnote-line a:not(.reversefootnote) { color: inherit; }
+.reversefootnote { font-family: ui-monospace, sans-serif; }
+.md-attr { display: none; }
+.md-fn-count::after { content: "."; }
+code, pre, samp, tt { font-family: var(--monospace); }
+kbd { margin: 0px 0.1em; padding: 0.1em 0.6em; font-size: 0.8em; color: rgb(36, 39, 41); background: rgb(255, 255, 255); border: 1px solid rgb(173, 179, 185); border-radius: 3px; box-shadow: rgba(12, 13, 14, 0.2) 0px 1px 0px, rgb(255, 255, 255) 0px 0px 0px 2px inset; white-space: nowrap; vertical-align: middle; }
+.md-comment { color: rgb(162, 127, 3); opacity: 0.6; font-family: var(--monospace); }
+code { text-align: left; vertical-align: initial; }
+a.md-print-anchor { white-space: pre !important; border-width: initial !important; border-style: none !important; border-color: initial !important; display: inline-block !important; position: absolute !important; width: 1px !important; right: 0px !important; outline: 0px !important; background: 0px 0px !important; text-decoration: initial !important; text-shadow: initial !important; }
+.os-windows.monocolor-emoji .md-emoji { font-family: "Segoe UI Symbol", sans-serif; }
+.md-diagram-panel > svg { max-width: 100%; }
+[lang="flow"] svg, [lang="mermaid"] svg { max-width: 100%; height: auto; }
+[lang="mermaid"] .node text { font-size: 1rem; }
+table tr th { border-bottom: 0px; }
+video { max-width: 100%; display: block; margin: 0px auto; }
+iframe { max-width: 100%; width: 100%; border: none; }
+.highlight td, .highlight tr { border: 0px; }
+mark { background: rgb(255, 255, 0); color: rgb(0, 0, 0); }
+.md-html-inline .md-plain, .md-html-inline strong, mark .md-inline-math, mark strong { color: inherit; }
+.md-expand mark .md-meta { opacity: 0.3 !important; }
+mark .md-meta { color: rgb(0, 0, 0); }
+@media print {
+  .typora-export h1, .typora-export h2, .typora-export h3, .typora-export h4, .typora-export h5, .typora-export h6 { break-inside: avoid; }
+}
+.md-diagram-panel .messageText { stroke: none !important; }
+.md-diagram-panel .start-state { fill: var(--node-fill); }
+.md-diagram-panel .edgeLabel rect { opacity: 1 !important; }
+.md-fences.md-fences-math { font-size: 1em; }
+.md-fences-advanced:not(.md-focus) { padding: 0px; white-space: nowrap; border: 0px; }
+.md-fences-advanced:not(.md-focus) { background: inherit; }
+.typora-export-show-outline .typora-export-content { max-width: 1440px; margin: auto; display: flex; flex-direction: row; }
+.typora-export-sidebar { width: 300px; font-size: 0.8rem; margin-top: 80px; margin-right: 18px; }
+.typora-export-show-outline #write { --webkit-flex: 2; flex: 2 1 0%; }
+.typora-export-sidebar .outline-content { position: fixed; top: 0px; max-height: 100%; overflow: hidden auto; padding-bottom: 30px; padding-top: 60px; width: 300px; }
+@media screen and (max-width: 1024px) {
+  .typora-export-sidebar, .typora-export-sidebar .outline-content { width: 240px; }
+}
+@media screen and (max-width: 800px) {
+  .typora-export-sidebar { display: none; }
+}
+.outline-content li, .outline-content ul { margin-left: 0px; margin-right: 0px; padding-left: 0px; padding-right: 0px; list-style: none; overflow-wrap: anywhere; }
+.outline-content ul { margin-top: 0px; margin-bottom: 0px; }
+.outline-content strong { font-weight: 400; }
+.outline-expander { width: 1rem; height: 1.42857rem; position: relative; display: table-cell; vertical-align: middle; cursor: pointer; padding-left: 4px; }
+.outline-expander::before { content: ""; position: relative; font-family: Ionicons; display: inline-block; font-size: 8px; vertical-align: middle; }
+.outline-item { padding-top: 3px; padding-bottom: 3px; cursor: pointer; }
+.outline-expander:hover::before { content: ""; }
+.outline-h1 > .outline-item { padding-left: 0px; }
+.outline-h2 > .outline-item { padding-left: 1em; }
+.outline-h3 > .outline-item { padding-left: 2em; }
+.outline-h4 > .outline-item { padding-left: 3em; }
+.outline-h5 > .outline-item { padding-left: 4em; }
+.outline-h6 > .outline-item { padding-left: 5em; }
+.outline-label { cursor: pointer; display: table-cell; vertical-align: middle; text-decoration: none; color: inherit; }
+.outline-label:hover { text-decoration: underline; }
+.outline-item:hover { border-color: rgb(245, 245, 245); background-color: var(--item-hover-bg-color); }
+.outline-item:hover { margin-left: -28px; margin-right: -28px; border-left: 28px solid transparent; border-right: 28px solid transparent; }
+.outline-item-single .outline-expander::before, .outline-item-single .outline-expander:hover::before { display: none; }
+.outline-item-open > .outline-item > .outline-expander::before { content: ""; }
+.outline-children { display: none; }
+.info-panel-tab-wrapper { display: none; }
+.outline-item-open > .outline-children { display: block; }
+.typora-export .outline-item { padding-top: 1px; padding-bottom: 1px; }
+.typora-export .outline-item:hover { margin-right: -8px; border-right: 8px solid transparent; }
+.typora-export .outline-expander::before { content: "+"; font-family: inherit; top: -1px; }
+.typora-export .outline-expander:hover::before, .typora-export .outline-item-open > .outline-item > .outline-expander::before { content: "−"; }
+.typora-export-collapse-outline .outline-children { display: none; }
+.typora-export-collapse-outline .outline-item-open > .outline-children, .typora-export-no-collapse-outline .outline-children { display: block; }
+.typora-export-no-collapse-outline .outline-expander::before { content: "" !important; }
+.typora-export-show-outline .outline-item-active > .outline-item .outline-label { font-weight: 700; }
+.md-inline-math-container mjx-container { zoom: 0.95; }
+mjx-container { break-inside: avoid; }
+.md-alert.md-alert-note { border-left-color: rgb(9, 105, 218); }
+.md-alert.md-alert-important { border-left-color: rgb(130, 80, 223); }
+.md-alert.md-alert-warning { border-left-color: rgb(154, 103, 0); }
+.md-alert.md-alert-tip { border-left-color: rgb(31, 136, 61); }
+.md-alert.md-alert-caution { border-left-color: rgb(207, 34, 46); }
+.md-alert { padding: 0px 1em; margin-bottom: 16px; color: inherit; border-left: 0.25em solid rgb(0, 0, 0); }
+.md-alert-text-note { color: rgb(9, 105, 218); }
+.md-alert-text-important { color: rgb(130, 80, 223); }
+.md-alert-text-warning { color: rgb(154, 103, 0); }
+.md-alert-text-tip { color: rgb(31, 136, 61); }
+.md-alert-text-caution { color: rgb(207, 34, 46); }
+.md-alert-text { font-size: 0.9rem; font-weight: 700; }
+.md-alert-text svg { fill: currentcolor; position: relative; top: 0.125em; margin-right: 1ch; overflow: visible; }
+.md-alert-text-container::after { content: attr(data-text); text-transform: capitalize; pointer-events: none; margin-right: 1ch; }
+
+
+.CodeMirror { height: auto; }
+.CodeMirror.cm-s-inner { background: inherit; }
+.CodeMirror-scroll { overflow: auto hidden; z-index: 3; }
+.CodeMirror-gutter-filler, .CodeMirror-scrollbar-filler { background-color: rgb(255, 255, 255); }
+.CodeMirror-gutters { border-right: 1px solid rgb(221, 221, 221); background: inherit; white-space: nowrap; }
+.CodeMirror-linenumber { padding: 0px 3px 0px 5px; text-align: right; color: rgb(153, 153, 153); }
+.cm-s-inner .cm-keyword { color: rgb(119, 0, 136); }
+.cm-s-inner .cm-atom, .cm-s-inner.cm-atom { color: rgb(34, 17, 153); }
+.cm-s-inner .cm-number { color: rgb(17, 102, 68); }
+.cm-s-inner .cm-def { color: rgb(0, 0, 255); }
+.cm-s-inner .cm-variable { color: rgb(0, 0, 0); }
+.cm-s-inner .cm-variable-2 { color: rgb(0, 85, 170); }
+.cm-s-inner .cm-variable-3 { color: rgb(0, 136, 85); }
+.cm-s-inner .cm-string { color: rgb(170, 17, 17); }
+.cm-s-inner .cm-property { color: rgb(0, 0, 0); }
+.cm-s-inner .cm-operator { color: rgb(152, 26, 26); }
+.cm-s-inner .cm-comment, .cm-s-inner.cm-comment { color: rgb(170, 85, 0); }
+.cm-s-inner .cm-string-2 { color: rgb(255, 85, 0); }
+.cm-s-inner .cm-meta { color: rgb(85, 85, 85); }
+.cm-s-inner .cm-qualifier { color: rgb(85, 85, 85); }
+.cm-s-inner .cm-builtin { color: rgb(51, 0, 170); }
+.cm-s-inner .cm-bracket { color: rgb(153, 153, 119); }
+.cm-s-inner .cm-tag { color: rgb(17, 119, 0); }
+.cm-s-inner .cm-attribute { color: rgb(0, 0, 204); }
+.cm-s-inner .cm-header, .cm-s-inner.cm-header { color: rgb(0, 0, 255); }
+.cm-s-inner .cm-quote, .cm-s-inner.cm-quote { color: rgb(0, 153, 0); }
+.cm-s-inner .cm-hr, .cm-s-inner.cm-hr { color: rgb(153, 153, 153); }
+.cm-s-inner .cm-link, .cm-s-inner.cm-link { color: rgb(0, 0, 204); }
+.cm-negative { color: rgb(221, 68, 68); }
+.cm-positive { color: rgb(34, 153, 34); }
+.cm-header, .cm-strong { font-weight: 700; }
+.cm-del { text-decoration: line-through; }
+.cm-em { font-style: italic; }
+.cm-link { text-decoration: underline; }
+.cm-error { color: red; }
+.cm-invalidchar { color: red; }
+.cm-constant { color: rgb(38, 139, 210); }
+.cm-defined { color: rgb(181, 137, 0); }
+div.CodeMirror span.CodeMirror-matchingbracket { color: rgb(0, 255, 0); }
+div.CodeMirror span.CodeMirror-nonmatchingbracket { color: rgb(255, 34, 34); }
+.cm-s-inner .CodeMirror-activeline-background { background: inherit; }
+.CodeMirror { position: relative; overflow: hidden; }
+.CodeMirror-scroll { height: 100%; outline: 0px; position: relative; box-sizing: content-box; background: inherit; }
+.CodeMirror-sizer { position: relative; }
+.CodeMirror-gutter-filler, .CodeMirror-hscrollbar, .CodeMirror-scrollbar-filler, .CodeMirror-vscrollbar { position: absolute; z-index: 6; display: none; outline: 0px; }
+.CodeMirror-vscrollbar { right: 0px; top: 0px; overflow: hidden; }
+.CodeMirror-hscrollbar { bottom: 0px; left: 0px; overflow: auto hidden; }
+.CodeMirror-scrollbar-filler { right: 0px; bottom: 0px; }
+.CodeMirror-gutter-filler { left: 0px; bottom: 0px; }
+.CodeMirror-gutters { position: absolute; left: 0px; top: 0px; padding-bottom: 10px; z-index: 3; overflow-y: hidden; }
+.CodeMirror-gutter { white-space: normal; height: 100%; box-sizing: content-box; padding-bottom: 30px; margin-bottom: -32px; display: inline-block; }
+.CodeMirror-gutter-wrapper { position: absolute; z-index: 4; background: 0px 0px !important; border: none !important; }
+.CodeMirror-gutter-background { position: absolute; top: 0px; bottom: 0px; z-index: 4; }
+.CodeMirror-gutter-elt { position: absolute; cursor: default; z-index: 4; }
+.CodeMirror-lines { cursor: text; }
+.CodeMirror pre { border-radius: 0px; border-width: 0px; background: 0px 0px; font-family: inherit; font-size: inherit; margin: 0px; white-space: pre; overflow-wrap: normal; color: inherit; z-index: 2; position: relative; overflow: visible; }
+.CodeMirror-wrap pre { overflow-wrap: break-word; white-space: pre-wrap; word-break: normal; }
+.CodeMirror-code pre { border-right: 30px solid transparent; width: fit-content; }
+.CodeMirror-wrap .CodeMirror-code pre { border-right: none; width: auto; }
+.CodeMirror-linebackground { position: absolute; inset: 0px; z-index: 0; }
+.CodeMirror-linewidget { position: relative; z-index: 2; overflow: auto; }
+.CodeMirror-wrap .CodeMirror-scroll { overflow-x: hidden; }
+.CodeMirror-measure { position: absolute; width: 100%; height: 0px; overflow: hidden; visibility: hidden; }
+.CodeMirror-measure pre { position: static; }
+.CodeMirror div.CodeMirror-cursor { position: absolute; visibility: hidden; border-right: none; width: 0px; }
+.CodeMirror div.CodeMirror-cursor { visibility: hidden; }
+.CodeMirror-focused div.CodeMirror-cursor { visibility: inherit; }
+.cm-searching { background: rgba(255, 255, 0, 0.4); }
+span.cm-underlined { text-decoration: underline; }
+span.cm-strikethrough { text-decoration: line-through; }
+.cm-tw-syntaxerror { color: rgb(255, 255, 255); background-color: rgb(153, 0, 0); }
+.cm-tw-deleted { text-decoration: line-through; }
+.cm-tw-header5 { font-weight: 700; }
+.cm-tw-listitem:first-child { padding-left: 10px; }
+.cm-tw-box { border-style: solid; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; border-color: inherit; border-top-width: 0px !important; }
+.cm-tw-underline { text-decoration: underline; }
+@media print {
+  .CodeMirror div.CodeMirror-cursor { visibility: hidden; }
+}
+
+
+:root {
+    --side-bar-bg-color: #fafafa;
+    --control-text-color: #777;
+}
+
+@include-when-export url(https://fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,700,400&subset=latin,latin-ext);
+
+/* open-sans-regular - latin-ext_latin */
+  /* open-sans-italic - latin-ext_latin */
+    /* open-sans-700 - latin-ext_latin */
+    /* open-sans-700italic - latin-ext_latin */
+  html {
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+}
+
+body {
+    font-family: "Open Sans","Clear Sans", "Helvetica Neue", Helvetica, Arial, 'Segoe UI Emoji', sans-serif;
+    color: rgb(51, 51, 51);
+    line-height: 1.6;
+}
+
+#write {
+    max-width: 860px;
+  	margin: 0 auto;
+  	padding: 30px;
+    padding-bottom: 100px;
+}
+
+@media only screen and (min-width: 1400px) {
+	#write {
+		max-width: 1024px;
+	}
+}
+
+@media only screen and (min-width: 1800px) {
+	#write {
+		max-width: 1200px;
+	}
+}
+
+#write > ul:first-child,
+#write > ol:first-child{
+    margin-top: 30px;
+}
+
+a {
+    color: #4183C4;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    position: relative;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    font-weight: bold;
+    line-height: 1.4;
+    cursor: text;
+}
+h1:hover a.anchor,
+h2:hover a.anchor,
+h3:hover a.anchor,
+h4:hover a.anchor,
+h5:hover a.anchor,
+h6:hover a.anchor {
+    text-decoration: none;
+}
+h1 tt,
+h1 code {
+    font-size: inherit;
+}
+h2 tt,
+h2 code {
+    font-size: inherit;
+}
+h3 tt,
+h3 code {
+    font-size: inherit;
+}
+h4 tt,
+h4 code {
+    font-size: inherit;
+}
+h5 tt,
+h5 code {
+    font-size: inherit;
+}
+h6 tt,
+h6 code {
+    font-size: inherit;
+}
+h1 {
+    font-size: 2.25em;
+    line-height: 1.2;
+    border-bottom: 1px solid #eee;
+}
+h2 {
+    font-size: 1.75em;
+    line-height: 1.225;
+    border-bottom: 1px solid #eee;
+}
+
+/*@media print {
+    .typora-export h1,
+    .typora-export h2 {
+        border-bottom: none;
+        padding-bottom: initial;
+    }
+
+    .typora-export h1::after,
+    .typora-export h2::after {
+        content: "";
+        display: block;
+        height: 100px;
+        margin-top: -96px;
+        border-top: 1px solid #eee;
+    }
+}*/
+
+h3 {
+    font-size: 1.5em;
+    line-height: 1.43;
+}
+h4 {
+    font-size: 1.25em;
+}
+h5 {
+    font-size: 1em;
+}
+h6 {
+   font-size: 1em;
+    color: #777;
+}
+p,
+blockquote,
+ul,
+ol,
+dl,
+table{
+    margin: 0.8em 0;
+}
+li>ol,
+li>ul {
+    margin: 0 0;
+}
+hr {
+    height: 2px;
+    padding: 0;
+    margin: 16px 0;
+    background-color: #e7e7e7;
+    border: 0 none;
+    overflow: hidden;
+    box-sizing: content-box;
+}
+
+li p.first {
+    display: inline-block;
+}
+ul,
+ol {
+    padding-left: 30px;
+}
+ul:first-child,
+ol:first-child {
+    margin-top: 0;
+}
+ul:last-child,
+ol:last-child {
+    margin-bottom: 0;
+}
+blockquote {
+    border-left: 4px solid #dfe2e5;
+    padding: 0 15px;
+    color: #777777;
+}
+blockquote blockquote {
+    padding-right: 0;
+}
+table {
+    padding: 0;
+    word-break: initial;
+}
+table tr {
+    border: 1px solid #dfe2e5;
+    margin: 0;
+    padding: 0;
+}
+table tr:nth-child(2n),
+thead {
+    background-color: #f8f8f8;
+}
+table th {
+    font-weight: bold;
+    border: 1px solid #dfe2e5;
+    border-bottom: 0;
+    margin: 0;
+    padding: 6px 13px;
+}
+table td {
+    border: 1px solid #dfe2e5;
+    margin: 0;
+    padding: 6px 13px;
+}
+table th:first-child,
+table td:first-child {
+    margin-top: 0;
+}
+table th:last-child,
+table td:last-child {
+    margin-bottom: 0;
+}
+
+.CodeMirror-lines {
+    padding-left: 4px;
+}
+
+.code-tooltip {
+    box-shadow: 0 1px 1px 0 rgba(0,28,36,.3);
+    border-top: 1px solid #eef2f2;
+}
+
+.md-fences,
+code,
+tt {
+    border: 1px solid #e7eaed;
+    background-color: #f8f8f8;
+    border-radius: 3px;
+    padding: 0;
+    padding: 2px 4px 0px 4px;
+    font-size: 0.9em;
+}
+
+code {
+    background-color: #f3f4f4;
+    padding: 0 2px 0 2px;
+}
+
+.md-fences {
+    margin-bottom: 15px;
+    margin-top: 15px;
+    padding-top: 8px;
+    padding-bottom: 6px;
+}
+
+
+.md-task-list-item > input {
+  margin-left: -1.3em;
+}
+
+@media print {
+    html {
+        font-size: 13px;
+    }
+    pre {
+        page-break-inside: avoid;
+        word-wrap: break-word;
+    }
+}
+
+.md-fences {
+	background-color: #f8f8f8;
+}
+#write pre.md-meta-block {
+	padding: 1rem;
+    font-size: 85%;
+    line-height: 1.45;
+    background-color: #f7f7f7;
+    border: 0;
+    border-radius: 3px;
+    color: #777777;
+    margin-top: 0 !important;
+}
+
+.mathjax-block>.code-tooltip {
+	bottom: .375rem;
+}
+
+.md-mathjax-midline {
+    background: #fafafa;
+}
+
+#write>h3.md-focus:before{
+	left: -1.5625rem;
+	top: .375rem;
+}
+#write>h4.md-focus:before{
+	left: -1.5625rem;
+	top: .285714286rem;
+}
+#write>h5.md-focus:before{
+	left: -1.5625rem;
+	top: .285714286rem;
+}
+#write>h6.md-focus:before{
+	left: -1.5625rem;
+	top: .285714286rem;
+}
+.md-image>.md-meta {
+    /*border: 1px solid #ddd;*/
+    border-radius: 3px;
+    padding: 2px 0px 0px 4px;
+    font-size: 0.9em;
+    color: inherit;
+}
+
+.md-tag {
+    color: #a7a7a7;
+    opacity: 1;
+}
+
+.md-toc { 
+    margin-top:20px;
+    padding-bottom:20px;
+}
+
+.sidebar-tabs {
+    border-bottom: none;
+}
+
+#typora-quick-open {
+    border: 1px solid #ddd;
+    background-color: #f8f8f8;
+}
+
+#typora-quick-open-item {
+    background-color: #FAFAFA;
+    border-color: #FEFEFE #e5e5e5 #e5e5e5 #eee;
+    border-style: solid;
+    border-width: 1px;
+}
+
+/** focus mode */
+.on-focus-mode blockquote {
+    border-left-color: rgba(85, 85, 85, 0.12);
+}
+
+header, .context-menu, .megamenu-content, footer{
+    font-family: "Segoe UI", "Arial", sans-serif;
+}
+
+.file-node-content:hover .file-node-icon,
+.file-node-content:hover .file-node-open-state{
+    visibility: visible;
+}
+
+.mac-seamless-mode #typora-sidebar {
+    background-color: #fafafa;
+    background-color: var(--side-bar-bg-color);
+}
+
+.mac-os #write{
+    caret-color: AccentColor;
+}
+
+.md-lang {
+    color: #b4654d;
+}
+
+/*.html-for-mac {
+    --item-hover-bg-color: #E6F0FE;
+}*/
+
+#md-notification .btn {
+    border: 0;
+}
+
+.dropdown-menu .divider {
+    border-color: #e5e5e5;
+    opacity: 0.4;
+}
+
+.ty-preferences .window-content {
+    background-color: #fafafa;
+}
+
+.ty-preferences .nav-group-item.active {
+    color: white;
+    background: #999;
+}
+
+.menu-item-container a.menu-style-btn {
+    background-color: #f5f8fa;
+    background-image: linear-gradient( 180deg , hsla(0, 0%, 100%, 0.8), hsla(0, 0%, 100%, 0)); 
+}
+
+
+
+</style><title>MANUAL</title>
+</head>
+<body class='typora-export'><div class='typora-export-content'>
+<div id='write'  class=''><p><img title="TRANSECT" alt="TRANSECT" src="{% static 'manual/figures/TRANSECT_t.png' %}"></p><p>&nbsp;</p><h1 id='transect-manual-2404'><span>TRANSECT Manual 24.04</span></h1><p>&nbsp;</p><div class='md-toc' mdtype='toc'><p class="md-toc-content" role="list"><span role="listitem" class="md-toc-item md-toc-h1" data-ref="n3"><a class="md-toc-inner" href="#transect-manual-2404">TRANSECT Manual 24.04</a></span><span role="listitem" class="md-toc-item md-toc-h2" data-ref="n6"><a class="md-toc-inner" href="#1-background"><strong>1. Background</strong></a></span><span role="listitem" class="md-toc-item md-toc-h2" data-ref="n16"><a class="md-toc-inner" href="#2-getting-started"><strong>2. Getting started</strong></a></span><span role="listitem" class="md-toc-item md-toc-h3" data-ref="n17"><a class="md-toc-inner" href="#21-installation-using-conda">2.1 Installation using Conda</a></span><span role="listitem" class="md-toc-item md-toc-h3" data-ref="n41"><a class="md-toc-inner" href="#22-native-installation-on-ubuntu">2.2 Native installation on Ubuntu</a></span><span role="listitem" class="md-toc-item md-toc-h2" data-ref="n67"><a class="md-toc-inner" href="#3-basic-demonstration"><strong>3. Basic demonstration</strong></a></span><span role="listitem" class="md-toc-item md-toc-h2" data-ref="n73"><a class="md-toc-inner" href="#4-transect-workflow"><strong>4. TRANSECT workflow</strong></a></span><span role="listitem" class="md-toc-item md-toc-h3" data-ref="n74"><a class="md-toc-inner" href="#41-prepare-workflow-diagram">4.1 <em>Prepare</em> workflow diagram</a></span><span role="listitem" class="md-toc-item md-toc-h3" data-ref="n76"><a class="md-toc-inner" href="#42-analyse-workflow-diagram">4.2 <em>Analyse</em> workflow diagram</a></span><span role="listitem" class="md-toc-item md-toc-h2" data-ref="n79"><a class="md-toc-inner" href="#5-stratification-modes"><strong>5. Stratification modes</strong></a></span><span role="listitem" class="md-toc-item md-toc-h3" data-ref="n81"><a class="md-toc-inner" href="#51-single-gene-analysis">5.1 Single gene analysis</a></span><span role="listitem" class="md-toc-item md-toc-h3" data-ref="n84"><a class="md-toc-inner" href="#52-composite-gene-analysis---additive-mode">5.2 Composite gene analysis - Additive mode </a></span><span role="listitem" class="md-toc-item md-toc-h3" data-ref="n89"><a class="md-toc-inner" href="#53-composite-gene-analysis---ratio-mode">5.3 Composite gene analysis - Ratio mode</a></span><span role="listitem" class="md-toc-item md-toc-h3" data-ref="n94"><a class="md-toc-inner" href="#54-multimodal-analysis">5.4 Multimodal analysis</a></span><span role="listitem" class="md-toc-item md-toc-h2" data-ref="n98"><a class="md-toc-inner" href="#6-prepare-commands-and-options"><strong>6. Prepare commands and options</strong></a></span><span role="listitem" class="md-toc-item md-toc-h3" data-ref="n101"><a class="md-toc-inner" href="#61-recount3">6.1 RECOUNT3</a></span><span role="listitem" class="md-toc-item md-toc-h3" data-ref="n107"><a class="md-toc-inner" href="#62-gtex">6.2 GTEx</a></span><span role="listitem" class="md-toc-item md-toc-h3" data-ref="n112"><a class="md-toc-inner" href="#63-gdc">6.3 GDC</a></span><span role="listitem" class="md-toc-item md-toc-h2" data-ref="n125"><a class="md-toc-inner" href="#7-analysis-commands-and-options"><strong>7. Analysis commands and options</strong></a></span><span role="listitem" class="md-toc-item md-toc-h3" data-ref="n129"><a class="md-toc-inner" href="#71-recount3">7.1 RECOUNT3</a></span><span role="listitem" class="md-toc-item md-toc-h3" data-ref="n134"><a class="md-toc-inner" href="#72-gtex">7.2 GTEx</a></span><span role="listitem" class="md-toc-item md-toc-h3" data-ref="n139"><a class="md-toc-inner" href="#73-gdc">7.3 GDC</a></span><span role="listitem" class="md-toc-item md-toc-h2" data-ref="n145"><a class="md-toc-inner" href="#8-output"><strong>8. Output</strong></a></span><span role="listitem" class="md-toc-item md-toc-h3" data-ref="n155"><a class="md-toc-inner" href="#81-01-stratification">8.1 01-Stratification</a></span><span role="listitem" class="md-toc-item md-toc-h3" data-ref="n168"><a class="md-toc-inner" href="#82-02-de">8.2 02-DE</a></span><span role="listitem" class="md-toc-item md-toc-h3" data-ref="n183"><a class="md-toc-inner" href="#83-03-enrichment">8.3 03-Enrichment</a></span><span role="listitem" class="md-toc-item md-toc-h2" data-ref="n194"><a class="md-toc-inner" href="#9-precautions"><strong>9. Precautions</strong></a></span><span role="listitem" class="md-toc-item md-toc-h3" data-ref="n195"><a class="md-toc-inner" href="#91-cohort-size">9.1 Cohort size</a></span><span role="listitem" class="md-toc-item md-toc-h3" data-ref="n197"><a class="md-toc-inner" href="#92-bulk-rna-seq-heterogeneity">9.2 Bulk RNA-seq heterogeneity</a></span><span role="listitem" class="md-toc-item md-toc-h2" data-ref="n205"><a class="md-toc-inner" href="#10-example-commands"><strong>10. Example commands</strong></a></span><span role="listitem" class="md-toc-item md-toc-h2" data-ref="n215"><a class="md-toc-inner" href="#11-publication-details"><strong>11. Publication details</strong></a></span></p></div><h2 id='1-background'><strong><span>1. Background</span></strong></h2><p><span>TRANSECT works by defining two groups (strata, plural for stratum) within a cohort based solely on the expression of a gene or a gene set of interest and subsequently compares the stratum, one against the other, for global expression changes and functional differences. TRANSECT outputs descriptive statistics about the gene/s of interest, the products of the stratification process, the differential expression results and subsequent enrichment outcomes. The application uses publicly available large cohort datasets and simply requires the user to choose at a minimum </span></p><ol start='' ><li><p><span>the </span><strong><span>cohort database</span></strong><span> containing participant IDs and gene expression measurements </span></p></li><li><p><span>a </span><strong><span>gene (or multiple genes)</span></strong><span> of interest whose expression levels are used to rank participants in the cohort database</span></p></li><li><p><span>an </span><strong><span>integer percentile</span></strong><span> value used on the expression or ranking measurements as a threshold to partition the cohort into low and high stratum for subsequent comparisons</span></p></li></ol><p>&nbsp;</p><h2 id='2-getting-started'><strong><span>2. Getting started</span></strong></h2><h3 id='21-installation-using-conda'><span>2.1 Installation using Conda</span></h3><p><span>(</span><em><span>10 - 15 minutes on an average PC</span></em><span>)</span></p><p><span>Making use of a Conda environment for the sizable number of prerequisite modules and dependencies needed by TRANSECT is recommended for most use cases. It is not only easier to achieve but cleaner, simpler to manage and way quicker than the native install </span></p><p>&nbsp;</p><ol start='' ><li><p><span>Start by cloning the repository using the git command to a suitable location on your device</span></p><pre class="md-fences md-end-block ty-contain-cm modeLoaded" spellcheck="false" lang="sh"><div class="CodeMirror cm-s-inner cm-s-null-scroll CodeMirror-wrap" lang="sh"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 9.52344px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation"><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-def">$ git</span> clone https://github.com/twobeers75/TRANSECT.git</span></pre></div></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 23px;"></div><div class="CodeMirror-gutters" style="display: none; height: 23px;"></div></div></div></pre><p>&nbsp;</p><p><span>Alternatively TRANSECT code and executable files can be downloaded from GitHub at </span><a href='https://github.com/twobeers75/TRANSECT' target='_blank' class='url'>https://github.com/twobeers75/TRANSECT</a><span>. Click on the green &quot;Code&quot; button followed by &quot;Download ZIP&quot; (note the download location). Find the downloaded ZIP file and move it to an appropriate location if required, before extracting the contents and renaming the folder</span></p><pre class="md-fences md-end-block ty-contain-cm modeLoaded" spellcheck="false" lang="sh"><div class="CodeMirror cm-s-inner cm-s-null-scroll CodeMirror-wrap" lang="sh"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 9.52344px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation"><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-def">$ unzip</span> TRANSECT-main.zip</span></pre></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-def">$ mv</span> TRANSECT-main TRANSECT</span></pre></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 46px;"></div><div class="CodeMirror-gutters" style="display: none; height: 46px;"></div></div></div></pre><p>&nbsp;</p></li><li><p><span>Install Conda on your system (version &gt; 24.1.0). You can skip this step if you already have it. There are many wikis on how to install Conda for Ubuntu, </span><a href='https://docs.anaconda.com/miniconda/'><span>here</span></a><span> is just one. Please consult the Conda documentation relevant to your operating system. </span></p><pre class="md-fences md-end-block ty-contain-cm modeLoaded" spellcheck="false" lang="sh"><div class="CodeMirror cm-s-inner cm-s-null-scroll CodeMirror-wrap" lang="sh"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 9.52344px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><span><span>​</span>x</span></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation" style=""><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">### follow the instructions outlined in the link above which should look something like this for Linux</span></span></pre></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-def">$ mkdir</span> <span class="cm-attribute">-p</span> ~/miniconda3</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-def">$ wget</span> https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh <span class="cm-attribute">-O</span> ~/miniconda3/miniconda.sh</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-def">$ bash</span> ~/miniconda3/miniconda.sh <span class="cm-attribute">-b</span> <span class="cm-attribute">-u</span> <span class="cm-attribute">-p</span> ~/miniconda3</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-def">$ rm</span> <span class="cm-attribute">-rf</span> ~/miniconda3/miniconda.sh</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span cm-text="" cm-zwsp="">
+</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">### don't forget to initialize the bash shell. Mac users need to check their default shell and change the following command appropriately</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-def">$ </span>~/miniconda3/bin/conda init <span class="cm-builtin">bash</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span cm-text="" cm-zwsp="">
+</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">### Afterwards, you will be asked to restart your terminal whereby you should see (base) at the prompt. Ignore it for now.</span></span></pre></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 254px;"></div><div class="CodeMirror-gutters" style="display: none; height: 254px;"></div></div></div></pre><p>&nbsp;</p></li><li><p><span>Next, we create the TRANSECT Conda environment. Here we will run an installation script that automates the creation of the TRANSECT environment, with all the tools and dependencies required to run TRANSECT. The scripts required for this can be found in the INSTALL/ subdirectory of the TRANSECT folder.</span></p><pre class="md-fences md-end-block ty-contain-cm modeLoaded" spellcheck="false" lang="sh" style="break-inside: unset;"><div class="CodeMirror cm-s-inner cm-s-null-scroll CodeMirror-wrap" lang="sh"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 9.52344px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation" style=""><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">### change into the top directory of the downloaded folder (TRANSECT) and navigate to the INSTALL folder</span></span></pre></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-def">$ cd</span> &lt;path to&gt;/TRANSECT/INSTALL</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span cm-text="" cm-zwsp="">
+</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">### First, run the conda install script</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-def">$ </span>./TRANSECT_conda_install.sh</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span cm-text="" cm-zwsp="">
+</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">### Next, upon successful completion of the previous step, activate the newly created environment</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-def">$ conda</span> activate TRANSECT</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span cm-text="" cm-zwsp="">
+</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">### Finally, whilst still within the TRANSECT/INSTALL directory and in the TRANSECT environment run the post installation script to complete the setup</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-def">$ </span>./TRANSECT_post_conda_install.sh</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span cm-text="" cm-zwsp="">
+</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">### You now need to reactivate the TRANSECT environment to apply the changes.</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-def">$ conda</span> deactivate</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-def">$ conda</span> activate TRANSECT</span></pre></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 369px;"></div><div class="CodeMirror-gutters" style="display: none; height: 369px;"></div></div></div></pre></li></ol><p>&nbsp;</p><p><strong><span>And that&#39;s it!</span></strong><span> You should now have all the necessary applications and dependencies in the TRANSECT environment to run this application. Please note, just like any virtual environment you are required to activate the TRANSECT environment in order to use the application. You can deactivate at will when not in use.</span></p><p><span>A few extra very useful commands for those not accustomed to Conda environments</span></p><pre class="md-fences md-end-block ty-contain-cm modeLoaded" spellcheck="false" lang="sh" style="break-inside: unset;"><div class="CodeMirror cm-s-inner cm-s-null-scroll CodeMirror-wrap" lang="sh"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 9.26172px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation" style=""><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">### By default, Conda auto-activates the "base" default environment so each time you open a terminal you will automatically be in the (base) environment. I prefer not to have this happen. To disable, run the following commands. </span></span></pre></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">#First, deactivate any environment until there is no (XXX) at the beginning of the prompt, then turn off auto_activate_base</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-def">$ conda</span> deactivate</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-def">$ conda</span> config <span class="cm-attribute">--set</span> auto_activate_base <span class="cm-atom">false</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span cm-text="" cm-zwsp="">
+</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">### To check what environments you have on your system</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-def">$ conda</span> env list</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">### You should see "base" and "TRANSECT" at the very least</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span cm-text="" cm-zwsp="">
+</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">### To activate TRANSECT at any time</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-def">$ conda</span> activate TRANSECT</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">### Once you have finished, to deactivate the TRANSECT environment</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-def">$ conda</span> deactivate</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span cm-text="" cm-zwsp="">
+</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">### To remove/uninstall the TRANSECT environment</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">conda remove <span class="cm-attribute">-n</span> TRANSECT –all</span></pre></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 392px;"></div><div class="CodeMirror-gutters" style="display: none; height: 392px;"></div></div></div></pre><p><span>More information about managing Conda environment can be found </span><a href='https://docs.conda.io/projects/conda/en/4.6.0/user-guide/tasks/manage-environments.html'><span>here</span></a></p><h3 id='22-native-installation-on-ubuntu'><span>2.2 Native installation on Ubuntu</span></h3><p><span>(</span><em><span>30 - 45 minutes or longer on an average PC</span></em><span>)</span></p><p><strong><span>NOTE: This is not the recommended installation procedure</span></strong><span>. TRANSECT requires and depends on numerous packages and applications. These take some time to install natively if not already present. A fresh install on a vanilla Ubuntu 22.04 can take 30-45mins depending on the PC and network speeds. </span></p><ol start='' ><li><p><span>To start, clone the repo</span></p><pre class="md-fences md-end-block ty-contain-cm modeLoaded" spellcheck="false" lang="sh"><div class="CodeMirror cm-s-inner cm-s-null-scroll CodeMirror-wrap" lang="sh"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 9.52344px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation"><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-def">$ git</span> clone https://github.com/twobeers75/TRANSECT.git</span></pre></div></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 23px;"></div><div class="CodeMirror-gutters" style="display: none; height: 23px;"></div></div></div></pre><p>&nbsp;</p><p><span>Alternatively TRANSECT code and executable files can be downloaded from GitHub at </span><a href='https://github.com/twobeers75/TRANSECT' target='_blank' class='url'>https://github.com/twobeers75/TRANSECT</a><span>. Click on the green &quot;Code&quot; button followed by &quot;Download ZIP&quot; (note the download location). Find the downloaded ZIP file and move it to an appropriate location if required, before extracting the contents and renaming the folder</span></p><pre class="md-fences md-end-block ty-contain-cm modeLoaded" spellcheck="false" lang="sh"><div class="CodeMirror cm-s-inner cm-s-null-scroll CodeMirror-wrap" lang="sh"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 9.52344px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation"><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-def">$ unzip</span> TRANSECT-main.zip</span></pre></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-def">$ mv</span> TRANSECT-main TRANSECT</span></pre></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 46px;"></div><div class="CodeMirror-gutters" style="display: none; height: 46px;"></div></div></div></pre><p>&nbsp;</p></li><li><p><span>Install python3 pip, java if required, and other TRANSECT dependencies</span>
+<em><span>(approx. 1-2min)</span></em></p><pre class="md-fences md-end-block ty-contain-cm modeLoaded" spellcheck="false" lang="sh"><div class="CodeMirror cm-s-inner cm-s-null-scroll CodeMirror-wrap" lang="sh"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 9.52344px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation" style=""><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">### change into the top directory of the downloaded folder (TRANSECT)</span></span></pre></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-def">$ cd</span> &lt;path to&gt;/TRANSECT</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span cm-text="" cm-zwsp="">
+</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">### install pip and other deb requirements</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-def">$ sudo</span> apt install python3-pip default-jre libfontconfig1-dev libcurl4-openssl-dev libssl-dev libxml2-dev libharfbuzz-dev libfribidi-dev libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev pandoc</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span cm-text="" cm-zwsp="">
+</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">### install python modules</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-def">$ python3</span> <span class="cm-attribute">-m</span> pip install <span class="cm-attribute">-r</span> pip_requirements.txt</span></pre></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 207px;"></div><div class="CodeMirror-gutters" style="display: none; height: 207px;"></div></div></div></pre><p>&nbsp;</p></li><li><p><span>Install R, the &quot;pacman&quot; package and Bioconductor specific packages. You can skip this step if you already have R. There are many wikis on how to install R on Ubuntu, </span><a href='https://www.digitalocean.com/community/tutorials/how-to-install-r-on-ubuntu-22-04'><span>here</span></a><span> is just one (specifically for Ubuntu 22.04) </span><em><span>(approx. 1min)</span></em><span> </span></p><pre class="md-fences md-end-block ty-contain-cm modeLoaded" spellcheck="false" lang="sh"><div class="CodeMirror cm-s-inner cm-s-null-scroll CodeMirror-wrap" lang="sh"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 9.52344px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation" style=""><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment"># follow the instructions outlined in the link above which should look something like this</span></span></pre></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-def">$ wget</span> <span class="cm-attribute">-qO-</span> https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc | <span class="cm-builtin">sudo</span> gpg <span class="cm-attribute">--dearmor</span> <span class="cm-attribute">-o</span> /usr/share/keyrings/r-project.gpg</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-def">$ echo</span> <span class="cm-string">"deb [signed-by=/usr/share/keyrings/r-project.gpg] https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/"</span> | <span class="cm-builtin">sudo</span> <span class="cm-def">$ tee</span> <span class="cm-attribute">-a</span> /etc/apt/sources.list.d/r-project.list</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-def">$ sudo</span> apt update</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-def">$ sudo</span> apt install r-base</span></pre></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 161px;"></div><div class="CodeMirror-gutters" style="display: none; height: 161px;"></div></div></div></pre><p>&nbsp;</p></li><li><p><span>Start R from the terminal and install pacman and devtools. Follow the prompts and choose (if asked) to install these packages into a personal library.</span></p><p><span>Once you enter the R shell you should see printed out in the terminal a number of lines about the R version and licenses followed by a &quot;&gt;&quot; symbol. I have used this symbol below to indicate that you need to be in the R shell to run these commands but, you can&#39;t copy the &quot;&gt;&quot; symbol too. It won&#39;t work.  *(approx. 25mins)</span></p><pre class="md-fences md-end-block ty-contain-cm modeLoaded" spellcheck="false" lang="R" style="break-inside: unset;"><div class="CodeMirror cm-s-inner cm-s-null-scroll CodeMirror-wrap" lang="r"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 9.52344px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation" style=""><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">### start R</span></span></pre></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-variable">R</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-operator">&gt;</span> <span class="cm-variable">install.packages</span>(<span class="cm-variable">c</span>(<span class="cm-string">"pacman"</span>,<span class="cm-string">"devtools"</span>))</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment"># Note: maybe wise here to go get a coffee as the previous command takes quite some time to finish! (approx. 15mins) </span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span cm-text="" cm-zwsp="">
+</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">### whilst still in the R environment, load devtools and install rlogging</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-operator">&gt;</span> <span class="cm-variable">library</span>(<span class="cm-string">"devtools"</span>)</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-operator">&gt;</span> <span class="cm-variable">install_github</span>(<span class="cm-string">"https://github.com/mjkallen/rlogging.git"</span>)</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span cm-text="" cm-zwsp="">
+</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">### also install required Bioconductor packages</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-operator">&gt;</span> <span class="cm-keyword">if</span> (<span class="cm-operator">!</span><span class="cm-variable">require</span>(<span class="cm-string">"BiocManager"</span>, <span class="cm-variable">quietly</span> <span class="cm-operator">=</span> <span class="cm-variable">TRUE</span>))</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp; &nbsp;<span class="cm-variable">install.packages</span>(<span class="cm-string">"BiocManager"</span>)</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-operator">&gt;</span> <span class="cm-variable">BiocManager</span><span class="cm-operator">::</span><span class="cm-variable">install</span>(<span class="cm-variable">version</span> <span class="cm-operator">=</span> <span class="cm-string">"3.19"</span>)</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-operator">&gt;</span> <span class="cm-variable">BiocManager</span><span class="cm-operator">::</span><span class="cm-variable">install</span>(<span class="cm-variable">c</span>(<span class="cm-string">"edgeR"</span>,<span class="cm-string">"Glimma"</span>,<span class="cm-string">"DEFormats"</span>))</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment"># Note: probably time for another coffee. Sorry! (approx. 10mins)</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span cm-text="" cm-zwsp="">
+</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">### once successfully completed you can quit R, no need to save the workspace.</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment"># No more coffee for you today ;-)</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-operator">&gt;</span> &nbsp;<span class="cm-variable">q</span>()</span></pre></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 438px;"></div><div class="CodeMirror-gutters" style="display: none; height: 438px;"></div></div></div></pre></li></ol><p>&nbsp;</p><p><span>NOTE: TRANSECT requires many additional R packages however these are all installed on demand the first time (and only the first time) you run each one of the different TRANSECT commands after a nativ install. Please keep this in mind on your first run as it will take substantially longer compared to all subsequent runs.</span></p><p>&nbsp;</p><h2 id='3-basic-demonstration'><strong><span>3. Basic demonstration</span></strong></h2><p><span>TRANSECT has two main operations; </span><strong><span>Prepare</span></strong><span> and </span><strong><span>Analyse</span></strong><span>. </span></p><p><span>In order for TRANSECT to function, it first requires a cohort dataset to work on. This is retrieved and formatted appropriately by the </span><strong><span>Prepare</span></strong><span> scripts. Subsequently, TRANSECT can run analyses on the downloaded data using the </span><strong><span>Analyse</span></strong><span> scripts</span></p><p><span>Example commands to investigate ZEB1 using the RECOUNT3 TCGA PRAD cohort;</span></p><pre class="md-fences md-end-block ty-contain-cm modeLoaded" spellcheck="false" lang="sh" style="break-inside: unset;"><div class="CodeMirror cm-s-inner cm-s-null-scroll CodeMirror-wrap" lang="sh"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 9.52344px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation" style=""><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">### First, if not already make sure to activate the TRANSECT environment</span></span></pre></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">conda activate TRANSECT</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span cm-text="" cm-zwsp="">
+</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">### Next Download the RECOUNT3 PRAD data (approx. 3mins)</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment"># run the RECOUNT3 prepare script for TCGA-PRAD (the resulting files can be found in &lt;path to&gt;/TRANSECT/data/RECOUNT3/PRAD)</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">R3_prepare_directories.sh <span class="cm-attribute">-p</span> PRAD</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment"># NOTE: you only need to do this one time per cohort dataset. Once you have it you don't need to download it again!</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span cm-text="" cm-zwsp="">
+</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">### Finally, Run the TRANSECT analysis</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment"># TRANSECT saves output in the current working folder so best to create a new folder specifically for each run</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-builtin">cd</span> &lt;path to&gt;/TRANSECT/output/RECOUNT3</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-builtin">mkdir</span> <span class="cm-attribute">-p</span> ZEB1_PRAD_test</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-builtin">cd</span> ZEB1_PRAD_test</span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span cm-text="" cm-zwsp="">
+</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment"># Now, run the RECOUNT3 analyse script using the PRAD data we just retreived, investigating the gene ZEB1, partitioning the participants using a percentile threshold of 5, with all outputs.</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">R3_analyse_GOI.sh <span class="cm-attribute">-p</span> PRAD <span class="cm-attribute">-g</span> ZEB1 <span class="cm-attribute">-s</span> mRNA <span class="cm-attribute">-t</span> <span class="cm-number">5</span> <span class="cm-attribute">-a</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span cm-text="" cm-zwsp="">
+</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">### Done! Explore the outputs. Try swapping ZEB1 for your favourite gene (remember, new folder for each run).</span></span></pre></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 438px;"></div><div class="CodeMirror-gutters" style="display: none; height: 438px;"></div></div></div></pre><p>&nbsp;</p><h2 id='4-transect-workflow'><strong><span>4. TRANSECT workflow</span></strong></h2><h3 id='41-prepare-workflow-diagram'><span>4.1 </span><em><span>Prepare</span></em><span> workflow diagram</span></h3><p><img title="Single Gene Analysis" alt="TRANSECT" src="{% static 'manual/figures/TRANSECT_prepare_workflow.png' %}" width="500"></p><h3 id='42-analyse-workflow-diagram'><span>4.2 </span><em><span>Analyse</span></em><span> workflow diagram</span></h3><p><img title="Single Gene Analysis" alt="TRANSECT" src="{% static 'manual/figures/TRANSECT_analyse_workflow.png' %}" width="600"></p><p>&nbsp;</p><h2 id='5-stratification-modes'><strong><span>5. Stratification modes</span></strong></h2><p><span>The basic premise of TRANSECT is to stratify individuals from large cohort transcriptomic data into defined groups called strata based on singular gene expression or composite gene expression sets. The stratified participant strata are subsequently compared one to the other in order to assess global expression changes and functional differences. </span></p><h3 id='51-single-gene-analysis'><span>5.1 Single gene analysis</span></h3><p><span>Single gene stratification is simply the division of individuals within a cohort population into distinct strata based solely on the expression of one single gene. In the current version of TRANSECT, individuals with expression levels at or near both ends of the physiological limits for the gene of interest are grouped separately and subsequently compared (depiction below).</span></p><p><img title="Single Gene Analysis" alt="TRANSECT" src="{% static 'manual/figures/SingleAnalysisManualFig.png' %}" width="500"></p><h3 id='52-composite-gene-analysis---additive-mode'><span>5.2 Composite gene analysis - Additive mode </span></h3><p><span>Composite analyses use information from multiple genes simultaneously to divide individuals within a cohort population into distinct strata. The additive mode of TRANSECT uses expression information from multiple genes (2 – 5 genes in the current implementation) to rank individuals expressing each of the component genes at near to physiological extreme and separate them into low and high strata for subsequent DE analysis. This is achieved by computing the average of rank positions for all component genes for each participant and using the metric to position each individual within the cohort in order. Once this is achieved and in like manner to the single gene analysis, individuals with extreme high average rank positions are grouped and compared to individuals with extreme low rank positions.</span></p><p><span>It is important to note that this process leads, in most scenarios, to the exclusion of participants with extreme expression for any one (or more) of the component genes of interest. A good example of this can be seen from the additive mode case study for ESR1, PGR and ERBB2 (triple-negative breast cancer genes) in the RECOUNT3 BRCA cohort. </span></p><p><span>The figure below (a TRANSECT output for this type of analysis), plots the expression level separately for each component gene (here ESR1, PGR and ERBB2), for each participant. Expanding on this, each participant in the cohort occupies a single point on each of the three distributions in the figure, corresponding to the participants expression level for the three genes of interest. Featured on the figure below is participant TCGA-C8-A12Z-01A who possesses the highest expression level for ERBB2 (</span><em><span>TPM=3747.42</span></em><span>) of all participants in the cohort however, does not express either ESR1 nor PGR (</span><em><span>TPM=0.37 and 0.15 respectively</span></em><span>). Individuals stratified by TRANSECT who rank low for expression of all three receptors are marked in cyan (one point per individual on each of the three distributions) and conversely, those ranking high for elevated expression of all three receptor genes are marked in magenta.</span></p><p><img title="Composite Gene Analysis - Additive" alt="TRANSECT" src="{% static 'manual/figures/ESR1-PGR-ERBB2_TPM_Boxplot_Sina.png' %}" width="600"></p><h3 id='53-composite-gene-analysis---ratio-mode'><span>5.3 Composite gene analysis - Ratio mode</span></h3><p><span>In the same manner as the additive mode described above, the ratio mode also considers information from multiple genes simultaneously to partition individuals within a cohort population into distinct strata. The ratio mode uses expression information from strictly two genes to rank individuals. In order to achieve this, TRANSECT calculates a simple log-ratio statistic (log fold change) between the 2 genes of interest for each patient and uses this as the rank metric. Extremely low ratio scores will demarcate participants where geneA &gt;&gt;&gt; geneB and vice versa. Again, individuals at both extremes are grouped and compared.</span></p><p><span>Like the additive mode, participants with extreme expression for any one of the component genes may, or may not, make it in to the stratified groups for later comparison.</span></p><p><span>The figure below (another TRANSECT output for this type of analysis), plots the expression level separately for the two component genes (IL3RA and CSF2RB), for each participant. Expanding on this, here each participant in the cohort occupies two points on the plot (each point directly above and below the other), corresponding to the participants expression level for the two genes of interest. Participants are ordered across the x-axis from low to high based on their ratio score (converted to a rank metric). Featured on the figure below are two participants TCGA-AB-2868-03A and TCGA-AB-2959-03A who rank lowest and highest for this analysis in this cohort respectively, showing both the ratio score and TPM expression values. The solid vertical blue and red lines demarcate the thresholds for inclusion into the low and high strata respectively.  </span></p><p><img title="Composite Gene Analysis - Additive" alt="TRANSECT" src="{% static 'manual/figures/IL3RA-CSF2RB_TPM_Scatter.png' %}" width="600"></p><h3 id='54-multimodal-analysis'><span>5.4 Multimodal analysis</span></h3><p><span>In select large cohort studies there exist measurements derived from multiple omics for the same individual at the same or similar timepoints. For example, the TCGA study consists of RNA (mRNA, miRNA), and DNA (methylation, mutation, and copy number) data in addition to the associated global proteomics data generated by the Clinical Proteomic Tumor Analysis Consortium (CPTAC). TRANSECT has the facility to survey changes in one omics data type based on the stratification of individuals using matched data from another omics. As in the use cases above, individuals at each extreme are grouped and compared. </span></p><p><span>TRANSECT comes preconfigured with the ability to assess global changes in mRNAs based on the stratification of cohort participants based on their miRNA expression. This can only run whilst using GDC TCGA data that possess sufficient numbers of mRNA and miRNA expression data. Other types of multimodal analyses using different omics types require custom configuration. </span></p><p>&nbsp;</p><h2 id='6-prepare-commands-and-options'><strong><span>6. Prepare commands and options</span></strong></h2><p><strong><span>Prepare</span></strong><span> is a process that retrieves the raw data from online repositories and prepares it (if required) for analysis. TRANSECT comes bundled with three different prepare scripts, one each for  RECOUNT3, GTEx and GDC-TCGA data. </span></p><p><span>All downloaded and formatted data is stored by default in the TRANSECT/data/&lt;RECOUNT3|GTEx|GDC&gt;/ subdirectory in individual folders named by tissue/cancer abbreviation. For example, the RECOUNT3 PRAD data downloaded in the basic demonstration of this manual is stored in </span>
+<path to><span>/TRANSECT/data/RECOUNT3/PRAD/</span></p><h3 id='61-recount3'><span>6.1 RECOUNT3</span></h3><p><span>Retrieve and prepare RECOUNT3 RNA-seq data for in-house custom analyses.</span></p><p><span>USAGE: </span></p><pre class="md-fences md-end-block ty-contain-cm modeLoaded" spellcheck="false" lang="sh"><div class="CodeMirror cm-s-inner cm-s-null-scroll CodeMirror-wrap" lang="sh"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 9.52344px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation"><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-def">$ R3_prepare_directories</span>.sh [-h] <span class="cm-attribute">-p</span> &lt;RECOUNT3 Project ID&gt; </span></pre></div></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 23px;"></div><div class="CodeMirror-gutters" style="display: none; height: 23px;"></div></div></div></pre><p><span>PARAMETERS:</span>
+<span>	</span><strong><span>-h</span></strong><span> Show help text</span>
+<span>	</span><strong><span>-p</span></strong><span> RECOUNT3 project id: needs to be valid RECOUNT3 project id (ie. BRCA for TCGA data OR BREAST for GTEx). </span><strong><span>Required</span></strong>
+<span>	</span>
+<span>You can retrieve and prepare more than one RECOUNT dataset by using a bash for loop like this;</span></p><pre class="md-fences md-end-block ty-contain-cm modeLoaded" spellcheck="false" lang="sh"><div class="CodeMirror cm-s-inner cm-s-null-scroll CodeMirror-wrap" lang="sh"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 9.52344px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation"><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-def">$ for</span> r3_code <span class="cm-keyword">in</span> COAD BREAST LAML; <span class="cm-keyword">do</span> R3_prepare_directories.sh <span class="cm-attribute">-p</span> <span class="cm-def">$r3_code</span> ; <span class="cm-keyword">done</span></span></pre></div></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 23px;"></div><div class="CodeMirror-gutters" style="display: none; height: 23px;"></div></div></div></pre><h3 id='62-gtex'><span>6.2 GTEx</span></h3><p><span>Retrieve and prepare GTEx RNA-seq data for in-house custom analyses. Unlike RECOUNT3 and GDC data retrieval, GTEx data for all tissue types are retrieved in a single file. Subsequently, this is separated into tissue specific datasets using the information in the metadata file.</span></p><p><span>USAGE: </span></p><pre class="md-fences md-end-block ty-contain-cm modeLoaded" spellcheck="false" lang="sh"><div class="CodeMirror cm-s-inner cm-s-null-scroll CodeMirror-wrap" lang="sh"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 9.52344px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation"><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-def">$ GTEx_prepare_directories</span>.sh [-h] [-a <span class="cm-attribute">-c</span> <span class="cm-attribute">-t</span>]</span></pre></div></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 23px;"></div><div class="CodeMirror-gutters" style="display: none; height: 23px;"></div></div></div></pre><p><span>PARAMETERS:</span>
+<span>	</span><strong><span>-h</span></strong><span> Show help text</span>
+<span>	</span><strong><span>-a</span></strong><span> retrieve all expression data (mRNA counts and TPMs), </span><strong><span>Required</span></strong><span> for the proper functioning of TRANSECT</span>
+<span>	</span><strong><span>-c</span></strong><span> retrieve only mRNA counts</span>
+<span>	</span><strong><span>-t</span></strong><span> retrieve only mRNA TPMs</span></p><h3 id='63-gdc'><span>6.3 GDC</span></h3><p><span>Retrieve and prepare TCGA RNA-seq data for in-house custom analyses.</span></p><p><span>USAGE: </span></p><pre class="md-fences md-end-block ty-contain-cm modeLoaded" spellcheck="false" lang="sh"><div class="CodeMirror cm-s-inner cm-s-null-scroll CodeMirror-wrap" lang="sh"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 9.52344px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation"><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-def">$ GDC_TCGA_prepare_directories</span>.sh [-h] <span class="cm-attribute">-p</span> &lt;TCGA Project ID&gt; [-a <span class="cm-attribute">-c</span> <span class="cm-attribute">-r</span> <span class="cm-attribute">-R</span> <span class="cm-attribute">-k</span> <span class="cm-attribute">-n</span>]</span></pre></div></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 23px;"></div><div class="CodeMirror-gutters" style="display: none; height: 23px;"></div></div></div></pre><p><span>PARAMETERS:</span>
+<span>	</span><strong><span>-h</span></strong><span> Show help text</span>
+<span>	</span><strong><span>-p</span></strong><span> TCGA project id: needs to be valid TCGA project id as used by GDC (ie. TCGA-BRCA). </span><strong><span>Required</span></strong>
+<span>	</span><strong><span>-a</span></strong><span> retrieve all expression data (mRNA counts and TPMs as well as miR and isomiR RPMs)</span>
+<span>	</span><strong><span>-c</span></strong><span> retrieve only mRNA counts</span>
+<span>	</span><strong><span>-r</span></strong><span> retrieve only miR RPMs</span>
+<span>	</span><strong><span>-R</span></strong><span> retrieve only isomiR RPMs</span>
+<span>	</span><strong><span>-k</span></strong><span> keep all data (Default: False)</span>
+<span>	</span><strong><span>-n</span></strong><span> data is not from TCGA study (Default: False)</span></p><p><span>To retrieve and prepare more than one TCGA cancer dataset use a bash for loop like this;</span></p><pre class="md-fences md-end-block ty-contain-cm modeLoaded" spellcheck="false" lang="sh"><div class="CodeMirror cm-s-inner cm-s-null-scroll CodeMirror-wrap" lang="sh"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 9.52344px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation"><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-def">$ for</span> tcga_code <span class="cm-keyword">in</span> TCGA-COAD TCGA-SARC TCGA-LAML; <span class="cm-keyword">do</span> GDC_TCGA_prepare_directories.sh <span class="cm-attribute">-p</span> <span class="cm-def">$tcga_code</span>; <span class="cm-keyword">done</span></span></pre></div></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 23px;"></div><div class="CodeMirror-gutters" style="display: none; height: 23px;"></div></div></div></pre><p><span>To retrieve and prepare all TCGA cancer datasets you can loop through all lines in GDC_API/TCGA_Study_Abbreviations.tsv (WARNING: this requires lots of time, network and disc space)</span></p><pre class="md-fences md-end-block ty-contain-cm modeLoaded" spellcheck="false" lang="sh"><div class="CodeMirror cm-s-inner cm-s-null-scroll CodeMirror-wrap" lang="sh"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 9.26172px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation"><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-def">$ while</span> read tcga_code; <span class="cm-keyword">do</span> GDC_TCGA_prepare_directories.sh <span class="cm-attribute">-p</span> <span class="cm-def">$tcga_code</span>; <span class="cm-keyword">done</span> &lt; &lt;(cut <span class="cm-attribute">-f1</span> GDC_API/TCGA_Study_Abbreviations.tsv | tail <span class="cm-attribute">-n</span> <span class="cm-operator">+</span><span class="cm-number">2</span>)</span></pre></div></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 46px;"></div><div class="CodeMirror-gutters" style="display: none; height: 46px;"></div></div></div></pre><p>&nbsp;</p><p><span>Please be aware that some of these collections are large and require substantial disk space. They can take a considerable amount of  time to download and process. For example, downloading and  processing GDC TCGA-BRCA takes just over 30 minutes (using a high speed  network connection and an up to date workstation) and requires more than 14GB of disk space (most of which can and by default is, deleted  afterwards). In comparison, GDC TCGA-LAML takes less than 5 minutes to retrieve and less than 2GB of disc space.</span></p><p><span>In addition, the GDC prepare script often fails when downloading large datasets. This is caused by network connectivity issues (tested only in Australia) with the GDC repository. If you experience issues, delete the relevant dataset and retry the prepare command. </span></p><p>&nbsp;</p><h2 id='7-analysis-commands-and-options'><strong><span>7. Analysis commands and options</span></strong></h2><p><strong><span>Analyse</span></strong><span> is a process that uses the prepared public data from above, conducts the stratified differential expression and produces all the outputs. Like with the prepare operations, TRANSECT comes bundled with three analyse scripts, one each for RECOUNT3, GTEx and  GDC-TCGA. </span></p><p><span>Unlike the prepare operations, the output from these calls is saved in the current working directory and therefore it is recommended to create a descriptively named folder for each of your analyses. TRANSECT comes with an preinstalled output folder containing subdirectories (TRANSECT/output/&lt;RECOUNT3|GTEx|GDC&gt;/) however, you may choose any working directory at your discretion. Keep in mind that if TRANSECT output exists in the current working directory, it will be overwritten.</span></p><p><span>For each script, composite analyses can be run using the plus charater (+) for additive combinations or by using the modulus character (%) for ratio. The two special characters are used between gene names like so. Additive example: ESR1+PGR+ERBB2 or Ratio example: ESRP1%ZEB1</span></p><h3 id='71-recount3'><span>7.1 RECOUNT3</span></h3><p><span>Differential expression analysis of RECOUNT3 data stratified into high and low groups by gene of interest </span>
+<span>Please run this wrapper script in the directory of the desired output location</span></p><p><span>USAGE: </span></p><pre class="md-fences md-end-block ty-contain-cm modeLoaded" spellcheck="false" lang="sh"><div class="CodeMirror cm-s-inner cm-s-null-scroll CodeMirror-wrap" lang="sh"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 9.52344px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation"><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-def">$ R3_analyse_GOI</span>.sh [-h] <span class="cm-attribute">-p</span> &lt;RECOUNT3 projectID&gt; <span class="cm-attribute">-g</span> &lt;GOI&gt; <span class="cm-attribute">-s</span> &lt;StratifyBy&gt; <span class="cm-attribute">-t</span> &lt;Percentile&gt; <span class="cm-attribute">-e</span> <span class="cm-attribute">-S</span> <span class="cm-attribute">-a</span> <span class="cm-attribute">-c</span> <span class="cm-attribute">-d</span></span></pre></div></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 23px;"></div><div class="CodeMirror-gutters" style="display: none; height: 23px;"></div></div></div></pre><p><span>PARAMETERS:</span>
+<span>	</span><strong><span>-h</span></strong><span> Show help text</span>
+<span>	</span><strong><span>-p</span></strong><span> RECOUNT3 tissue id: needs to be valid RECOUNT3 tissue id as at RECOUNT3 (ie. BRCA for TCGA or BREAST for GTEx). </span><strong><span>Required</span></strong>
+<span>	</span><strong><span>-g</span></strong><span> Gene of interest: needs to be a valid HGNC symbol (ie. ZEB1). </span><strong><span>Required</span></strong>
+<span>	</span><strong><span>-s</span></strong><span> Stratify by molecule: Must match -g and can only be mRNA at present. </span><strong><span>Required</span></strong>
+<span>	</span><strong><span>-t</span></strong><span> Percentile: startify data into top and bottom x percentile (valid x between 2 and 25). </span><strong><span>Required</span></strong>
+<span>	</span><strong><span>-e</span></strong><span> Enrichment analyses: Run GSEA on DE results (Default: Only run WebGestalt)</span>
+<span>	</span><strong><span>-S</span></strong><span> Switch pairwise comparison: find genes DE in low group compared to high group (Default: high compared to low)</span>
+<span>	</span><strong><span>-a</span></strong><span> Do all analyses</span>
+<span>	</span><strong><span>-c</span></strong><span> Do correlation analysis only</span>
+<span>	</span><strong><span>-d</span></strong><span> Do differential expression analysis only </span></p><h3 id='72-gtex'><span>7.2 GTEx</span></h3><p><span>Differential expression analysis of GTEx data stratified into high and low groups by gene of interest </span>
+<span>Please run this wrapper script in the directory of the desired output location</span></p><p><span>USAGE: </span></p><pre class="md-fences md-end-block ty-contain-cm modeLoaded" spellcheck="false" lang="sh"><div class="CodeMirror cm-s-inner cm-s-null-scroll CodeMirror-wrap" lang="sh"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 9.52344px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation"><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-def">$ GTEx_analyse_GOI</span>.sh [-h] <span class="cm-attribute">-p</span> &lt;GTExTissueID&gt; <span class="cm-attribute">-g</span> &lt;GOI&gt; <span class="cm-attribute">-s</span> &lt;StratifyBy&gt; <span class="cm-attribute">-t</span> &lt;Percentile&gt; <span class="cm-attribute">-e</span> <span class="cm-attribute">-S</span> <span class="cm-attribute">-a</span> <span class="cm-attribute">-c</span> <span class="cm-attribute">-d</span></span></pre></div></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 23px;"></div><div class="CodeMirror-gutters" style="display: none; height: 23px;"></div></div></div></pre><p><span>PARAMETERS:</span>
+<span>	</span><strong><span>-h</span></strong><span> Show help text</span>
+<span>	</span><strong><span>-p</span></strong><span> GTEx tissue id: needs to be valid GTEx tissue id as at GTEx (ie. Breast). </span><strong><span>Required</span></strong>
+<span>	</span><strong><span>-g</span></strong><span> Gene of interest: needs to be a valid HGNC symbol (ie. ZEB1). </span><strong><span>Required</span></strong>
+<span>	</span><strong><span>-s</span></strong><span> Stratify by molecule: Must match -g and can only be mRNA at present. </span><strong><span>Required</span></strong>
+<span>	</span><strong><span>-t</span></strong><span> Percentile: startify data into top and bottom x percentil (valid x between 2 and 25). </span><strong><span>Required</span></strong>
+<span>	</span><strong><span>-e</span></strong><span> Enrichment analyses: Run GSEA on DE results (Default: Only run WebGestalt)</span>
+<span>	</span><strong><span>-S</span></strong><span> Switch pairwise comparison: find genes DE in low group compared to high group (Default: high compared to low)</span>
+<span>	</span><strong><span>-a</span></strong><span> Do all analyses</span>
+<span>	</span><strong><span>-c</span></strong><span> Do correlation analysis only</span>
+<span>	</span><strong><span>-d</span></strong><span> Do differential expression analysis only </span></p><h3 id='73-gdc'><span>7.3 GDC</span></h3><p><span>Differential expression analysis of TCGA data stratified into high and low groups by gene of interest </span>
+<span>Please run this wrapper script in the directory of the desired output location</span></p><p><span>USAGE: </span></p><pre class="md-fences md-end-block ty-contain-cm modeLoaded" spellcheck="false" lang="sh"><div class="CodeMirror cm-s-inner cm-s-null-scroll CodeMirror-wrap" lang="sh"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 9.52344px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation"><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-def">$ GDC_TCGA_analyse_GOI</span>.sh [-h] <span class="cm-attribute">-p</span> &lt;TCGAProjectID&gt; <span class="cm-attribute">-g</span> &lt;GOI&gt; <span class="cm-attribute">-s</span> &lt;StratifyBy&gt; <span class="cm-attribute">-t</span> &lt;Percentile&gt; <span class="cm-attribute">-e</span> <span class="cm-attribute">-S</span> <span class="cm-attribute">-a</span> <span class="cm-attribute">-c</span> <span class="cm-attribute">-d</span></span></pre></div></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 23px;"></div><div class="CodeMirror-gutters" style="display: none; height: 23px;"></div></div></div></pre><p><span>PARAMETERS:</span>
+<span>	</span><strong><span>-h</span></strong><span> Show this help text</span>
+<span>	</span><strong><span>-p</span></strong><span> TCGA project id: needs to be valid TCGA project id as at the GDC (ie. TCGA-BRCA). </span><strong><span>Required</span></strong>
+<span>	</span><strong><span>-g</span></strong><span> Gene of interest: needs to be a valid HGNC symbol (ie. ZEB1). </span><strong><span>Required</span></strong>
+<span>	</span><strong><span>-s</span></strong><span> Stratify by molecule: must match -g and can only be one of (mRNA or miRNA). </span><strong><span>Required</span></strong>
+<span>	</span><strong><span>-t</span></strong><span> Percentile: startify data into top and bottom x percentile (valid x between 2 and 25). </span><strong><span>Required</span></strong>
+<span>	</span><strong><span>-e</span></strong><span> Enrichment analyses: Run GSEA on DE results (Default: Only run WebGestalt)</span>
+<span>	</span><strong><span>-S</span></strong><span> Switch pairwise comparison: find genes DE in low group compared to high group (Default: high compared to low)</span>
+<span>	</span><strong><span>-a</span></strong><span> Do all analyses</span>
+<span>	</span><strong><span>-c</span></strong><span> Do correlation analysis only</span>
+<span>	</span><strong><span>-d</span></strong><span> Do differential expression analysis only </span></p><p>&nbsp;</p><h2 id='8-output'><strong><span>8. Output</span></strong></h2><p><span>TRANSECT takes in a cohort dataset and processes the data as follows. </span></p><ol start='' ><li><p><span>First, TRANSECT partition the data by the expression of a gene/s of interest into low and high strata </span></p></li><li><p><span>Subsequently, TRANSECT compares the resulting strata, one to the other, to identify differentially expressed genes</span></p></li><li><p><span>And finally, TRANSECT uses the results from the DE analysis to run functional annotation and enrichment analyses</span></p></li></ol><p><span>The outputs from TRANSECT are likewise grouped into 3 categories and returned in three folders in the working directory from where the program is executed</span></p><h3 id='81-01-stratification'><span>8.1 01-Stratification</span></h3><p><span>The stratification process produces 2 tables, and 3 plots. </span></p><ol start='' ><li><p><span>GOI_exp_raw_OG.tsv contain the raw original expression (TPM) data for all gene/s of interest </span></p></li><li><p><span>GOI_exp_with_strat.tsv contains the same data sorted with additional columns relating to the participants ranking score, percentiles and quantile values.</span></p></li><li><p><span>TPM_histogram.html or TPM_Boxplot_Sina.html or TPM_Scatter.html, all which plot data from the two tables above differently depending on the chosen TRANSECT mode in an attempt to describe the distribution of gene expression across the cohort participants</span></p></li><li><p><span>TPM_N-T_boxplot.html which shows the distribution of expression partitioned by disease state when available </span></p></li><li><p><span>TPM_strat_boxplot.html which plots the low and high strata participants resulting from the stratification process</span></p></li></ol><h3 id='82-02-de'><span>8.2 02-DE</span></h3><p><span>The DE analysis produces many tables and plots most easily described as follows.</span></p><ol start='' ><li><p><span>DE Setup – design.tsv and gene_raw_expression_data_cpm.csv </span></p></li><li><p><span>DE QC – bcv and mean_var.png plots as well as the MDS-Plot.html in the glimma-plots folder</span></p></li><li><p><span>Normalised expression tables - gene_normalised_expression_data_cpm.csv (also in log form)</span></p></li><li><p><span>DE result tables - High_Vs_Low _de_sigFC.csv and top_tags.csv</span></p></li><li><p><span>DE result plots - High_Vs_Low_volcano.png and High_Vs_Low_heatmap.png as well as an interactive version of the volcano plot in the glimma-plots folder</span></p></li><li><p><span>The glimma-plots folder containing the interactive web plots and associated data</span></p></li></ol><h3 id='83-03-enrichment'><span>8.3 03-Enrichment</span></h3><p><span>The 2 enrichment analyses result in the production of two folders each with a separate collection of tables and plots.</span></p><ol start='' ><li><p><span>GSEA</span></p><p><span>When selected, this folder contains the output folders from running GSEA against the Hallmark as well as the Curated MSigDB collections respectively. Within each folder, users can open the index.html file to access and interact with the results in a web browser. In addition, the results are summarised and provided in tabular form (.csv) as well as interactive form (.html). See the </span><a href='https://www.gsea-msigdb.org/gsea/doc/GSEAUserGuideFrame.html'><span>GSEA User Guide</span></a><span> for more details</span></p><p><span>GSEA input data – 3 text files used for the GSEA analysis are saved in the top-level folder. The default GSEA method used by TRANSECT is the pre-ranked method. Input for this analysis can be found in the .rnk file. Provided but not used by TRANSECT are alternate GSEA input files (.cls and .txt). These files can be used to rerun GSEA outside of TRANSECT with custom parameters against different collections.</span></p></li><li><p><span>WebGestalt</span></p><p><span>The ORA results are presented in six folders; two each for disease, gene ontology and pathway enrichment, for up and down regulated genes separately (when available). Within each folder, users can open the .html file to access and interact with the results in a web browser. See the </span><a href='https://www.webgestalt.org/WG_2024_manual.pdf'><span>WebGestalt Manual</span></a><span> for more details</span></p></li></ol><p>&nbsp;</p><h2 id='9-precautions'><strong><span>9. Precautions</span></strong></h2><h3 id='91-cohort-size'><span>9.1 Cohort size</span></h3><p><span>TRANSECT requires large numbers of participants in the cohort data sets to adequately achieve appropriate stratification and grouping. Ideally, individual members of each stratum derived from the stratification process will share highly similar attributes or characteristics (here, gene expression levels). Cohort data sets with low participant numbers are unlikely to possess the required random sampling of a population to achieve defined stratum containing members with shared characteristics and may force the allocation of members with different characteristics into the same stratum. </span></p><h3 id='92-bulk-rna-seq-heterogeneity'><span>9.2 Bulk RNA-seq heterogeneity</span></h3><p><span>The heterogeneity of cell types within bulk tissue samples which are present in these cohort data sets can lead to misleading observations if not carefully considered. As an example, whilst examining one of our case studies using the RECOUNT3 GTEx Blood cohort (ratio mode - IL3RA%CSF2RB), we stumbled upon separation statistics in the MDS plot that appeared altogether unlikely and very dubious.</span></p><p><img title="Composite Gene Analysis - Additive" alt="TRANSECT" src="{% static 'manual/figures/IL3RA-CSF2RB_R3_Blood.png' %}" width="800"></p><p><span>A few telling signs stand out. First, there is a huge near 90% explaining the separation between high (red) and low (blue) samples across dimension 1, something usually only observed between isogenic cell lines or technical replicates. Second, four samples from the high group appear </span><strong><span>not</span></strong><span> to belong? Diving into the GTEx metadata for the participants in these strata, we found that the RECOUNT3 GTEx Blood cohort had unaccounted substructure!</span></p><p><span>Below is the table of participants used in the above analysis separated by stratum. On the left is the low group (light blue background) with GTEx metadata showing consistently for each participant, membership in &quot;GTEx SMTS Blood&quot; and &quot;GTEx SMTSD Whole Blood&quot;, as expected. On the right (light red background), the same for the high stratum showing that although all participants in this stratum are annotated as &quot;GTEx SMTS Blood&quot;, the detailed annotation reveals all but four are actually &quot;Cells - EBV-transformed lymphocytes&quot;. Unintentionally, we were comparing Whole Blood to EBV-transformed lymphocytes. (NOTE: “SMTS” - Tissue Type, area from which the tissue sample was taken and “SMTSD” - Tissue Type, more specific detail of tissue type)</span></p><p><img title="Composite Gene Analysis - Additive" alt="TRANSECT" src="{% static 'manual/figures/IL3RA-CSF2RB_R3_Blood_Design_Anno.png' %}" width="800"></p><p><span>Undoubtedly, there is more substructure in the Whole Blood cohort, some subtle others maybe not? </span></p><p>&nbsp;</p><h2 id='10-example-commands'><strong><span>10. Example commands</span></strong></h2><p><strong><span>Single gene analysis</span></strong></p><pre class="md-fences md-end-block ty-contain-cm modeLoaded" spellcheck="false" lang="sh"><div class="CodeMirror cm-s-inner cm-s-null-scroll CodeMirror-wrap" lang="sh"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 9.52344px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation" style=""><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">#1. RECOUNT3 - BRCA, ZEB1 High Vs Low, stratification threshold of 5%, DE only</span></span></pre></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">R3_analyse_GOI.sh <span class="cm-attribute">-p</span> BRCA <span class="cm-attribute">-g</span> ZEB1 <span class="cm-attribute">-s</span> mRNA <span class="cm-attribute">-t</span> <span class="cm-number">5</span> <span class="cm-attribute">-d</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span cm-text="" cm-zwsp="">
+</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">#2. GTEx - Breast, ESR1 High Vs Low, stratification threshold of 7%, DE and correlation analysis</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">GTEx_analyse_GOI.sh <span class="cm-attribute">-p</span> Breast <span class="cm-attribute">-g</span> ESR1 <span class="cm-attribute">-s</span> mRNA <span class="cm-attribute">-t</span> <span class="cm-number">7</span> <span class="cm-attribute">-a</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span cm-text="" cm-zwsp="">
+</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">#3. GDC - TCGA-PRAD,  AR Low Vs High (switch comparison), stratification threshold of 3%, DE and correlation analysis, run GSEA</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">GDC_TCGA_analyse_GOI.sh <span class="cm-attribute">-p</span> TCGA-PRAD <span class="cm-attribute">-g</span> AR <span class="cm-attribute">-s</span> mRNA <span class="cm-attribute">-t</span> <span class="cm-number">3</span> <span class="cm-attribute">-S</span> <span class="cm-attribute">-a</span> <span class="cm-attribute">-e</span></span></pre></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 184px;"></div><div class="CodeMirror-gutters" style="display: none; height: 184px;"></div></div></div></pre><p><strong><span>Composite gene analysis - Additive mode</span></strong></p><pre class="md-fences md-end-block ty-contain-cm modeLoaded" spellcheck="false" lang="sh"><div class="CodeMirror cm-s-inner cm-s-null-scroll CodeMirror-wrap" lang="sh"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 9.52344px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation" style=""><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">#1. RECOUNT3 - BREAST, ESR1-PGR-ERBB2 Low Vs High (switch comparison), stratification threshold of 6%, DE only, run GSEA</span></span></pre></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">R3_analyse_GOI.sh <span class="cm-attribute">-p</span> BREAST <span class="cm-attribute">-g</span> ESR1<span class="cm-operator">+</span>PGR<span class="cm-operator">+</span>ERBB2 <span class="cm-attribute">-s</span> mRNA <span class="cm-attribute">-t</span> <span class="cm-number">6</span> <span class="cm-attribute">-S</span> <span class="cm-attribute">-d</span> <span class="cm-attribute">-e</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span cm-text="" cm-zwsp="">
+</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">#2. GDC - TCGA-KIRC, ZEB1-ESRP1 High Vs Low, stratification threshold of 10%, DE and correlation analysis</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">GDC_TCGA_analyse_GOI.sh <span class="cm-attribute">-p</span> TCGA-KIRC <span class="cm-attribute">-g</span> ZEB1<span class="cm-operator">+</span>ESRP1 <span class="cm-attribute">-s</span> mRNA <span class="cm-attribute">-t</span> <span class="cm-number">10</span> <span class="cm-attribute">-a</span></span></pre></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 115px;"></div><div class="CodeMirror-gutters" style="display: none; height: 115px;"></div></div></div></pre><p><strong><span>Composite gene analysis - Ratio mode</span></strong></p><pre class="md-fences md-end-block ty-contain-cm modeLoaded" spellcheck="false" lang="sh"><div class="CodeMirror cm-s-inner cm-s-null-scroll CodeMirror-wrap" lang="sh"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 9.52344px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation" style=""><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">#1. RECOUNT3 - LAML, IL3RA-CSF2RB High Vs Low, stratification threshold of 12%, DE only, run GSEA</span></span></pre></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">R3_analyse_GOI.sh <span class="cm-attribute">-p</span> LAML <span class="cm-attribute">-g</span> IL3RA%CSF2RB <span class="cm-attribute">-s</span> mRNA <span class="cm-attribute">-t</span> <span class="cm-number">12</span> <span class="cm-attribute">-d</span> <span class="cm-attribute">-e</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span cm-text="" cm-zwsp="">
+</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">#2. GTEx - Breast, ESR1-PGR High Vs Low, stratification threshold of 2%, DE only, run GSEA</span></span></pre><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">GTEx_analyse_GOI.sh <span class="cm-attribute">-p</span> Breast <span class="cm-attribute">-g</span> ESR1%PGR <span class="cm-attribute">-s</span> mRNA <span class="cm-attribute">-t</span> <span class="cm-number">2</span> <span class="cm-attribute">-d</span> <span class="cm-attribute">-e</span></span></pre></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 115px;"></div><div class="CodeMirror-gutters" style="display: none; height: 115px;"></div></div></div></pre><p><strong><span>Multimodal analysis</span></strong></p><pre class="md-fences md-end-block ty-contain-cm modeLoaded" spellcheck="false" lang="sh"><div class="CodeMirror cm-s-inner cm-s-null-scroll CodeMirror-wrap" lang="sh"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 9.52344px; left: 8px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; margin-bottom: 0px; border-right-width: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code" role="presentation"><div class="CodeMirror-activeline" style="position: relative;"><div class="CodeMirror-activeline-background CodeMirror-linebackground"></div><div class="CodeMirror-gutter-background CodeMirror-activeline-gutter" style="left: 0px; width: 0px;"></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-comment">#1. GDC - TCGA-BRCA, hsa-miR-200c-3p High Vs Low, stratification threshold of 2%, DE only, run GSEA</span></span></pre></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;">GDC_TCGA_analyse_GOI.sh <span class="cm-attribute">-p</span> TCGA-BRCA <span class="cm-attribute">-g</span> hsa-miR-200c-3p <span class="cm-attribute">-s</span> miRNA <span class="cm-attribute">-t</span> <span class="cm-number">2</span> <span class="cm-attribute">-d</span> <span class="cm-attribute">-e</span></span></pre></div></div></div></div></div><div style="position: absolute; height: 0px; width: 1px; border-bottom: 0px solid transparent; top: 46px;"></div><div class="CodeMirror-gutters" style="display: none; height: 46px;"></div></div></div></pre><p>&nbsp;</p><h2 id='11-publication-details'><strong><span>11. Publication details</span></strong></h2><p><span>Currently unpublished.</span></p><p>&nbsp;</p><p><img title="Composite Gene Analysis - Additive" alt="TRANSECT" src="{% static 'manual/figures/Typora.png' %}" width="30" align="Left"><span>This manual was produced in markdown using </span><a href='https://typora.io/'><span>typora</span></a><span> v1.9.5</span></p><p>&nbsp;</p></div></div>
+</body>
+</html>

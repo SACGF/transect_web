@@ -89,7 +89,8 @@ def submit_command(sha_hash):
     # run the command
     # if the command failed, delete its folder and associated database entry
 
-    logging.info("Executing command: " + command)
+    logger = logging.getLogger("django")
+    logger.info("Executing command: " + command)
     analysis_process = subprocess.Popen(command.split(" "), stderr=subprocess.PIPE)
     stdout, stderr = analysis_process.communicate()
 

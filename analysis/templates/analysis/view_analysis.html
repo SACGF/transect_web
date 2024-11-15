@@ -111,7 +111,7 @@
 
     async function display_gsea_results(analysis) {
       const gois = get_gois();
-      const gsea_url_base = "{{ MEDIA_URL }}/media/".concat(analysis).concat("/GSEA")
+      const gsea_url_base = "{{ MEDIA_URL }}".concat(analysis).concat("/GSEA")
 
       const gsea_loading_div = document.getElementById("gsea_loading_div")
       gsea_loading_div.style.display = "none"
@@ -199,9 +199,9 @@
 
       document.getElementById("de_view_container").style.display = "block"
 
-      const de_url_base = "{{ MEDIA_URL }}/media/".concat(analysis).concat("/DE_Analysis/").concat(gois.join("-"))
+      const de_url_base = "{{ MEDIA_URL }}".concat(analysis).concat("/DE_Analysis/").concat(gois.join("-"))
 
-      const de_url_glimma_base = "{{ MEDIA_URL }}/media/".concat(analysis).concat("/DE_Analysis/glimma-plots/").concat(gois.join("-"))
+      const de_url_glimma_base = "{{ MEDIA_URL }}".concat(analysis).concat("/DE_Analysis/glimma-plots/").concat(gois.join("-"))
       const de_url_volcano = de_url_glimma_base.concat("-High_Vs_Low-Volcano.html")
       const de_url_mds_plot = de_url_glimma_base.concat("-MDS-Plot.html")
 
@@ -235,7 +235,7 @@
       document.getElementById("de_volcano").src = de_url_volcano
       document.getElementById("de_mds").src = de_url_mds_plot
 
-      const webgestalt_path = "{{ MEDIA_URL }}/media/".concat(analysis).concat("/DE_Analysis/WebGestalt/")
+      const webgestalt_path = "{{ MEDIA_URL }}".concat(analysis).concat("/DE_Analysis/WebGestalt/")
 
       // <div class="d-flex flex-column align-items-center">
       //     <h4 id="strat_boxplot_image_title" class="mt-3"></h4>
@@ -270,7 +270,7 @@
           const curr_webge_index = document.createElement("a");
           curr_webge_index.id = curr_webgestalt_item.concat("_index_link")
           curr_webge_index.innerHTML = curr_webgestalt_item
-          curr_webge_index.href = "{{ MEDIA_URL }}/media/".concat(analysis).concat("/DE_Analysis/WebGestalt/Project_enrichDatabase").concat(curr_webgestalt_item).concat("/Report_enrichDatabase").concat(curr_webgestalt_item).concat(".html")
+          curr_webge_index.href = "{{ MEDIA_URL }}".concat(analysis).concat("/DE_Analysis/WebGestalt/Project_enrichDatabase").concat(curr_webgestalt_item).concat("/Report_enrichDatabase").concat(curr_webgestalt_item).concat(".html")
           curr_webge_index.target = "_blank" 
           curr_webge_index.rel = "noopener noreferrer"
           
@@ -338,7 +338,7 @@
         webgestalt_iframes.forEach((webgestalt_iframe) => {
           if (!webgestalt_iframe.getAttribute("src")) {
             const curr_webgestalt_item =  webgestalt_iframe.id.replace("_image", "")
-            webgestalt_iframe.src = "{{ MEDIA_URL }}/media/".concat('{{ analysis }}').concat("/DE_Analysis/WebGestalt/Project_enrichDatabase").concat(curr_webgestalt_item).concat("/Summary_enrichDatabase").concat(curr_webgestalt_item).concat(".html")
+            webgestalt_iframe.src = "{{ MEDIA_URL }}".concat('{{ analysis }}').concat("/DE_Analysis/WebGestalt/Project_enrichDatabase").concat(curr_webgestalt_item).concat("/Summary_enrichDatabase").concat(curr_webgestalt_item).concat(".html")
           }
         })
       })
@@ -370,7 +370,7 @@
 
       document.getElementById("correlation_view_container").style.display = "block"
       const correlation_volcano_graph = document.getElementById("correlation_volcano_graph")
-      correlation_volcano_graph.src = "{{ MEDIA_URL }}/media/".concat(analysis).concat("/Corr_Analysis/").concat(goi).concat("_corr_volcano.html")
+      correlation_volcano_graph.src = "{{ MEDIA_URL }}".concat(analysis).concat("/Corr_Analysis/").concat(goi).concat("_corr_volcano.html")
 
       document.getElementById("download_correlation").addEventListener('click', () => {
         try {
@@ -417,7 +417,7 @@
               throw new Error(exception)
             }
 
-            const img_url = "{{ MEDIA_URL }}/media/".concat(analysis).concat("/Corr_Analysis/plots/").concat(goi).concat("_").concat(gene_of_comparison).concat(".png")
+            const img_url = "{{ MEDIA_URL }}".concat(analysis).concat("/Corr_Analysis/plots/").concat(goi).concat("_").concat(gene_of_comparison).concat(".png")
             image_modal.getElementsByClassName("modal-title")[0].innerHTML = goi.concat(" vs ").concat(gene_of_comparison)
 
             // should not be an issue if gene_of_comparison and goi are equal
