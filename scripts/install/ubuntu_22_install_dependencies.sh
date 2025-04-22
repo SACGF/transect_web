@@ -18,8 +18,8 @@ apt-get install -y pandoc
 
 # install Rstudio packages
 
-Rscript /data/sRT/sRT/scripts/install/install_R_packages.R
+Rscript /opt/sRT/scripts/install/install_R_packages.R
 
 echo "Install python libraries"
 python3 -m pip install --upgrade pip
-sudo python3 -m pip install -r /data/sRT/sRT/requirements.txt # use sudo to install it in the system path, otherwise it will install it into your local directory
+sudo python3 -m pip install -r /opt/sRT/requirements.txt # use sudo to install it in the system path, otherwise it will install it into your local directory

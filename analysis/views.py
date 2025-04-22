@@ -10,6 +10,7 @@ from django.db.models import Case, When
 from wsgiref.util import FileWrapper
 from celery.result import AsyncResult
 from dal import autocomplete, forward
+import logging
 from analysis.models import Analysis, Genes, Projects, AnalysisGenes
 from analysis.forms import AnalysisForm
 from analysis.tasks import submit_command
@@ -385,6 +386,9 @@ def display_settings_page(request):
 
 def fetch(request, analysis):
     filter_obj = get_object_or_404(Analysis, sha_hash=str(analysis))
+
+    logger = logging.getLogger("django")
+    logger.info("Fetching analysis: " + analysis)
     
     gois = []
     for goi in filter_obj.genes_of_interest.all():

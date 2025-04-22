@@ -20,7 +20,7 @@ app.autodiscover_tasks()
 app.conf.beat_schedule = {
     'clean_database_and_analysis': {
         'task': 'analysis.tasks.clean_database_and_analysis',
-        #'schedule': 900.0,
+        #'schedule': 600.0, # run every 10 minutes, FOR TESTING ONLY
         'schedule': crontab(minute=0, hour=3),  # Example: Run at 3am every day
     },
 }

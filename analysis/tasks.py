@@ -30,10 +30,7 @@ def delete_file(file_to_delete):
 # if composite_analysis_type == "Single" and curr_percentile is not 0, this trigger de_analysis
 @shared_task
 def submit_command(sha_hash):
-    print("Received command")
     selected_analysis = Analysis.objects.filter(sha_hash=sha_hash).first()
-
-    print(selected_analysis.project.source)
 
     project = selected_analysis.project.name
     if selected_analysis.project.source == "GDC" and selected_analysis.project.is_tcga is True:
@@ -95,8 +92,8 @@ def submit_command(sha_hash):
     stdout, stderr = analysis_process.communicate()
 
     if analysis_process.returncode != 0:
-        logging.error("Command failed with the error code " + str(analysis_process.returncode) + ": " + command)
-        logging.error(stderr.decode('utf-8'))
+        logger.error("Command failed with the error code " + str(analysis_process.returncode) + ": " + command)
+        logger.error(stderr.decode('utf-8'))
         analysis = Analysis.objects.filter(sha_hash=sha_hash).first()
         analysis.reason_for_failure = "The analysis failed as the submitted command failed."
         if analysis_process.returncode == 2:
@@ -108,7 +105,7 @@ def submit_command(sha_hash):
         # return that message, otherwise return "analysis failed as 
         # the submitted command failed"
     else:
-        logging.info("Command finished successfully: " + command)
+        logger.info("Command finished successfully: " + command)
 
         # repositioned this as it makes sense to have this here after everything is complete
         analysis_obj = Analysis.objects.filter(sha_hash=sha_hash).first()
@@ -129,13 +126,15 @@ def clean_database_and_analysis():
     time_threshold = timezone.now() - timedelta(days=30)
     Analysis.objects.filter(modified__lt=time_threshold).exclude(sha_hash="4684d5ebb2cc6f149da60b9e59055087dbeafe1d").delete()
 
+    logger = logging.getLogger("django")
+
     # remove databases without an output directory, vice-versa
     # if a database lacks an associated .zip or general output directory then delete it
     # technically I can combine this with the above but I feel like this method is cleaner
     for analysis in Analysis.objects.all():
         out_path = os.path.join(env('OUTPUT_DIR'), analysis.sha_hash)
         if os.path.exists(out_path) is False or os.path.exists(out_path + ".zip") is False:
-            logging.info("Removing Analysis: " + analysis.sha_hash + " because it is either missing an output directory or is not inside the Analysis database.")
+            logger.info("Removing Analysis: " + analysis.sha_hash + " because it is either missing an output directory or is not inside the Analysis database.")
             analysis.delete()
 
 @celery.signals.task_failure.connect(sender=submit_command)
