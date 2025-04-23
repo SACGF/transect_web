@@ -94,6 +94,9 @@
     
                 <input type="radio" class="btn-check" name="about-btn" id="toggle_acknowledgement" >
                 <label class="btn btn-outline-primary" for="toggle_acknowledgement">Acknowledgements</label>
+
+                <input type="radio" class="btn-check" name="about-btn" id="toggle_news" >
+                <label class="btn btn-outline-primary" for="toggle_news">News</label>
             </div>
         </div>
 
@@ -101,18 +104,61 @@
             <div class="row my-5 align-items-center justify-content-center">
                 <div class="col-12 col-md-12 col-lg-12 col-xl-6 mb-4 mb-xl-0" id="description_div">
                     <div class="card border-primary border-2">
-                        <div class="card-header card-title text-center"><h4>Description</h4></div>
+                        <div class="card-header card-title text-center"><h3 class="mt-2">Description</h3></div>
                         <div class="card-body text-center py-5">
                             <p class="card-text mx-3 mx-md-5 text-muted">TRANSECT allows users to query large collections of cohort transcriptomic data to assess global gene expression changes given disparate expression of their gene (or genes) of interest. TRANSECT works by defining two groups within a cohort based solely on the expression of a gene or a gene set and subsequently compares the groups for global expression changes and functional differences. TRANSECT outputs descriptive statistics about the genes of interest followed by differential expression results and resulting matches to gene set collections.</p>
+                            <p class="card-text mx-3 mx-md-5 text-muted">Please see the TRANSECT <a href="https://doi.org/10.1093/nargab/lqaf041">manuscript</a> for details and example case studies.</p>
                         </div>
                     </div>
                 </div>
 
                 <div class="col-12 col-md-12 col-lg-12 col-xl-6 d-none" id="acknowledgements_div">
                     <div class="card border-primary border-2">
-                        <div class="card-header card-title text-center"><h4>Acknowledgements</h4></div>
+                        <div class="card-header card-title text-center"><h3 class="mt-2">Acknowledgements</h3></div>
                         <div class="card-body text-center py-5">
                             <p class="card-text mx-3 mx-md-5 text-muted">This application was supported by using the ARDC Nectar Research Cloud and by Internode. The ARDC Nectar Research Cloud is a collaborative Australian research platform supported by the NCRIS-funded Australian Research Data Commons (ARDC). Funding was provided by the Office of the Deputy Vice-Chancellor and Vice-President (Research), University of Adelaide.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-12 col-lg-12 col-xl-6 d-none" id="news_div">
+                    <div class="card border-primary border-2">
+                        <div class="card-header card-title text-center"><h3 class="mt-2">News and Updates</h3></div>
+                        <div class="card-body py-5">
+                            <div class="card-text mx-3 mx-md-5 text-muted">
+                                <div>
+                                    <h4 class="fw-bold">Features Currently Under Development:</h4>
+                                    <p class="mb-1"><span class="fw-bold">April 2025:</span></p>
+                                    <ol>
+                                        <li>Subset DBs by annotated molecular subtype for bespoke analysis</li>
+                                        <li>Implementation of generalized linear models (GLMs) for DE tests</li>
+                                        <li>Survival analysis on stratified participants</li>
+                                        <li>G(s)OI web links to other popular web resources</li>
+                                        <li>GTEx smRNA-seq data implementation and multi-modal analysis</li>
+                                    </ol>
+                                </div>
+                                
+                                <div class="mt-5">
+                                    <h4 class="fw-bold">News:</h4>
+                                    <ul>
+                                        <li><span class="fw-bold">April 2025:</span> TRANSECT manuscript published in NAR Genomics and Bioinformatics</li>
+                                        <li><span class="fw-bold">March 2025:</span> v25.03 code published on Zenodo (https://zenodo.org/records/15083663)</li>
+                                        <li><span class="fw-bold">March 2025:</span> TRANSECT manuscript accepted, Initial version release (v25.03)</li>
+                                        <li><span class="fw-bold">October 2024:</span> TRANSECT manuscript submitted</li>
+                                    </ul>
+                                </div>
+
+                                <div class="mt-5">
+                                    <h4 class="fw-bold">Update History:</h4>
+                                    <ul>
+                                        <li><span class="fw-bold">April 2025:</span> GTEx data update – V8 to V10</li>
+                                        <li><span class="fw-bold">March 2025:</span> Major update and initial release (v25.03)</li>
+                                        <li><span class="fw-bold">February 2025:</span> Updates to web app from reviewer comments</li>
+                                        <li><span class="fw-bold">August 2024:</span> Major updates released (landing page, html figures, GSEA option)</li>
+                                        <li><span class="fw-bold">February 2024:</span> Minimal Working Product released (v24.03)</li>
+                                    </ul>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -120,28 +166,14 @@
         </section>
     </div>
 
-    <section class="bg-primary bg-gradient">
-        <div class="text-center">
-            <h5 class="text-light">FOLLOW TRANSECT</h5>
-        </div>
-    </section>
-
     <!-- Footer Section -->
     <footer class="text-center">
         <div class="container">
             <div class="row">
                 <div class="col-12 footer-icons">
-                    <!-- LinkedIn Icon -->
-                    <a href="#" target="_blank" title="LinkedIn">
-                        <img src="{% static 'icons/linkedin.svg' %}" alt="LinkedIn" class="icon">
-                    </a>
                     <!-- GitHub Icon -->
                     <a href="https://github.com/twobeers75/TRANSECT" target="_blank" title="GitHub">
                         <img src="{% static 'icons/github.svg' %}" alt="GitHub" class="icon">
-                    </a>
-                    <!-- Twitter-X Icon -->
-                    <a href="#" target="_blank" title="Twitter-X">
-                        <img src="{% static 'icons/twitter-x.svg' %}" alt="Twitter-X" class="icon">
                     </a>
                 </div>
             </div>
@@ -157,15 +189,24 @@
         // Toggle visibility between Description and Acknowledgements
         const toggle_description = document.getElementById("toggle_description");
         const toggle_acknowledgement = document.getElementById("toggle_acknowledgement");
+        const toggle_news = document.getElementById("toggle_news");
 
         toggle_description.addEventListener('click', () => {
             document.getElementById("description_div").classList.remove("d-none");
             document.getElementById("acknowledgements_div").classList.add("d-none");
+            document.getElementById("news_div").classList.add("d-none");
         });
 
         toggle_acknowledgement.addEventListener('click', () => {
             document.getElementById("description_div").classList.add("d-none");
             document.getElementById("acknowledgements_div").classList.remove("d-none");
+            document.getElementById("news_div").classList.add("d-none");
+        });
+
+        toggle_news.addEventListener('click', () => {
+            document.getElementById("description_div").classList.add("d-none");
+            document.getElementById("acknowledgements_div").classList.add("d-none");
+            document.getElementById("news_div").classList.remove("d-none");
         });
     </script>
 </body>
